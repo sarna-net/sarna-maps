@@ -1,0 +1,31 @@
+{
+  "name": "sarna-maps",
+  "version": "1.0.0",
+  "description": "Battletech maps generator as used on sarna.net",
+  "main": "index.js",
+  "scripts": {
+      "dist": "./node_modules/typescript/bin/tsc",
+      "start": "node ./dist/main.js",
+      "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+      "type": "git",
+      "url": "git+ssh://git@gitlab.com/gruese/sarna-maps.git"
+  },
+  "keywords": [
+      "battletech",
+      "sarna",
+      "maps"
+  ],
+  "author": "Christoph Wassermann",
+  "license": "MIT",
+  "bugs": {
+      "url": "https://gitlab.com/gruese/sarna-maps/issues"
+  },
+  "homepage": "https://gitlab.com/gruese/sarna-maps#readme",
+  "dependencies": {},
+  "devDependencies": {
+      "ts-node": "^8.3.0",
+      "typescript": "^3.6.2"
+  }
+}
