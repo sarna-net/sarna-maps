@@ -1,6 +1,10 @@
 import * as winston from 'winston';
 import * as path from 'path';
 
+/**
+ * Application singleton. Call App.run() to start.
+ * Use App.logger.log/info/warn/error functions to create log entries.
+ */
 export class App {
 
     private static instance?: App;
@@ -20,6 +24,7 @@ export class App {
                 new winston.transports.File({
                     filename: path.join(__dirname, 'logs/error.log'),
                     level: 'error',
+                    format: winston.format.simple(),
                     //maxsize: 10000,
                     //maxFiles: 1,
                     options: { flags: 'w' }
@@ -28,6 +33,7 @@ export class App {
                     filename: path.join(__dirname, 'logs/all.log'),
                     //maxsize: 50000,
                     //maxFiles: 1,
+                    format: winston.format.simple(),
                     options: { flags: 'w' }
                 })
             ]
