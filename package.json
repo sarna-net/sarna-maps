@@ -25,6 +25,7 @@
     "homepage": "https://gitlab.com/gruese/sarna-maps#readme",
     "dependencies": {
         "dotenv": "^8.1.0",
+        "googleapis": "^43.0.0",
         "seedrandom": "^3.0.3",
         "winston": "^3.2.1",
         "yargs-parser": "^14.0.0"

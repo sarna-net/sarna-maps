@@ -1,4 +1,5 @@
 import * as winston from 'winston';
+import * as fs from 'fs';
 import * as path from 'path';
 
 /**
@@ -8,7 +9,7 @@ import * as path from 'path';
 export class Logger {
 
     private static instance?: Logger;
-    public static winston: winston.Logger;
+    public static winnie: winston.Logger;
 
     private constructor() {
         // ensure that there is only one instance
@@ -20,30 +21,40 @@ export class Logger {
         if(process.env.NODE_ENV === 'test') {
             logParentDir = '../test_out';
         }
-        Logger.winston = winston.createLogger({
+        const logPath = path.join(__dirname, logParentDir, 'logs');
+        // in non-production environments, remove log directory and re-create it
+        if(process.env.NODE_ENV !== 'production') {
+            if (fs.existsSync(logPath)) {
+                fs.readdirSync(logPath).forEach(file => {
+                    fs.unlinkSync(path.join(logPath, file));
+                });
+                //fs.rmdirSync(logPath);
+            }
+        }
+        Logger.winnie = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
             //defaultMeta: { service: 'user-service' },
             transports: [
                 new winston.transports.File({
-                    filename: path.join(__dirname, logParentDir, 'logs', 'error.log'),
+                    filename: path.join(logPath, 'error.log'),
                     level: 'error',
                     format: winston.format.simple(),
-                    //maxsize: 10000,
+                    maxsize: 100000,
                     //maxFiles: 1,
-                    options: { flags: 'w' }
+                    //options: { flags: 'a' }
                 }),
                 new winston.transports.File({
-                    filename: path.join(__dirname, logParentDir, 'logs', 'all.log'),
-                    //maxsize: 50000,
+                    filename: path.join(logPath, 'all.log'),
+                    maxsize: 100000,
                     //maxFiles: 1,
-                    format: winston.format.simple(),
-                    options: { flags: 'w' }
+                    format: winston.format.simple()
+                    //options: { flags: 'a' }
                 })
             ]
         });
         if(process.env.NODE_ENV !== 'production') {
-            winston.add(new winston.transports.Console({
+            Logger.winnie.add(new winston.transports.Console({
                 format: winston.format.simple()
             }));
         }
@@ -51,21 +62,21 @@ export class Logger {
 
     public static log(level: string, message: string, ...moreArgs: any[]) {
         Logger.instance || new Logger();
-        return Logger.winston.log(level, message, ...moreArgs);
+        return Logger.winnie.log(level, message, ...moreArgs);
     }
 
     public static info(message: string, ...moreArgs: any[]) {
         Logger.instance || new Logger();
-        return Logger.winston.info(message, ...moreArgs);
+        return Logger.winnie.info(message, ...moreArgs);
     }
 
     public static warn(message: string, ...moreArgs: any[]) {
         Logger.instance || new Logger();
-        return Logger.winston.warn(message, ...moreArgs);
+        return Logger.winnie.warn(message, ...moreArgs);
     }
 
     public static error(message: string, ...moreArgs: any[]) {
         Logger.instance || new Logger();
-        return Logger.winston.error(message, ...moreArgs);
+        return Logger.winnie.error(message, ...moreArgs);
     }
 }

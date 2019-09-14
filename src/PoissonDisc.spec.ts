@@ -13,7 +13,6 @@ describe('Poisson Disc algorithm class', () => {
         expect(pdisc1.aggregatedPoints).to.be.empty;
         expect(pdisc2.aggregatedPoints).to.be.empty;
         expect(pdisc3.aggregatedPoints).to.be.empty;
-        //expect(pdisc3.aggregatedPoints.length).to.equal(2);
     });
 
     it('should run the algorithm and generate seeded points reliably', () => {
