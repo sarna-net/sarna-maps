@@ -1,5 +1,6 @@
 import * as path from 'path';
 import {Logger} from './Logger';
+import {DataReader} from './DataReader';
 
 /**
  * Application singleton. Call App.run() to start.
@@ -34,8 +35,10 @@ export class App {
      *
      * @returns The application
      */
-    public static run() {
+    public static async run() {
         App.init();
         Logger.info('App running');
+        const dataReader = new DataReader('1NOqCZxVN8KvdkAbefginjvAuRrRCqrt3ihQh11inr60');
+        await dataReader.readDataFromSpreadsheet();
     }
 }

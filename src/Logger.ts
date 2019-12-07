@@ -28,7 +28,7 @@ export class Logger {
                 fs.readdirSync(logPath).forEach(file => {
                     fs.unlinkSync(path.join(logPath, file));
                 });
-                //fs.rmdirSync(logPath);
+                fs.rmdirSync(logPath);
             }
         }
         Logger.winnie = winston.createLogger({
@@ -58,25 +58,30 @@ export class Logger {
                 format: winston.format.simple()
             }));
         }
+        Logger.info('Logger instance created');
     }
 
-    public static log(level: string, message: string, ...moreArgs: any[]) {
-        Logger.instance || new Logger();
-        return Logger.winnie.log(level, message, ...moreArgs);
+    public static log(message: any, ...moreArgs: any[]) {
+        /*Logger.instance || new Logger();
+        return Logger.winnie.log(level, message, ...moreArgs);*/
+        console.log(message, ...moreArgs);
     }
 
-    public static info(message: string, ...moreArgs: any[]) {
-        Logger.instance || new Logger();
-        return Logger.winnie.info(message, ...moreArgs);
+    public static info(message: any, ...moreArgs: any[]) {
+        /*Logger.instance || new Logger();
+        return Logger.winnie.info(message, ...moreArgs);*/
+        console.info(message, ...moreArgs);
     }
 
-    public static warn(message: string, ...moreArgs: any[]) {
-        Logger.instance || new Logger();
-        return Logger.winnie.warn(message, ...moreArgs);
+    public static warn(message: any, ...moreArgs: any[]) {
+        /*Logger.instance || new Logger();
+        return Logger.winnie.warn(message, ...moreArgs);*/
+        console.warn(message, ...moreArgs);
     }
 
-    public static error(message: string, ...moreArgs: any[]) {
-        Logger.instance || new Logger();
-        return Logger.winnie.error(message, ...moreArgs);
+    public static error(message: any, ...moreArgs: any[]) {
+        /*Logger.instance || new Logger();
+        return Logger.winnie.error(message, ...moreArgs);*/
+        console.error(message, ...moreArgs);
     }
 }

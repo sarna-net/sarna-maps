@@ -3,7 +3,7 @@ import {Point2d} from './GeometryPrimitives';
 import {Logger} from './Logger';
 
 /**
- * An instance of this class generates blue noise using Bridson's Poisson Disc algorithm
+ * An instance of this class generates blue noise using Bridson's Poisson Disc algorithm.
  */
 export class PoissonDisc {
 
@@ -39,7 +39,8 @@ export class PoissonDisc {
      * @param reservedPoints The reserved points array
      */
     constructor(x: number, y: number, w: number, h: number, radius: number,
-                maxSamples?: number, seed?: string, reservedPoints?: Point2d[]) {
+                maxSamples: number = 30, seed: string = 'sarna',
+                reservedPoints: Point2d[] = []) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -55,11 +56,11 @@ export class PoissonDisc {
         this.queue = [];
         this.queueSize = 0;
         this.sampleSize = 0;
-        this.rng = seedrandom(seed || 'sarna');
+        this.rng = seedrandom(seed);
 
         this.generatedPoints = [];
         this.aggregatedPoints = [];
-        this.reservedPoints = reservedPoints || [];
+        this.reservedPoints = reservedPoints;
     }
 
     /**
@@ -76,8 +77,7 @@ export class PoissonDisc {
         while(sample = this.generateSample()) {
             this.generatedPoints.push(sample);
         }
-        //App.log.info('blue noise generation done, ' + this.sampleSize + ' points generated');
-        Logger.info('blue noise generation done, ' + this.sampleSize + ' points generated');
+        Logger.info(`blue noise generation done, ${this.sampleSize} points generated`);
         this.replaceReservedPoints(this.reservedPoints);
         return this;
     }
