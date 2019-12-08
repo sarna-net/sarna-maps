@@ -1,5 +1,5 @@
-import * as dotenv from 'dotenv';
-import * as yargsParser from 'yargs-parser';
+import dotenv from 'dotenv';
+import yargsParser from 'yargs-parser';
 import {App} from './App';
 import {Logger} from './Logger';
 

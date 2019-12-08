@@ -1,10 +1,10 @@
-export declare type Era = {
+export interface Era {
     index: number,
     name: string,
     year: number
 };
 
-export declare type Faction = {
+export interface Faction {
     id: string,
     name: string,
     color: string,
@@ -12,28 +12,29 @@ export declare type Faction = {
     dissolution?: number
 };
 
-export declare type System = {
-    name: string,
-    fullName: string,
+export interface Point2D {
     x: number,
-    y: number,
+    y: number
+}
+
+export interface InterstellarObject extends Point2D {
+    name: string,
     radiusX: number,
     radiusY: number,
-    rotation: number,
+    rotation: number
+}
+
+export interface System extends InterstellarObject {
+    fullName: string,
     isCluster: boolean,
-    affiliations: any[],
-    capitalLevels: any[],
-    names: any[]
+    eraAffiliations: any[],
+    eraCapitalLevels: any[],
+    eraNames: any[]
 };
 
-export declare type Nebula = {
-    name: string,
-    x: number,
-    y: number,
+export interface Nebula extends InterstellarObject {
     centerX: number,
     centerY: number,
     width: number,
-    height: number,
-    radiusX: number,
-    radiusY: number
+    height: number
 };

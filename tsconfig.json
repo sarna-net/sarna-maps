@@ -8,7 +8,9 @@
         "removeComments": true,
         "sourceMap": true,
         "strictPropertyInitialization": true,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
     },
     "include": [
         "src/**/*"

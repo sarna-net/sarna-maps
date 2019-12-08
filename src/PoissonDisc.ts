@@ -1,5 +1,5 @@
-import * as seedrandom from 'seedrandom';
-import {Point2d} from './GeometryPrimitives';
+import seedrandom from 'seedrandom';
+import {Point2D} from './Entities';
 import {Logger} from './Logger';
 
 /**
@@ -12,7 +12,6 @@ export class PoissonDisc {
     private w: number;
     private h: number;
     private maxSamples: number;
-    private radius: number;
     private radiusSquared: number;
     private radiusSquaredx3: number;
     private cellSize: number;
@@ -20,13 +19,13 @@ export class PoissonDisc {
     private gridHeight: number;
     private queueSize: number;
     private sampleSize: number;
-    private grid: Point2d[];
-    private queue: Point2d[];
+    private grid: Point2D[];
+    private queue: Point2D[];
     private rng: seedrandom.prng;
 
-    private reservedPoints: Point2d[];
-    private generatedPoints: Point2d[];
-    public aggregatedPoints: Point2d[];
+    private reservedPoints: Point2D[];
+    private generatedPoints: Point2D[];
+    public aggregatedPoints: Point2D[];
 
     /**
      * @param x Algorithm area left limit
@@ -40,13 +39,12 @@ export class PoissonDisc {
      */
     constructor(x: number, y: number, w: number, h: number, radius: number,
                 maxSamples: number = 30, seed: string = 'sarna',
-                reservedPoints: Point2d[] = []) {
+                reservedPoints: Point2D[] = []) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.maxSamples = maxSamples || 30;
-        this.radius = radius;
         this.radiusSquared = radius * radius;
         this.radiusSquaredx3 = 3 * this.radiusSquared;
         this.cellSize = radius * Math.SQRT1_2,
@@ -127,7 +125,7 @@ export class PoissonDisc {
      * @param doNotEnqueue Set to true to place an inactive sample (optional)
      * @returns The sample
      */
-    private placeSample(sample: Point2d, grid = this.grid, doNotEnqueue = false): Point2d {
+    private placeSample(sample: Point2D, grid = this.grid, doNotEnqueue = false): Point2D {
         if(!doNotEnqueue) {
             this.queue.push(sample);
             this.queueSize++;
@@ -176,8 +174,8 @@ export class PoissonDisc {
 	 *
 	 * @param reservedPoints List of existing fixed points
 	 */
-    public replaceReservedPoints(reservedPoints: Point2d[]) {
-        const aggregatedGrid: Point2d[] = new Array(this.gridWidth * this.gridHeight);
+    public replaceReservedPoints(reservedPoints: Point2D[]) {
+        const aggregatedGrid: Point2D[] = new Array(this.gridWidth * this.gridHeight);
         this.reservedPoints = reservedPoints;
         this.aggregatedPoints = [];
 

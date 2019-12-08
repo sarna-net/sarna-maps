@@ -166,9 +166,9 @@ export class DataReader {
                 radiusY: 1,
                 rotation: 0,
                 isCluster: false,
-                affiliations: [],
-                capitalLevels: [],
-                names: []
+                eraAffiliations: [],
+                eraCapitalLevels: [],
+                eraNames: []
             };
             alternateNames = row[2];
             size = row[5];
@@ -217,24 +217,24 @@ export class DataReader {
             for(let eraIndex = 0; eraIndex < this.eras.length; eraIndex++) {
                 era = this.eras[eraIndex];
                 affiliation = row[DataReader.SYSTEMS_SHEET_FIRST_ERA_COLUMN + eraIndex] || '';
-                system.affiliations.push(affiliation);
+                system.eraAffiliations.push(affiliation);
                 // determine whether the system is any sort of capital in this era
                 if(affiliation.match(/faction capital/gi)) {
-                    system.capitalLevels.push(1);
+                    system.eraCapitalLevels.push(1);
                 } else if(affiliation.match(/major capital/gi)) {
-                    system.capitalLevels.push(2);
+                    system.eraCapitalLevels.push(2);
                 } else if(affiliation.match(/minor capital/gi)) {
-                    system.capitalLevels.push(3);
+                    system.eraCapitalLevels.push(3);
                 } else {
-                    system.capitalLevels.push(0);
+                    system.eraCapitalLevels.push(0);
                 }
                 // determine the system's name in this era
                 // default is the regular name
-                system.names.push(system.name.replace(/\s*\([^\)]+\)\s*/gi, ''));
+                system.eraNames.push(system.name.replace(/\s*\([^\)]+\)\s*/gi, ''));
                 for(let rename of renames) {
                     if(era.year >= rename.year) {
-                        system.names.pop();
-                        system.names.push(rename.name.replace(/\s*\([^\)]+\)\s*/gi, ''));
+                        system.eraNames.pop();
+                        system.eraNames.push(rename.name.replace(/\s*\([^\)]+\)\s*/gi, ''));
                     }
                 }
             }
@@ -270,7 +270,8 @@ export class DataReader {
                 x: 0,
                 y: 0,
                 radiusX: 0,
-                radiusY: 0
+                radiusY: 0,
+                rotation: 0
             };
             nebula.radiusX = nebula.width * .5;
             nebula.radiusY = nebula.height * .5;
