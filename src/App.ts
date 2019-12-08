@@ -38,7 +38,8 @@ export class App {
     public static async run() {
         App.init();
         Logger.info('App running');
-        const dataReader = new DataReader('1NOqCZxVN8KvdkAbefginjvAuRrRCqrt3ihQh11inr60');
+        //const dataReader = new DataReader('1NOqCZxVN8KvdkAbefginjvAuRrRCqrt3ihQh11inr60');
+        const dataReader = new DataReader('1x9bvFqSb4_or8JbvGj2LnezGkChWxEzRPf5FXvjonHE');
         await dataReader.readDataFromSpreadsheet();
     }
 }

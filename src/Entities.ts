@@ -22,7 +22,7 @@ export declare type System = {
     rotation: number,
     isCluster: boolean,
     affiliations: any[],
-    capitalLvls: any[],
+    capitalLevels: any[],
     names: any[]
 };
 
