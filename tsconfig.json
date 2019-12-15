@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "target": "ES5",
         "listEmittedFiles": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
@@ -10,7 +11,8 @@
         "strictPropertyInitialization": true,
         "strictNullChecks": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "downlevelIteration": true
     },
     "include": [
         "src/**/*"

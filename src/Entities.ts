@@ -1,3 +1,5 @@
+import {Point2D} from './Utils';
+
 export interface Era {
     index: number,
     name: string,
@@ -12,11 +14,6 @@ export interface Faction {
     dissolution?: number
 };
 
-export interface Point2D {
-    x: number,
-    y: number
-}
-
 export interface InterstellarObject extends Point2D {
     name: string,
     radiusX: number,
@@ -27,9 +24,9 @@ export interface InterstellarObject extends Point2D {
 export interface System extends InterstellarObject {
     fullName: string,
     isCluster: boolean,
-    eraAffiliations: any[],
-    eraCapitalLevels: any[],
-    eraNames: any[]
+    eraAffiliations: string[],
+    eraCapitalLevels: number[],
+    eraNames: string[]
 };
 
 export interface Nebula extends InterstellarObject {

@@ -1,5 +1,5 @@
 import seedrandom from 'seedrandom';
-import {Point2D} from './Entities';
+import {Point2D} from './Utils';
 import {Logger} from './Logger';
 
 /**
