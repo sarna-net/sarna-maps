@@ -44,35 +44,47 @@ export interface BorderEdgeLoop {
  * affiliations.
  *
  * The algorithm yields the following outputs (after running the calculate function):
- *
+ * TODO
  */
 export class VoronoiBorder {
 
     /**
-     * Runs the algorithm for the provided array of points.
+     * Runs the border generation algorithm, based on the provided array of points.
      *
-     * @param vertices The delaunay vertices (systems and noise points) to calculate the diagram for
-     * @param cellMode The cell mode to use ('CIRCUMCENTERS' or 'CENTROIDS'), default is 'CIRCUMCENTERS'
-     * @param borderSeparation The desired distance between border lines, in global space units, default is 0.5
+     * @param vertices The delaunay vertices (systems and noise points) that we want to calculate a voronoi diagram for
+     * @param cellMode The cell mode to use ('CIRCUMCENTERS' or 'CENTROIDS') (default is 'CIRCUMCENTERS')
+     * @param borderSeparation The desired distance between border lines, in global space units (default is 0.5)
+     * @returns The algorithm's result
      */
-    public static calculate(vertices: DelaunayVertex[], cellMode: CellMode = 'CIRCUMCENTERS', borderSeparation: number = 0.5) {
+    public static calculateBorders(vertices: DelaunayVertex[], cellMode: CellMode = 'CIRCUMCENTERS', borderSeparation: number = 0.5) {
+        // reset vertices' adjacency information
+        vertices.forEach(vertex => { vertex.adjacentTriIndices = [] });
+        // run delaunay triangulation (using the delaunator library)
+        const delaunay = Delaunator.from(vertices.map(vertex => [vertex.x, vertex.y]));
+        // create the voronoi nodes based on the triangulation
+        const voronoiNodes = VoronoiBorder.generateVoronoiNodes(delaunay, vertices, cellMode);
+        // process the voronoi nodes and generate border edges
+        const borderEdges = VoronoiBorder.generateBorderEdges(voronoiNodes, vertices);
+        // using the border edges, create proper border loops
+        const borderLoops = VoronoiBorder.generateBorderLoops(borderEdges);
+    }
+
+    /**
+     * Iterates over the the triangles and generate voronoi nodes (center of each triangle).
+     *
+     * Note that the delaunator result's triangles property is a flat array of vertex indices,
+     * organized in groups of threes.
+     *
+     * @param delaunay The delaunay triangulation result
+     * @param vertices The list of delaunay vertices / colored points. Will be modified.
+     * @param cellMode The cell mode to use
+     * @returns The list of generated voronoi nodes
+     */
+    private static generateVoronoiNodes(delaunay: Delaunator<ArrayLike<number>>, vertices: DelaunayVertex[], cellMode: CellMode) {
         const voronoiNodes: VoronoiNode[] = [];
-        const borderNodeIndices: Map<Color,number[]> = new Map();
-        const borderEdges: Map<Color,BorderEdge[]> = new Map();
-
-        // Step 1a: Put the systems / dummy points into the format that Delaunator needs
-        const delaunatorPoints: number[][] = [];
-        for(let vertex of vertices) {
-            vertex.adjacentTriIndices = [];
-            delaunatorPoints.push([vertex.x, vertex.y]);
-        }
-        // Step 1b: Run Delaunator with those points.
-        const delaunay = Delaunator.from(delaunatorPoints);
-
-        // Step 2: We've now got delaunay triangles, formatted as a flat array with
-        // vertex indices in groups of threes.
-        // Iterate over all triangles and generate voronoi nodes (center of each triangle).
-        // While doing so, keep track of all incident triangles for each object
+        // When reading this function, keep in mind that there are exactly as many voronoi nodes as
+        // there are delaunay triangles, which means that the voronoi node with index i corresponds
+        // to the triangle with index i*3.
         for(let vertexIdx = 0; vertexIdx < delaunay.triangles.length; vertexIdx += 3) {
             let voronoiNode = {
                 x: Infinity, // initialize with infinity, will be corrected later
@@ -110,23 +122,35 @@ export class VoronoiBorder {
             }
             voronoiNodes.push(voronoiNode);
         }
+        return voronoiNodes;
+    }
 
-        // Step 3: Iterate over voronoi nodes and:
-        //   a) connect neighboring nodes
-        //   b) mark node as border node and create a border edge if the node is adjacent to different-colored vertices
-        //
-        // When reading this algorithm, keep in mind that there are exactly as many voronoi nodes as
-        // there are delaunay triangles, which means that the voronoi node with index i corresponds
-        // to the triangle with index i*3.
+    /**
+     * Iterates over the provided list of voronoi nodes and
+     *   a) connects neighboring nodes
+     *   b) identifies and marks border nodes based on vertex colors
+     *   c) creates and returns border edges
+     *
+     * Note that the provided voronoi nodes will be enriched with additional data,
+     * i.e. modified.
+     *
+     * @param voronoiNodes The list of voronoi nodes - will be modified
+     * @param vertices The list of vertex objects (systems / noise points)
+     * @returns The list of border edges
+     */
+    private static generateBorderEdges(voronoiNodes: VoronoiNode[], vertices: DelaunayVertex[]) {
+        const borderNodeIndices: Map<Color,number[]> = new Map();
+        const borderEdges: Map<Color,BorderEdge[]> = new Map();
+
         for(let nodeIdx = 0, triIdx = 0; nodeIdx < voronoiNodes.length; nodeIdx++, triIdx += 3) {
             let voronoiNode = voronoiNodes[nodeIdx];
             // Find all (<= 3) adjacent triangles for the current node
             // We do not need to consider all triangles as potential neighbors here.
-            // Since we've remembered each vertex's adjacent triangles in the first
-            // pass, we'll just look at those triangles and look for edges they share
+            // Since we've remembered each vertex's adjacent triangles during previous
+            // steps, we'll just look at those triangles and look for edges they share
             // with the current triangle.
-            // The way to find a shared edge is looking at each triangle adjacent
-            // to the current triangle's vertex A and checking if it is also adjacent
+            // The way to find a shared edge is checking each triangle adjacent
+            // to the current triangle's vertex A and testing if it is also adjacent
             // to vertex B or C. This finds all neighbor triangles along the A-B
             // and A-C edges. The same principle is then applied to the B-C edge.
             //
@@ -201,7 +225,8 @@ export class VoronoiBorder {
 
             // Finally, create a border edge between this node and each of its different-colored neighbors
             for(let neighborIdx of voronoiNode.neighborNodeIndices) {
-                // in order to add edges to the list only once, skip all neighbors that have already been searched themselves
+                // in order to make sure we add edges to the list only once, skip all neighbors that
+                // have already been searched themselves
                 if(nodeIdx >= neighborIdx) {
                     continue;
                 }
@@ -233,8 +258,7 @@ export class VoronoiBorder {
                 }
             }
         }
-
-        const borderLoops = VoronoiBorder.generateBorderLoops(borderEdges);
+        return borderEdges;
     }
 
     /**
@@ -252,7 +276,7 @@ export class VoronoiBorder {
 
         for(let [color,edges] of borderEdges) {
             while(edges.length > 0) {
-                
+
             }
         }
 
