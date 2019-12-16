@@ -44,7 +44,7 @@ export interface BorderEdgeLoop {
  * affiliations.
  *
  * The algorithm yields the following outputs (after running the calculate function):
- * TODO
+ * TODO describe algorithm outputs
  */
 export class VoronoiBorder {
 
@@ -300,7 +300,7 @@ export class VoronoiBorder {
     }
 
     /**
-     * Swaps the given edges nodes, in-place.
+     * Swaps the given edge nodes, in-place.
      *
      * @param edge The edge
      */
