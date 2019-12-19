@@ -1,5 +1,5 @@
 import seedrandom from 'seedrandom';
-import {Point2D} from './Utils';
+import {Point2D} from './Math2D';
 import {Logger} from './Logger';
 
 /**
@@ -47,7 +47,7 @@ export class PoissonDisc {
         this.maxSamples = maxSamples || 30;
         this.radiusSquared = radius * radius;
         this.radiusSquaredx3 = 3 * this.radiusSquared;
-        this.cellSize = radius * Math.SQRT1_2,
+        this.cellSize = radius * Math.SQRT1_2;
         this.gridWidth = Math.ceil(w / this.cellSize);
         this.gridHeight = Math.ceil(h / this.cellSize);
         this.grid = new Array(this.gridWidth * this.gridHeight);
@@ -145,18 +145,18 @@ export class PoissonDisc {
 	 */
     private positionValid(x: number, y: number, grid = this.grid): boolean {
         let i, j, i0, j0, i1, j1, s, o, dx, dy;
-        i = (x - this.x) / this.cellSize | 0,
-        j = (y - this.y) / this.cellSize | 0,
-        i0 = Math.max(i - 2, 0),
-        j0 = Math.max(j - 2, 0),
-        i1 = Math.min(i + 3, this.gridWidth),
+        i = (x - this.x) / this.cellSize | 0;
+        j = (y - this.y) / this.cellSize | 0;
+        i0 = Math.max(i - 2, 0);
+        j0 = Math.max(j - 2, 0);
+        i1 = Math.min(i + 3, this.gridWidth);
         j1 = Math.min(j + 3, this.gridHeight);
 
         for (j = j0; j < j1; ++j) {
             o = j * this.gridWidth;
             for (i = i0; i < i1; ++i) {
                 if (s = grid[o + i]) {
-                    dx = s.x - x,
+                    dx = s.x - x;
                     dy = s.y - y;
                     if (dx * dx + dy * dy < this.radiusSquared) return false;
                 }
