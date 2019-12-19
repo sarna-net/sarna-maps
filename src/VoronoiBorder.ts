@@ -1,6 +1,16 @@
 import {Logger} from './Logger';
 import Delaunator from 'delaunator';
-import {Point2D, circumcenter, distance, pointsAreEqual, pointIsLeftOfLine, crossProduct2D} from './Math2D';
+import {
+    Point2D,
+    circumcenter,
+    distance,
+    pointsAreEqual,
+    pointIsLeftOfLine,
+    crossProduct2D,
+    Vector2D,
+    movePoint
+} from './Math2D';
+import {deepCopy} from "./Utils";
 
 export declare type CellMode = 'CIRCUMCENTERS'|'CENTROIDS';
 
@@ -56,17 +66,20 @@ export class VoronoiBorder {
      * @param borderSeparation The desired distance between border lines, in global space units (default is 0.5)
      * @returns The algorithm's result
      */
-    public static calculateBorders(vertices: DelaunayVertex[], cellMode: CellMode = 'CIRCUMCENTERS', borderSeparation: number = 0.5) {
+    public static calculateBorders(vertices: DelaunayVertex[], cellMode: CellMode = 'CIRCUMCENTERS',
+                                   borderSeparation: number = 0.5) {
         // reset vertices' adjacency information
         vertices.forEach(vertex => { vertex.adjacentTriIndices = [] });
         // run delaunay triangulation (using the delaunator library)
         const delaunay = Delaunator.from(vertices.map(vertex => [vertex.x, vertex.y]));
         // create the voronoi nodes based on the triangulation
-        const voronoiNodes = VoronoiBorder.generateVoronoiNodes(delaunay, vertices, cellMode);
+        const voronoiNodes = this.generateVoronoiNodes(delaunay, vertices, cellMode);
         // process the voronoi nodes and generate border edges
-        const borderEdges = VoronoiBorder.generateBorderEdges(voronoiNodes, vertices);
+        const borderEdges = this.generateBorderEdges(voronoiNodes, vertices);
         // using the border edges, create proper border loops
-        const borderLoops = VoronoiBorder.generateBorderLoops(borderEdges, vertices);
+        const borderLoops = this.generateBorderLoops(borderEdges, vertices);
+        // separate borders if necessary
+        this.separateEdges(borderLoops, vertices, borderSeparation);
     }
 
     /**
@@ -276,8 +289,10 @@ export class VoronoiBorder {
         const borderLoops: Map<Color,BorderEdgeLoop[]> = new Map();
 
         for(let [color, originalEdges] of borderEdges) {
-            // the array of unprocessed edges
-            let unprocessedEdges = originalEdges.map(edge => edge);
+            // The array of unprocessed edges (a clone of the original edges).
+            // It's actually important to clone the edge objects here, because each color's
+            // loops will be modified separately (and differently) at a later stage.
+            let unprocessedEdges = deepCopy<BorderEdge[]>(originalEdges);
             // the array of loops for the current color
             if(!borderLoops.has(color)) {
                 borderLoops.set(color, []);
@@ -387,35 +402,41 @@ export class VoronoiBorder {
                 currentColorLoops.push(currentLoop);
             }
 
-            // We now have neat loops for the current color, but the edges are not guaranteed to be in clockwise
-            // order. To get there, we loop over the loops again (ha!), and make them clockwise if necessary.
-            // Once the loop is guaranteed to be clockwise, the loop's inner color can be determined by looking
-            // at any edge's right side vertex.
-            for(let loop of currentColorLoops) {
-                let minEdge = loop.edges[loop.minEdgeIdx];
-                let nextEdge = loop.edges[(loop.minEdgeIdx + 1) % loop.edges.length];
-                let node1 = minEdge.node1;
-                let node2 = minEdge.node2;
-                let node3 = nextEdge.node2;
-                let crossProduct = crossProduct2D({
-                    a: node1.x - node2.x,
-                    b: node1.y - node2.y
-                }, {
-                    a: node3.x - node2.x,
-                    b: node3.y - node2.y
-                });
-                if(crossProduct < 0) {
-                    // loop's order is counter-clockwise
-                    // reverse loop's edges to make their order clockwise
-                    this.reverseEdgeLoop(loop);
-                }
-                // add inner color information to the loop object
-                loop.innerColor = loop.edges[0].rightColor;
-            }
+            // We now have neat loops for the current color, but we still need to make sure their edges are in
+            // clockwise order.
+            currentColorLoops.forEach(loop => this.ensureEdgeLoopClockwiseOrder(loop));
+
             // Edge loop generation finished for the current color.
         }
-
         return borderLoops;
+    }
+
+    /**
+     * Ensures that the given loop has its linked list of edges ordered in a clockwise fashion.
+     * Once a loop is guaranteed to be clockwise, its inner color can be determined by looking
+     * at any edge's right side vertex.
+     *
+     * Modifies the provided edge loop in-place.
+     *
+     * @param edgeLoop
+     */
+    private static ensureEdgeLoopClockwiseOrder(edgeLoop: BorderEdgeLoop) {
+        let minEdge = edgeLoop.edges[edgeLoop.minEdgeIdx];
+        let nextEdge = edgeLoop.edges[(edgeLoop.minEdgeIdx + 1) % edgeLoop.edges.length];
+        let node1 = minEdge.node1;
+        let node2 = minEdge.node2;
+        let node3 = nextEdge.node2;
+        let crossProduct = crossProduct2D(
+            { a: node1.x - node2.x, b: node1.y - node2.y },
+            { a: node3.x - node2.x, b: node3.y - node2.y }
+        );
+        if(crossProduct < 0) {
+            // loop's order is counter-clockwise
+            // reverse loop's edges to make their order clockwise
+            this.reverseEdgeLoop(edgeLoop);
+        }
+        // set loop object's inner color information
+        edgeLoop.innerColor = edgeLoop.edges[0].rightColor;
     }
 
     /**
@@ -435,7 +456,7 @@ export class VoronoiBorder {
     }
 
     /**
-     * Swaps the given edge nodes, in-place.
+     * Swaps the given edge's nodes, in-place.
      *
      * @param edge The edge
      */
@@ -447,5 +468,50 @@ export class VoronoiBorder {
         let tmpColor = edge.leftColor;
         edge.leftColor = edge.rightColor;
         edge.rightColor = tmpColor;
+    }
+
+    /**
+     * Pulls each edge slightly closer to its same-color vertex. This is optional, but works well when border strokes
+     * have a certain thickness.
+     *
+     * Note that the provided edge loops, specifically the edges they contain, will be modified by this function.
+     *
+     * @param borderEdgeLoops The map of border edge loops, by color
+     * @param borderSeparation The amount of distance that any given edge will be pulled
+     */
+    private static separateEdges(borderEdgeLoops: Map<Color,BorderEdgeLoop[]>, vertices: DelaunayVertex[], borderSeparation: number) {
+        // ignore border separation values under a certain threshold
+        if(Math.abs(borderSeparation) < 0.01) { return; }
+        for(let [color, edgeLoops] of borderEdgeLoops) {
+            edgeLoops.forEach(loop => this.pullEdgeLoop(loop, vertices, borderSeparation));
+        }
+    }
+
+    /**
+     * Pulls each edge of a single edge loop closer to its same-color vertex.
+     *
+     * Note that the edges (and their nodes) within the provided edge loop will be modified by this function.
+     *
+     * @param loop The loop to modify
+     * @param borderSeparation The amount of distance that any given edge will be pulled
+     */
+    private static pullEdgeLoop(loop: BorderEdgeLoop, vertices: DelaunayVertex[], borderSeparation: number) {
+        const originalEdges = deepCopy<BorderEdge[]>(loop.edges);
+        for(let curEdgeIdx = 0; curEdgeIdx < loop.edges.length; curEdgeIdx++) {
+            let currentEdge = loop.edges[curEdgeIdx];
+            let originalEdge = originalEdges[curEdgeIdx];
+            let nextEdge = loop.edges[(curEdgeIdx + 1) % loop.edges.length];
+            let rightSideVertexIdx = currentEdge.color1 === currentEdge.rightColor ? currentEdge.vertex1Idx : currentEdge.vertex2Idx;
+            let rightSideVertex = vertices[rightSideVertexIdx];
+            let translationVector: Vector2D = { a: 0, b: 0 };
+
+            
+
+            // move the point in question
+            movePoint(currentEdge.node2, translationVector);
+            movePoint(nextEdge.node1, translationVector);
+            //currentEdge.node2.x = nextEdge.node1.x = originalEdge.node2.x + moveByVector.a;
+            //currentEdge.node2.y = nextEdge.node1.y = originalEdge.node2.y + moveByVector.a;
+        }
     }
 }

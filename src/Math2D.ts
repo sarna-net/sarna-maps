@@ -48,6 +48,17 @@ export function pointIsLeftOfLine(p: Point2D, lineStart: Point2D, lineEnd: Point
 }
 
 /**
+ * Modifies the given point by translating it by the given vector.
+ *
+ * @param p The point
+ * @param v The translation vector
+ */
+export function movePoint(p: Point2D, v: Vector2D) {
+    p.x += v.a;
+    p.y += v.b;
+}
+
+/**
  * Calculates the euclidean distance between to points in 2D space.
  *
  * @param p1 The first point
