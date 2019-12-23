@@ -24,6 +24,24 @@ export interface Line2D {
 }
 
 /**
+ * Dimensions of a (rectangular) area in 2D space.
+ */
+export interface Dimensions2D {
+    width: number;
+    height: number;
+}
+
+/**
+ * A rectangle in 2D space, described by an anchor point (usually the
+ * bottom left or top left point, depending on interpretation) as well as the
+ * rectangle's width and height values.
+ */
+export interface Rectangle2D {
+    anchor: Point2D;
+    dimensions: Dimensions2D;
+}
+
+/**
  * Checks for point equality.
  *
  * @param p1 The first point
@@ -149,6 +167,51 @@ export function circumcenter(p1: Point2D, p2: Point2D, p3: Point2D): Point2D|nul
  * @param v2 The second vector
  * @returns Cross product of v1 and v2
  */
-export function crossProduct2D(v1: Vector2D, v2: Vector2D): number {
+export function crossProduct(v1: Vector2D, v2: Vector2D): number {
     return v1.a * v2.b - v1.b * v2.a;
+}
+
+/**
+ * Calculates 2D vector length.
+ *
+ * @param vector The vector
+ * @returns The vector's length
+ */
+export function vectorLength(vector: Vector2D): number {
+    return Math.sqrt(Math.pow(vector.a, 2) + Math.pow(vector.b, 2));
+}
+
+/**
+ * Scales 2D vector to desired length, in-place (vector will be modified).
+ *
+ * @param vector The vector to scale
+ * @param size The size to scale to
+ */
+export function scaleVector(vector: Vector2D, size: number): void {
+    const magnitude = vectorLength(vector);
+    if(magnitude === 0) {
+        return;
+    }
+    vector.a = vector.a * size / magnitude;
+    vector.b = vector.b * size / magnitude;
+}
+
+/**
+ * Scales 2D vector to length 1, in-place (vector will be modified).
+ *
+ * @param vector The vector to normalize
+ */
+export function normalizeVector(vector: Vector2D): void {
+    scaleVector(vector, 1);
+}
+
+/**
+ * Adds two vectors together. The first vector will be modified.
+ *
+ * @param vector The vector to add to (will be modified)
+ * @param vectorToAdd The vector that will be added to v
+ */
+export function addVectors(vector: Vector2D, vectorToAdd: Vector2D): void {
+    vector.a += vectorToAdd.a;
+    vector.b += vectorToAdd.b;
 }

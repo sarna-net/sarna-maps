@@ -1,6 +1,7 @@
 import * as path from 'path';
 import {Logger} from './Logger';
 import {DataReader} from './DataReader';
+import {VoronoiBorder} from './VoronoiBorder';
 
 /**
  * Application singleton. Call App.run() to start.
@@ -41,5 +42,7 @@ export class App {
         //const dataReader = new DataReader('1NOqCZxVN8KvdkAbefginjvAuRrRCqrt3ihQh11inr60');
         const dataReader = new DataReader('1x9bvFqSb4_or8JbvGj2LnezGkChWxEzRPf5FXvjonHE');
         await dataReader.readDataFromSpreadsheet();
+        /*const
+        const borderLoops = VoronoiBorder.calculateBorders();*/
     }
 }

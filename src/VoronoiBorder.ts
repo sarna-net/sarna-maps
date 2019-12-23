@@ -2,13 +2,16 @@ import {Logger} from './Logger';
 import Delaunator from 'delaunator';
 import {
     Point2D,
+    Vector2D,
     circumcenter,
     distance,
     pointsAreEqual,
     pointIsLeftOfLine,
-    crossProduct2D,
-    Vector2D,
-    movePoint
+    crossProduct,
+    movePoint,
+    addVectors,
+    scaleVector,
+    normalizeVector
 } from './Math2D';
 import {deepCopy} from "./Utils";
 
@@ -39,7 +42,11 @@ export interface BorderEdge {
     color2: Color,
     leftColor: Color,
     rightColor: Color,
-    length: number
+    length: number,
+    n1c1?: Point2D,
+    n1c2?: Point2D,
+    n2c1?: Point2D,
+    n2c2?: Point2D
 }
 
 export interface BorderEdgeLoop {
@@ -64,10 +71,11 @@ export class VoronoiBorder {
      * @param vertices The delaunay vertices (systems and noise points) that we want to calculate a voronoi diagram for
      * @param cellMode The cell mode to use ('CIRCUMCENTERS' or 'CENTROIDS') (default is 'CIRCUMCENTERS')
      * @param borderSeparation The desired distance between border lines, in global space units (default is 0.5)
+     * @param controlPointTension The amount of control point tension (default is 0.35)
      * @returns The algorithm's result
      */
     public static calculateBorders(vertices: DelaunayVertex[], cellMode: CellMode = 'CIRCUMCENTERS',
-                                   borderSeparation: number = 0.5) {
+                                   borderSeparation = 0.5, controlPointTension = 0.35) {
         // reset vertices' adjacency information
         vertices.forEach(vertex => { vertex.adjacentTriIndices = [] });
         // run delaunay triangulation (using the delaunator library)
@@ -78,8 +86,9 @@ export class VoronoiBorder {
         const borderEdges = this.generateBorderEdges(voronoiNodes, vertices);
         // using the border edges, create proper border loops
         const borderLoops = this.generateBorderLoops(borderEdges, vertices);
-        // separate borders if necessary
-        this.separateEdges(borderLoops, vertices, borderSeparation);
+        // separate borders and generate control points
+        this.processBorderLoops(borderLoops, vertices, borderSeparation, controlPointTension);
+        return borderLoops;
     }
 
     /**
@@ -426,11 +435,11 @@ export class VoronoiBorder {
         let node1 = minEdge.node1;
         let node2 = minEdge.node2;
         let node3 = nextEdge.node2;
-        let crossProduct = crossProduct2D(
+        let crossP = crossProduct(
             { a: node1.x - node2.x, b: node1.y - node2.y },
             { a: node3.x - node2.x, b: node3.y - node2.y }
         );
-        if(crossProduct < 0) {
+        if(crossP < 0) {
             // loop's order is counter-clockwise
             // reverse loop's edges to make their order clockwise
             this.reverseEdgeLoop(edgeLoop);
@@ -475,15 +484,21 @@ export class VoronoiBorder {
      * have a certain thickness.
      *
      * Note that the provided edge loops, specifically the edges they contain, will be modified by this function.
+     * All loops should be in clockwise order.
      *
      * @param borderEdgeLoops The map of border edge loops, by color
+     * @param vertices The algorithm's delaunay vertices / systems
      * @param borderSeparation The amount of distance that any given edge will be pulled
+     * @param controlPointTension The control point tension value
      */
-    private static separateEdges(borderEdgeLoops: Map<Color,BorderEdgeLoop[]>, vertices: DelaunayVertex[], borderSeparation: number) {
+    private static processBorderLoops(borderEdgeLoops: Map<Color,BorderEdgeLoop[]>, vertices: DelaunayVertex[], borderSeparation: number, controlPointTension: number) {
         // ignore border separation values under a certain threshold
         if(Math.abs(borderSeparation) < 0.01) { return; }
         for(let [color, edgeLoops] of borderEdgeLoops) {
-            edgeLoops.forEach(loop => this.pullEdgeLoop(loop, vertices, borderSeparation));
+            edgeLoops.forEach(loop => {
+                this.pullEdgeLoop(loop, vertices, borderSeparation);
+                this.generateEdgeControlPoints(loop, controlPointTension);
+            });
         }
     }
 
@@ -491,6 +506,7 @@ export class VoronoiBorder {
      * Pulls each edge of a single edge loop closer to its same-color vertex.
      *
      * Note that the edges (and their nodes) within the provided edge loop will be modified by this function.
+     * The loop should be in clockwise order.
      *
      * @param loop The loop to modify
      * @param borderSeparation The amount of distance that any given edge will be pulled
@@ -498,20 +514,95 @@ export class VoronoiBorder {
     private static pullEdgeLoop(loop: BorderEdgeLoop, vertices: DelaunayVertex[], borderSeparation: number) {
         const originalEdges = deepCopy<BorderEdge[]>(loop.edges);
         for(let curEdgeIdx = 0; curEdgeIdx < loop.edges.length; curEdgeIdx++) {
+            // We're always looking at the current edge's second node (node2), which is identical to the
+            // loop's next edge's first node. The node will be pulled towards the two right-side vertices
+            // Not that the loop's edges are in clockwise order, so the "inner" vertices are the same color as the edge loop.
             let currentEdge = loop.edges[curEdgeIdx];
             let originalEdge = originalEdges[curEdgeIdx];
             let nextEdge = loop.edges[(curEdgeIdx + 1) % loop.edges.length];
             let rightSideVertexIdx = currentEdge.color1 === currentEdge.rightColor ? currentEdge.vertex1Idx : currentEdge.vertex2Idx;
-            let rightSideVertex = vertices[rightSideVertexIdx];
+            // TODO remove let rightSideVertex = vertices[rightSideVertexIdx];
             let translationVector: Vector2D = { a: 0, b: 0 };
 
-            
+            let point1 = originalEdge.node1;
+            let point2 = originalEdge.node2;
+            let point3 = nextEdge.node2;
+
+            let vector1 = { a: point2.x - point1.x, b: point2.y - point1.y };
+            let vector2 = { a: point3.x - point2.x, b: point3.y - point2.y };
+
+            // right-side perpendicular vectors
+            let pVector1 = { a: vector1.b, b: -vector1.a };
+            let pVector2 = { a: vector2.b, b: -vector2.a };
+
+            normalizeVector(pVector1);
+            normalizeVector(pVector2);
+            addVectors(translationVector, pVector1);
+            addVectors(translationVector, pVector2);
+            scaleVector(translationVector, borderSeparation);
 
             // move the point in question
+            // note that the original point is cached, so that these operations do not
+            // have an effect on the next iteration
             movePoint(currentEdge.node2, translationVector);
             movePoint(nextEdge.node1, translationVector);
-            //currentEdge.node2.x = nextEdge.node1.x = originalEdge.node2.x + moveByVector.a;
-            //currentEdge.node2.y = nextEdge.node1.y = originalEdge.node2.y + moveByVector.a;
+            // TODO remove currentEdge.node2.x = nextEdge.node1.x = originalEdge.node2.x + moveByVector.a;
+            // TODO remove currentEdge.node2.y = nextEdge.node1.y = originalEdge.node2.y + moveByVector.a;
+        }
+    }
+
+    /**
+     * For each node of the given loop, generate two bezier control points. The goal is to have rounded
+     * border edges.
+     *
+     * Edges must be sorted.
+     *
+     * @param loop The loop to generate control points for
+     * @param tension The control point tension value
+     */
+    private static generateEdgeControlPoints(loop: BorderEdgeLoop, tension: number) {
+        for(let edgeIndex = 0; edgeIndex < loop.edges.length; edgeIndex++) {
+            let currentEdge = loop.edges[edgeIndex];
+            let nextEdge = loop.edges[(edgeIndex + 1) % loop.edges.length];
+
+            let point1 = currentEdge.node1;
+            let point2 = nextEdge.node1;
+            let point3 = nextEdge.node2;
+
+            // border edge nodes that border on 3 different colors have their control points set to the nodes themselves
+            if(Object.keys(currentEdge.node2.borderColors).length > 2 && !currentEdge.node2.borderColors['DUMMY'] && !currentEdge.node2.borderColors['I']) {
+                currentEdge.n1c2 = { x: point1.x, y: point1.y };
+                currentEdge.n2c1 = currentEdge.n2c2 = nextEdge.n1c1 = nextEdge.n1c2 = { x: point2.x, y: point2.y };
+                nextEdge.n2c1 = { x: point3.x, y: point3.y};
+            }
+
+            let dist12 = distance(point1, point2);
+            let dist23 = distance(point2, point3);
+
+            // generate two control points for the looked at point (p2)
+            // see http://walter.bislins.ch/blog/index.asp?page=JavaScript%3A+Bezier%2DSegmente+f%FCr+Spline+berechnen
+            let fa = tension * dist12 / (dist12 + dist23);
+            let fb = tension * dist23 / (dist12 + dist23);
+
+            let w = point3.x - point1.x;
+            let h = point3.y - point1.y;
+
+            if(!currentEdge.n2c1 && !nextEdge.n1c1) {
+                currentEdge.n2c1 = nextEdge.n1c1 = {
+                    x: point2.x - fa * w,
+                    y: point2.y - fa * h
+                };
+            } else {
+                currentEdge.n2c1 = nextEdge.n1c1 = (currentEdge.n2c1 || nextEdge.n1c1);
+            }
+            if(!currentEdge.n2c2 && !nextEdge.n1c2) {
+                currentEdge.n2c2 = nextEdge.n1c2 = {
+                    x: point2.x + fb * w,
+                    y: point2.y + fb * h
+                };
+            } else {
+                currentEdge.n2c2 = nextEdge.n1c2 = (currentEdge.n2c2 || nextEdge.n1c2);
+            }
         }
     }
 }
