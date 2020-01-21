@@ -1,7 +1,7 @@
-import * as path from 'path';
 import {Logger} from './Logger';
 import {DataReader} from './DataReader';
 import {VoronoiBorder} from './VoronoiBorder';
+import {SvgWriter} from './SvgWriter';
 
 /**
  * Application singleton. Call App.run() to start.
@@ -41,8 +41,24 @@ export class App {
         Logger.info('App running');
         //const dataReader = new DataReader('1NOqCZxVN8KvdkAbefginjvAuRrRCqrt3ihQh11inr60');
         const dataReader = new DataReader('1x9bvFqSb4_or8JbvGj2LnezGkChWxEzRPf5FXvjonHE');
-        await dataReader.readDataFromSpreadsheet();
-        /*const
-        const borderLoops = VoronoiBorder.calculateBorders();*/
+        const {eras, factions, systems, nebulae} = await dataReader.readDataFromSpreadsheet();
+        // convert systems into voronoi nodes
+        const delaunayVertices = systems.map(system => {
+            return {
+                x: system.x,
+                y: system.y,
+                color: system.eraAffiliations[15],
+                adjacentTriIndices: []
+            };
+        });
+        const borderLoops = VoronoiBorder.calculateBorders(delaunayVertices);
+        SvgWriter.writeSvgMap(factions, borderLoops, {
+            name: 'test',
+            dimensions: { width: 100, height: 100 },
+            viewRect: {
+                anchor: { x: -100, y: -100 },
+                dimensions: { width: 200, height: 200 }
+            }
+        });
     }
 }

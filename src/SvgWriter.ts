@@ -1,10 +1,92 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import {Logger} from './Logger';
+import {SnapPosition} from './Constants';
 import {Faction} from './Entities';
 import {Dimensions2D, Rectangle2D} from './Math2D';
 import {BorderEdge, BorderEdgeLoop} from './VoronoiBorder';
 
+export interface BasicDisplayOptions {
+    dimensions: Dimensions2D;
+    viewRect: Rectangle2D;
+    displayBorders?: boolean;
+    displayNebulae?: boolean;
+    displayClusters?: boolean;
+    factions?: {
+        displayBorders?: boolean;
+        displayFactionNames?: boolean;
+        fillAreas?: boolean;
+    };
+    systems?: {
+        displayAbandonedSystems?: boolean;
+        displayApocryphalSystems?: boolean;
+        displayNormalSystems?: boolean;
+        displayNoRecordSystems?: boolean;
+        highlightCapitalSystems?: boolean;
+        displaySystemNames?: boolean;
+    };
+}
+
+export interface MinimapDisplayOptions extends BasicDisplayOptions {
+    display?: boolean;
+    position: SnapPosition;
+}
+
+export interface ScaleDisplayOptions {
+    display?: boolean;
+    position: SnapPosition;
+    width: number;
+    stepSize: number;
+}
+
+export interface LogoDisplayOptions {
+    display?: boolean;
+    position: SnapPosition;
+    customLogoMarkup: string;
+}
+
+export interface ImageOutputOptions extends BasicDisplayOptions {
+    name: string;
+    path?: string;
+    customStyles?: string;
+    systemNamesDropShadow?: boolean;
+    factionNamesDropShadow?: boolean;
+    scale?: ScaleDisplayOptions;
+    minimap?: MinimapDisplayOptions;
+}
+
 export class SvgWriter {
+
+    public static writeSvgMap(
+        factions: Map<string,Faction>,
+        borderLoops: Map<string,BorderEdgeLoop[]>,
+        options: ImageOutputOptions) {
+
+        // svg viewBox's y is top left, not bottom left
+        // viewRect is in map space, viewBox is in svg space
+        const viewBox = `${options.viewRect.anchor.x} ` +
+                        `${-options.viewRect.anchor.y - options.viewRect.dimensions.height} ` +
+                        `${options.viewRect.dimensions.width} ` +
+                        `${options.viewRect.dimensions.height}`;
+
+        let content = fs.readFileSync(path.join(__dirname, '../templates', 'map-base.svg'), {encoding: 'utf8'})
+            .replace('{WIDTH}', options.dimensions.width.toString(10))
+            .replace('{HEIGHT}', options.dimensions.height.toString(10))
+            .replace('{VIEWBOX}', viewBox)
+            .replace('{DEFS}', '')
+            .replace('{CSS}', '')
+            .replace('{ELEMENTS}', this.renderBorders(borderLoops, factions));
+
+        const outPath = path.join(
+            options.path ? options.path : path.join(__dirname, '../out'),
+            `${options.name}.svg`);
+        Logger.info(`Now attempting to write file "${outPath}"`);
+        fs.mkdirSync(path.dirname(outPath), {recursive: true});
+        fs.writeFileSync(outPath, content, { encoding: 'utf8' });
+        Logger.info(`Wrote file "${outPath}".`);
+    }
+
+
 
     public static writeNeighborhoodSvg(name: string, dimensions: Dimensions2D, viewRect: Rectangle2D, borderLoops: Map<string,BorderEdgeLoop[]>, factions: Map<string,Faction>) {
         let template = fs.readFileSync(path.join(__dirname, '../templates', 'map-base.svg'), { encoding: 'utf8'});

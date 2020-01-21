@@ -46,20 +46,32 @@ export class DataReader {
         if(!spreadsheet || !spreadsheet.sheets) {
             throw new Error('Cannot read data - No spreadsheet object available');
         }
-        if(spreadsheet.sheets.length !== 6) {
+        if(spreadsheet.sheets.length < 6) {
             throw new Error(`Cannot read data - Spreadsheet has ${spreadsheet.sheets.length} sheets instead of the expected 6.`);
         }
 
-        this.columnsSheetName = (spreadsheet.sheets[1].properties||{}).title || '';
+        /*this.columnsSheetName = (spreadsheet.sheets[1].properties||{}).title || '';
         this.factionsSheetName = (spreadsheet.sheets[3].properties||{}).title || '';
         this.systemsSheetName = (spreadsheet.sheets[2].properties||{}).title || '';
-        this.nebulaeSheetName = (spreadsheet.sheets[4].properties||{}).title || '';
+        this.nebulaeSheetName = (spreadsheet.sheets[4].properties||{}).title || '';*/
+
+        this.columnsSheetName = 'Systems-Description';
+        this.factionsSheetName = 'Factions';
+        this.systemsSheetName = 'Systems';
+        this.nebulaeSheetName = 'Nebulae';
 
         const dataRanges = await this.readDataRanges();
         await this.parseEras(dataRanges[0]);
         await this.parseFactions(dataRanges[1]);
         await this.parseSystems(dataRanges[2]);
         await this.parseNebulae(dataRanges[3]);
+
+        return {
+            eras: this.eras,
+            factions: this.factions,
+            systems: this.systems,
+            nebulae: this.nebulae
+        };
     }
 
     /**
