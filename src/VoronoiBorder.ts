@@ -1,7 +1,7 @@
-import {Logger} from './Logger';
+import { Logger } from './Logger';
 import Delaunator from 'delaunator';
 import {
-    Point2D,
+  Point2D,
     Vector2D,
     circumcenter,
     distance,
@@ -13,7 +13,7 @@ import {
     scaleVector,
     normalizeVector
 } from './Math2D';
-import {deepCopy} from "./Utils";
+import { deepCopy } from "./Utils";
 
 export declare type CellMode = 'CIRCUMCENTERS'|'CENTROIDS';
 
