@@ -1,7 +1,7 @@
 /* eslint-disable no-tabs */
 import seedrandom from 'seedrandom';
-import {Point2D} from './Math2D';
-import {Logger} from './Logger';
+import { Logger } from '../utils';
+import { Point2d } from '../math-2d';
 
 /**
  * An instance of this class generates blue noise using Bridson's Poisson Disc algorithm.
@@ -19,13 +19,13 @@ export default class PoissonDisc {
   private gridHeight: number;
   private queueSize: number;
   private sampleSize: number;
-  private grid: Point2D[];
-  private queue: Point2D[];
+  private grid: Point2d[];
+  private queue: Point2d[];
   private rng: seedrandom.PRNG;
 
-  private reservedPoints: Point2D[];
-  private generatedPoints: Point2D[];
-  public aggregatedPoints: Point2D[];
+  private reservedPoints: Point2d[];
+  private generatedPoints: Point2d[];
+  public aggregatedPoints: Point2d[];
 
   /**
    * @param x Algorithm area left limit
@@ -44,9 +44,9 @@ export default class PoissonDisc {
     w: number,
     h: number,
     radius: number,
-    maxSamples: number = 30,
-    seed: string = 'sarna',
-    reservedPoints: Point2D[] = [],
+    maxSamples = 30,
+    seed = 'sarna',
+    reservedPoints: Point2d[] = [],
   ) {
     this.x = x;
     this.y = y;
@@ -75,12 +75,17 @@ export default class PoissonDisc {
      * @returns this object
      */
   public run(): PoissonDisc {
-    let sample;
     this.generatedPoints = [];
     // start with a sample at a fixed x,y (origin)
-    this.generatedPoints.push(this.placeSample({x: this.x, y: this.y}));
+    this.generatedPoints.push(this.placeSample({ x: this.x, y: this.y }));
     // generate samples as long as a free spot can be found
-    while (sample = this.generateSample()) {
+    const limit = 1000000;
+    for (let i = 0; i < limit; i++) {
+      const sample = this.generateSample();
+      if (!sample) {
+        // no further samples can be generated
+        break;
+      }
       this.generatedPoints.push(sample);
     }
     Logger.info(`blue noise generation done, ${this.sampleSize} points generated`);
@@ -102,43 +107,56 @@ export default class PoissonDisc {
   private generateSample() {
     // Pick a random existing sample and remove it from the queue.
     while (this.queueSize) {
-      let i = this.rng() * this.queueSize | 0,
-        sample = this.queue[i];
+      const queueIndex = this.rng() * this.queueSize | 0;
+      const sample = this.queue[queueIndex];
 
       // Make a new candidate between [radius, 2 * radius] from the existing sample.
       for (let j = 0; j < this.maxSamples; ++j) {
-        let a = 2 * Math.PI * this.rng(),
-          r = Math.sqrt(this.rng() * this.radiusSquaredx3 + this.radiusSquared),
-          x = sample.x + r * Math.cos(a),
-          y = sample.y + r * Math.sin(a);
+        const a = 2 * Math.PI * this.rng();
+        const r = Math.sqrt(this.rng() * this.radiusSquaredx3 + this.radiusSquared);
+        const x = sample.x + r * Math.cos(a);
+        const y = sample.y + r * Math.sin(a);
 
         // Reject candidates that are outside the allowed extent,
         // or closer than 2 * radius to any existing sample.
-        if(x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h && this.positionValid(x,y)) {
-          return this.placeSample({x:x, y:y});
+        if (
+          x >= this.x
+          && x <= this.x + this.w
+          && y >= this.y
+          && y <= this.y + this.h
+          && this.positionValid(x, y)
+        ) {
+          return this.placeSample({ x, y });
         }
       }
 
-      this.queue[i] = this.queue[--this.queueSize];
+      this.queue[queueIndex] = this.queue[--this.queueSize];
       this.queue.length = this.queueSize;
     }
     return null;
   }
 
   /**
-     * Places a sample.
-     *
-     * @param sample The sample
-     * @param grid The used cell occupation grid (optional, default is this.grid)
-     * @param doNotEnqueue Set to true to place an inactive sample (optional)
-     * @returns The sample
-     */
-  private placeSample(sample: Point2D, grid = this.grid, doNotEnqueue = false): Point2D {
-    if(!doNotEnqueue) {
+   * Places a sample.
+   *
+   * @param sample The sample
+   * @param grid The used cell occupation grid (optional, default is this.grid)
+   * @param doNotEnqueue Set to true to place an inactive sample (optional)
+   * @returns The sample
+   */
+  private placeSample(sample: Point2d, grid = this.grid, doNotEnqueue = false): Point2d {
+    if (!doNotEnqueue) {
       this.queue.push(sample);
       this.queueSize++;
     }
-    grid[this.gridWidth * ((sample.y - this.y) / this.cellSize | 0) + ((sample.x - this.x) / this.cellSize | 0)] = sample;
+    // eslint-disable-next-line no-param-reassign
+    grid[
+      this.gridWidth * (
+        (sample.y - this.y) / this.cellSize | 0
+      ) + (
+        (sample.x - this.x) / this.cellSize | 0
+      )
+    ] = sample;
     this.sampleSize++;
     return sample;
   }
@@ -152,26 +170,34 @@ export default class PoissonDisc {
 	 * @returns true if (x,y) is a valid / unoccupied position
 	 */
   private positionValid(x: number, y: number, grid = this.grid): boolean {
-    let i, j, i0, j0, i1, j1, s, o, dx, dy;
+    let i;
+    let j;
+    let s;
+    let o;
+    let dx;
+    let dy;
     i = (x - this.x) / this.cellSize | 0;
     j = (y - this.y) / this.cellSize | 0;
-    i0 = Math.max(i - 2, 0);
-    j0 = Math.max(j - 2, 0);
-    i1 = Math.min(i + 3, this.gridWidth);
-    j1 = Math.min(j + 3, this.gridHeight);
+    const i0 = Math.max(i - 2, 0);
+    const j0 = Math.max(j - 2, 0);
+    const i1 = Math.min(i + 3, this.gridWidth);
+    const j1 = Math.min(j + 3, this.gridHeight);
 
     for (j = j0; j < j1; ++j) {
       o = j * this.gridWidth;
       for (i = i0; i < i1; ++i) {
-        if (s = grid[o + i]) {
+        s = grid[o + i];
+        if (s) {
           dx = s.x - x;
           dy = s.y - y;
-          if (dx * dx + dy * dy < this.radiusSquared) return false;
+          if (dx * dx + dy * dy < this.radiusSquared) {
+            return false;
+          }
         }
       }
     }
     return true;
-  };
+  }
 
   /**
 	 * Introduces a new list of reserved points and aggregates them with the list of generated
@@ -182,25 +208,25 @@ export default class PoissonDisc {
 	 *
 	 * @param reservedPoints List of existing fixed points
 	 */
-  public replaceReservedPoints(reservedPoints: Point2D[]) {
-    const aggregatedGrid: Point2D[] = new Array(this.gridWidth * this.gridHeight);
+  public replaceReservedPoints(reservedPoints: Point2d[]) {
+    const aggregatedGrid: Point2d[] = new Array(this.gridWidth * this.gridHeight);
     this.reservedPoints = reservedPoints;
     this.aggregatedPoints = [];
 
     // add reserved points to aggregated grid
-    for(let rPoint of reservedPoints) {
+    reservedPoints.forEach((rPoint) => {
       this.aggregatedPoints.push(
         this.placeSample(rPoint, aggregatedGrid, true),
       );
-    }
+    });
 
     // fill up aggregated grid with generated poisson points
-    for(let pPoint of this.generatedPoints) {
-      if(this.positionValid(pPoint.x, pPoint.y, aggregatedGrid)) {
+    this.generatedPoints.forEach((pPoint) => {
+      if (this.positionValid(pPoint.x, pPoint.y, aggregatedGrid)) {
         this.aggregatedPoints.push(
           this.placeSample(pPoint, aggregatedGrid, true),
         );
       }
-    }
+    });
   }
 }

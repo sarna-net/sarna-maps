@@ -1,5 +1,5 @@
-import Vector2d from './types/vector-2d';
-import vectorLength from './vector-length';
+import { Vector2d } from './types/vector-2d';
+import { vectorLength } from './vector-length';
 
 /**
  * Scales 2D vector to desired length, in-place (vector will be modified).
@@ -7,7 +7,7 @@ import vectorLength from './vector-length';
  * @param vector The vector to scale
  * @param size The size to scale to
  */
-export default function scaleVector(vector: Vector2d, size: number): void {
+export function scaleVector(vector: Vector2d, size: number): void {
   const magnitude = vectorLength(vector);
   if (magnitude === 0) {
     return;

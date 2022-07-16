@@ -4,6 +4,6 @@
  * @param o The object to copy
  * @returns The copy
  */
-export default function deepCopy<T>(o: any): T {
+export function deepCopy<T>(o: T): T {
   return JSON.parse(JSON.stringify(o));
 }

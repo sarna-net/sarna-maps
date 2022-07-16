@@ -1,5 +1,5 @@
-import Line2d from './types/line-2d';
-import Point2d from './types/point-2d';
+import { Line2d } from './types/line-2d';
+import { Point2d } from './types/point-2d';
 
 /**
  * Creates a line in 2D space from two points.
@@ -8,7 +8,7 @@ import Point2d from './types/point-2d';
  * @param p2 A 2D point
  * @returns The line, represented as ax + by = c
  */
-export default function lineFromPoints(p1: Point2d, p2: Point2d): Line2d {
+export function lineFromPoints(p1: Point2d, p2: Point2d): Line2d {
   const line = {
     a: p2.y - p1.y,
     b: p1.x - p2.x,

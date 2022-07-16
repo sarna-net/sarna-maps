@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "esnext",
     "module": "commonjs",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
     "listEmittedFiles": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -13,7 +15,12 @@
     "strictNullChecks": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "downlevelIteration": true
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "lib": ["esnext"]
   },
   "include": [
     "src/**/*"

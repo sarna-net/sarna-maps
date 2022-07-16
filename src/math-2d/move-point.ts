@@ -1,5 +1,5 @@
-import Point2d from './types/point-2d';
-import Vector2d from './types/vector-2d';
+import { Point2d } from './types/point-2d';
+import { Vector2d } from './types/vector-2d';
 
 /**
  * Modifies the given point by translating it by the given vector.
@@ -7,7 +7,7 @@ import Vector2d from './types/vector-2d';
  * @param p The point
  * @param v The translation vector
  */
-export default function movePoint(p: Point2d, v: Vector2d) {
+export function movePoint(p: Point2d, v: Vector2d) {
   // eslint-disable-next-line no-param-reassign
   p.x += v.a;
   // eslint-disable-next-line no-param-reassign

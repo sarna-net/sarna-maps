@@ -1,4 +1,4 @@
-import Point2d from './types/point-2d';
+import { Point2d } from './types/point-2d';
 
 /**
  * Checks if a given point lies to the left of a line.
@@ -9,7 +9,7 @@ import Point2d from './types/point-2d';
  * @returns true if the point lies to the line's left, false if it lies to the right
  * @see http://alienryderflex.com/point_left_of_ray/
  */
-export default function pointIsLeftOfLine(
+export function pointIsLeftOfLine(
   p: Point2d,
   lineStart: Point2d,
   lineEnd: Point2d,

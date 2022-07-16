@@ -1,14 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import {Logger} from './Logger';
-import {SnapPosition} from './Constants';
-import {Faction} from './Entities';
-import {Dimensions2D, Rectangle2D} from './Math2D';
-import {BorderEdge, BorderEdgeLoop} from './VoronoiBorder';
+import { Logger } from '../utils';
+import { SnapPosition } from '../Constants';
+import { BorderEdge, BorderEdgeLoop, Faction } from './types';
+import { Dimensions2d, Rectangle2d } from '../math-2d';
 
 export interface BasicDisplayOptions {
-    dimensions: Dimensions2D;
-    viewRect: Rectangle2D;
+    dimensions: Dimensions2d;
+    viewRect: Rectangle2d;
     displayBorders?: boolean;
     displayNebulae?: boolean;
     displayClusters?: boolean;
@@ -58,8 +57,8 @@ export interface ImageOutputOptions extends BasicDisplayOptions {
 export class SvgWriter {
 
     public static writeSvgMap(
-        factions: Map<string,Faction>,
-        borderLoops: Map<string,BorderEdgeLoop[]>,
+        factions: Map<string, Faction>,
+        borderLoops: Map<string, BorderEdgeLoop[]>,
         options: ImageOutputOptions) {
 
         // svg viewBox's y is top left, not bottom left
@@ -69,7 +68,7 @@ export class SvgWriter {
                         `${options.viewRect.dimensions.width} ` +
                         `${options.viewRect.dimensions.height}`;
 
-        let content = fs.readFileSync(path.join(__dirname, '../templates', 'map-base.svg'), {encoding: 'utf8'})
+        const content = fs.readFileSync(path.join(__dirname, '../templates', 'map-base.svg'), { encoding: 'utf8' })
             .replace('{WIDTH}', options.dimensions.width.toString(10))
             .replace('{HEIGHT}', options.dimensions.height.toString(10))
             .replace('{VIEWBOX}', viewBox)
@@ -81,15 +80,15 @@ export class SvgWriter {
             options.path ? options.path : path.join(__dirname, '../out'),
             `${options.name}.svg`);
         Logger.info(`Now attempting to write file "${outPath}"`);
-        fs.mkdirSync(path.dirname(outPath), {recursive: true});
+        fs.mkdirSync(path.dirname(outPath), { recursive: true });
         fs.writeFileSync(outPath, content, { encoding: 'utf8' });
         Logger.info(`Wrote file "${outPath}".`);
     }
 
 
 
-    public static writeNeighborhoodSvg(name: string, dimensions: Dimensions2D, viewRect: Rectangle2D, borderLoops: Map<string,BorderEdgeLoop[]>, factions: Map<string,Faction>) {
-        let template = fs.readFileSync(path.join(__dirname, '../templates', 'map-base.svg'), { encoding: 'utf8'});
+    public static writeNeighborhoodSvg(name: string, dimensions: Dimensions2d, viewRect: Rectangle2d, borderLoops: Map<string,BorderEdgeLoop[]>, factions: Map<string,Faction>) {
+        let template = fs.readFileSync(path.join(__dirname, '../templates', 'map-base.svg'), { encoding: 'utf8' });
         const filename = `${name}.svg`;
 
         // svg viewBox's y is top left, not bottom left
@@ -104,18 +103,18 @@ export class SvgWriter {
         template = template.replace('{CSS}', '');
         template = template.replace('{ELEMENTS}', this.renderBorders(borderLoops, factions));
 
-        fs.writeFileSync(path.join(__dirname, '../out', filename), template, { encoding: 'utf8'});
+        fs.writeFileSync(path.join(__dirname, '../out', filename), template, { encoding: 'utf8' });
     }
 
-    private static renderBorders(borderLoops: Map<string,BorderEdgeLoop[]>, factions: Map<string,Faction>): string {
+    private static renderBorders(borderLoops: Map<string, BorderEdgeLoop[]>, factions: Map<string,Faction>): string {
         let ret = '';
         let edge: BorderEdge;
         let d: string;
-        for(let [factionId, faction] of factions) {
-            let loops = borderLoops.get(factionId);
-            if(!loops || loops.length === 0) { continue; }
+        for(const [ factionId, faction ] of factions) {
+            const loops = borderLoops.get(factionId);
+            if(!loops || loops.length === 0) { continue }
             d = '';
-            for(let loop of loops) {
+            for(const loop of loops) {
                 for(let edgeIdx = 0; edgeIdx < loop.edges.length; edgeIdx++) {
                     edge = loop.edges[edgeIdx];
                     if(edgeIdx === 0) {

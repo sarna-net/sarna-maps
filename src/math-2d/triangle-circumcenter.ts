@@ -1,6 +1,6 @@
 import lineLineIntersection from './line-line-intersection';
 import perpendicularBisector from './perpendicular-bisector';
-import Point2d from './types/point-2d';
+import { Point2d } from './types/point-2d';
 
 /**
  * Calculates a triangle's circumcenter.
@@ -10,7 +10,7 @@ import Point2d from './types/point-2d';
  * @param p3 The triangle's third vertex
  * @returns The circumcenter point, or null if no circumcenter can be calculated
  */
-export default function triangleCircumcenter(
+export function triangleCircumcenter(
   p1: Point2d,
   p2: Point2d,
   p3: Point2d,

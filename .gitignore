@@ -1,4 +1,10 @@
-node_modules
+# variable config file (contains secrets)
+config.env
+
+# build artifacts
 dist
 test_out
 out
+
+# node modules directory
+node_modules
