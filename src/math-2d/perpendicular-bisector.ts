@@ -1,4 +1,4 @@
-import lineFromPoints from './line-from-points';
+import { lineFromPoints } from './line-from-points';
 import { Line2d } from './types/line-2d';
 import { Point2d } from './types/point-2d';
 

@@ -1,8 +1,10 @@
 import { BorderEdge, BorderEdgeLoop, Color, DelaunayVertex, VoronoiNode } from './types';
 import { addVectors, crossProduct, distance, movePoint, normalizeVector, pointIsLeftOfLine, pointsAreEqual, scaleVector, triangleCircumcenter, Vector2d } from '../math-2d';
 import { deepCopy, Logger } from '../utils';
-import Delaunator from 'delaunator';
 import { VoronoiCellMode } from './types/voronoi-cell-mode';
+import { EMPTY_FACTION } from './constants';
+
+const dynamicImport = new Function('specifier', 'return import(specifier)');
 
 /**
  * An instance of this class calculates a Voronoi diagram for a given set of
@@ -23,16 +25,26 @@ export class VoronoiBorder {
    * @param controlPointTension The amount of control point tension (default is 0.35)
    * @returns The algorithm's result
    */
-  public static calculateBorders(
+  public static async calculateBorders(
     vertices: DelaunayVertex[],
     cellMode: VoronoiCellMode = VoronoiCellMode.Circumcenters,
     borderSeparation = 0.5,
     controlPointTension = 0.35
   ) {
+    const Delaunator = (await dynamicImport('delaunator')).default;
     // reset vertices' adjacency information
-    vertices.forEach(vertex => { vertex.adjacentTriIndices = [] });
+    vertices.forEach((vertex) => { vertex.adjacentTriIndices = [] });
     // run delaunay triangulation (using the delaunator library)
-    const delaunay = Delaunator.from(vertices.map(vertex => [vertex.x, vertex.y]));
+    const delaunay = Delaunator.from(vertices.map((vertex) => [vertex.x, vertex.y]));
+    // const delaunayTriangles = delaunay.
+    const delaunayTriangles = [];
+    for (let i = 0; i < delaunay.triangles.length; i += 3) {
+      delaunayTriangles.push([
+        vertices[delaunay.triangles[i]],
+        vertices[delaunay.triangles[i + 1]],
+        vertices[delaunay.triangles[i + 2]],
+      ]);
+    }
     // create the voronoi nodes based on the triangulation
     const voronoiNodes = this.generateVoronoiNodes(delaunay, vertices, cellMode);
     // process the voronoi nodes and generate border edges
@@ -41,7 +53,12 @@ export class VoronoiBorder {
     const borderLoops = this.generateBorderLoops(borderEdges, vertices);
     // separate borders and generate control points
     this.processBorderLoops(borderLoops, vertices, borderSeparation, controlPointTension);
-    return borderLoops;
+    return {
+      delaunayTriangles,
+      voronoiNodes,
+      borderEdges,
+      borderLoops,
+    };
   }
 
   /**
@@ -56,7 +73,7 @@ export class VoronoiBorder {
    * @returns The list of generated voronoi nodes
    */
   private static generateVoronoiNodes(
-    delaunay: Delaunator<ArrayLike<number>>,
+    delaunay: any,
     vertices: DelaunayVertex[],
     cellMode: VoronoiCellMode,
   ) {
@@ -95,7 +112,7 @@ export class VoronoiBorder {
           voronoiNode.y = ccenter.y;
         }
       }
-      if(cellMode === VoronoiCellMode.Centroids || voronoiNode.x === Infinity) {
+      if (cellMode === VoronoiCellMode.Centroids || voronoiNode.x === Infinity) {
         voronoiNode.x = (vertex1.x + vertex2.x + vertex3.x) / 3;
         voronoiNode.y = (vertex1.y + vertex2.y + vertex3.y) / 3;
       }
@@ -118,12 +135,12 @@ export class VoronoiBorder {
    * @returns The list of border edges
    */
   private static generateBorderEdges(voronoiNodes: VoronoiNode[], vertices: DelaunayVertex[]) {
-    const borderNodeIndices: Map<Color,number[]> = new Map();
-    const borderEdges: Map<Color,BorderEdge[]> = new Map();
+    const borderNodeIndices: Record<Color,number[]> = {};
+    const borderEdges: Record<Color,BorderEdge[]> = {};
 
     for(let nodeIdx = 0, triIdx = 0; nodeIdx < voronoiNodes.length; nodeIdx++, triIdx += 3) {
       const voronoiNode = voronoiNodes[nodeIdx];
-      // Find all (<= 3) adjacent triangles for the current node
+      // Find all (<= 3) adjacent triangles for the current node.
       // We do not need to consider all triangles as potential neighbors here.
       // Since we've remembered each vertex's adjacent triangles during previous
       // steps, we'll just look at those triangles and look for edges they share
@@ -134,7 +151,7 @@ export class VoronoiBorder {
       // and A-C edges. The same principle is then applied to the B-C edge.
       //
       // This is slightly more complicated than just iterating over all
-      // triangles again, but reduces the algorithm's big-O complexity.
+      // triangles again, but it reduces the algorithm's big-O complexity.
       const vertex1 = vertices[voronoiNode.vertex1Idx];
       const vertex2 = vertices[voronoiNode.vertex2Idx];
       const vertex3 = vertices[voronoiNode.vertex3Idx];
@@ -167,38 +184,38 @@ export class VoronoiBorder {
       // Iterate over the current node's vertices and mark the node as a border node
       // if not all vertices have the same color.
       // Also remember all adjacent colors for each node.
-      if (!borderNodeIndices.has(vertex1.color)) { borderNodeIndices.set(vertex1.color, []) }
-      if (!borderNodeIndices.has(vertex2.color)) { borderNodeIndices.set(vertex2.color, []) }
-      if (!borderNodeIndices.has(vertex3.color)) { borderNodeIndices.set(vertex3.color, []) }
+      if (!borderNodeIndices[vertex1.color]) { borderNodeIndices[vertex1.color] = [] }
+      if (!borderNodeIndices[vertex2.color]) { borderNodeIndices[vertex2.color] = [] }
+      if (!borderNodeIndices[vertex3.color]) { borderNodeIndices[vertex3.color] = [] }
 
       // case 1: all objects share the same color (no border)
       if(vertex1.color === vertex2.color && vertex2.color === vertex3.color) {
           // do nothing
       // case 2: vertex 1 and 2 share color, vertex 3 has different color
       } else if (vertex1.color === vertex2.color && vertex1.color !== vertex3.color) {
-        (borderNodeIndices.get(vertex1.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex1.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex1.color] = true;
-        (borderNodeIndices.get(vertex3.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex3.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex3.color] = true;
       // case 3: vertex 1 and 3 share color, vertex 2 has different color
       } else if (vertex1.color === vertex3.color && vertex1.color !== vertex2.color) {
-        (borderNodeIndices.get(vertex1.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex1.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex1.color] = true;
-        (borderNodeIndices.get(vertex2.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex2.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex2.color] = true;
       // case 4: vertex 2 and 3 share color, vertex 1 has different color
       } else if (vertex2.color === vertex3.color && vertex1.color !== vertex2.color) {
-        (borderNodeIndices.get(vertex1.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex1.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex1.color] = true;
-        (borderNodeIndices.get(vertex2.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex2.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex2.color] = true;
       // case 5: each vertex has a different color
       } else {
-        (borderNodeIndices.get(vertex1.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex1.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex1.color] = true;
-        (borderNodeIndices.get(vertex2.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex2.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex2.color] = true;
-        (borderNodeIndices.get(vertex3.color) as number[]).push(nodeIdx);
+        (borderNodeIndices[vertex3.color] as number[]).push(nodeIdx);
         voronoiNode.borderColors[vertex3.color] = true;
       }
 
@@ -234,9 +251,10 @@ export class VoronoiBorder {
               rightColor: '', // will be calculated later
               length: distance(voronoiNode, neighborNode)
             };
-            if (!borderEdges.has(color1)) { borderEdges.set(color1, []) }
-            if (!borderEdges.has(color2)) { borderEdges.set(color2, []) }
-            (borderEdges.get(color1) as BorderEdge[]).push(borderEdge);
+            if (!borderEdges[color1]) { borderEdges[color1] = [] }
+            if (!borderEdges[color2]) { borderEdges[color2] = [] }
+            (borderEdges[color1] as BorderEdge[]).push(borderEdge);
+            (borderEdges[color2] as BorderEdge[]).push(borderEdge);
           }
         }
       });
@@ -255,19 +273,20 @@ export class VoronoiBorder {
    * @param vertices The vertices (= systems and noise points) that the voronoi diagram is based on
    * @returns The map, by color, of all border loops
    */
-  private static generateBorderLoops(borderEdges: Map<Color,BorderEdge[]>, vertices: DelaunayVertex[]) {
-    const borderLoops: Map<Color,BorderEdgeLoop[]> = new Map();
+  private static generateBorderLoops(borderEdges: Record<Color,BorderEdge[]>, vertices: DelaunayVertex[]) {
+    const borderLoops: Record<Color,BorderEdgeLoop[]> = {};
 
-    for(const [color, originalEdges] of borderEdges) {
+    Object.keys(borderEdges).forEach((color) => {
+      const originalEdges = borderEdges[color];
       // The array of unprocessed edges (a clone of the original edges).
       // It's actually important to clone the edge objects here, because each color's
       // loops will be modified separately (and differently) at a later stage.
       const unprocessedEdges = deepCopy<BorderEdge[]>(originalEdges);
       // the array of loops for the current color
-      if(!borderLoops.has(color)) {
-        borderLoops.set(color, []);
+      if(!borderLoops[color]) {
+        borderLoops[color] = [];
       }
-      const currentColorLoops = borderLoops.get(color) as BorderEdgeLoop[];
+      const currentColorLoops = borderLoops[color] as BorderEdgeLoop[];
       //let edges = deepCopy<BorderEdge[]>(originalEdges);
 
       let currentLoop: BorderEdgeLoop = {
@@ -380,7 +399,7 @@ export class VoronoiBorder {
       currentColorLoops.forEach(loop => this.ensureEdgeLoopClockwiseOrder(loop));
 
       // Edge loop generation finished for the current color.
-    }
+    });
     return borderLoops;
   }
 
@@ -457,16 +476,16 @@ export class VoronoiBorder {
    * @param borderSeparation The amount of distance that any given edge will be pulled
    * @param controlPointTension The control point tension value
    */
-  private static processBorderLoops(borderEdgeLoops: Map<Color,BorderEdgeLoop[]>, vertices: DelaunayVertex[], borderSeparation: number, controlPointTension: number) {
+  private static processBorderLoops(borderEdgeLoops: Record<Color,BorderEdgeLoop[]>, vertices: DelaunayVertex[], borderSeparation: number, controlPointTension: number) {
     // ignore border separation values under a certain threshold
     // TODO make threshold configurable
     if(Math.abs(borderSeparation) < 0.01) { return }
-    for(const [, edgeLoops] of borderEdgeLoops) {
+    Object.values(borderEdgeLoops).forEach((edgeLoops) => {
       edgeLoops.forEach(loop => {
         this.pullEdgeLoop(loop, vertices, borderSeparation);
         this.generateEdgeControlPoints(loop, controlPointTension);
       });
-    }
+    });
   }
 
   /**
@@ -539,7 +558,7 @@ export class VoronoiBorder {
       // border edge nodes that border on 3 different colors have their control points set to the nodes themselves
       if (
         Object.keys(currentEdge.node2.borderColors).length > 2 &&
-        !currentEdge.node2.borderColors['DUMMY'] &&
+        !currentEdge.node2.borderColors[EMPTY_FACTION] &&
         !currentEdge.node2.borderColors['I']
       ) {
         currentEdge.n1c2 = { x: point1.x, y: point1.y };

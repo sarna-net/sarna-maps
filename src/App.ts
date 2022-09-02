@@ -1,6 +1,6 @@
 import { Logger } from './utils';
 import { SuckitReader } from './mapgen';
-import { SvgWriter } from './mapgen/svg-writer';
+import { SvgWriter } from './writer/write-svg-map';
 
 /**
  * Application singleton. Call App.run() to start.
@@ -39,17 +39,17 @@ export class App {
         App.init();
         Logger.info('App running');
         //const dataReader = new DataReader('1NOqCZxVN8KvdkAbefginjvAuRrRCqrt3ihQh11inr60');
-        const dataReader = new SuckitReader('1x9bvFqSb4_or8JbvGj2LnezGkChWxEzRPf5FXvjonHE');
-        const { eras, factions, systems, nebulae } = await dataReader.readDataFromSpreadsheet();
+        // const dataReader = new SuckitReader('1x9bvFqSb4_or8JbvGj2LnezGkChWxEzRPf5FXvjonHE');
+        // const { eras, factions, systems, nebulae } = await dataReader.readDataFromSpreadsheet();
         // convert systems into voronoi nodes
-        const delaunayVertices = systems.map((system) => {
-            return {
-                x: system.x,
-                y: system.y,
-                color: system.eraAffiliations[15],
-                adjacentTriIndices: []
-            };
-        });
+        // const delaunayVertices = systems.map((system) => {
+        //     return {
+        //         x: system.x,
+        //         y: system.y,
+        //         color: system.eraAffiliations[15],
+        //         adjacentTriIndices: []
+        //     };
+        // });
         // const borderLoops = VoronoiBorder.calculateBorders(delaunayVertices);
         // SvgWriter.writeSvgMap(factions, borderLoops, {
         //     name: 'test',

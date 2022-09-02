@@ -1,5 +1,5 @@
-import lineLineIntersection from './line-line-intersection';
-import perpendicularBisector from './perpendicular-bisector';
+import { lineLineIntersection } from './line-line-intersection';
+import { perpendicularBisector } from './perpendicular-bisector';
 import { Point2d } from './types/point-2d';
 
 /**

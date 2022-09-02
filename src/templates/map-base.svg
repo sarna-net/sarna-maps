@@ -4,9 +4,9 @@
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
 	version="1.1"
-	viewBox="{VIEWBOX}"
-	width="{WIDTH}px"
-	height="{HEIGHT}px">
+	viewBox="{{VIEWBOX}}"
+	width="{{WIDTH}}px"
+	height="{{HEIGHT}}px">
 
 	<defs>
 		<filter id="sLblShd">
@@ -48,15 +48,11 @@
 		<pattern id="nebula-fill" width="2" height="2" patternUnits="userSpaceOnUse">
 			<path d="M-.5,.5 l1,-1 M0,2 l2,-2 M1.5,2.5 l1,-1" style="stroke:rgb(0, 0, 0); stroke-opacity: .075; stroke-width:.6" />
 		</pattern>
-		{DEFS}
+		{{DEFS}}
 	</defs>
 
 	<style>
 		text { fill: #000; font-family: Tahoma, Arial, sans-serif; font-size: 2.75px; text-rendering: optimizeLegibility; }
-		g.systems .system { fill: #000; stroke: #000; stroke-width: .25; } /* default color */
-		g.systems .system-decoration { fill: none; stroke: #000; stroke-width: .25; }
-		g.systems .system.U { stroke: #777; }
-		/*g.systems .system.undiscovered { stroke: #555; }*/
 		g.clusters .cluster { fill: #000; stroke: #000; stroke-width: .25; } /* default color */
 		g.jump-radius-rings circle { fill: none; stroke: rgb(80,80,80); stroke-opacity:.5; stroke-width: .25 }
 		g.nebulae ellipse { fill: rgb(0, 0, 0); fill-opacity: 0.1; stroke: rgb(0, 0, 0); stroke-opacity: .3; stroke-width: .25 }
@@ -80,7 +76,7 @@
 		.scale rect.white { stroke-width: 0; fill: #fff; }
 		.scale rect.frame { stroke: #000; stroke-width: 0.4375; fill: none; }
 		path.logo { fill: #000; fill-rule: evenodd; stroke: none; }
-		{CSS}
+		{{CSS}}
 
 		/* IE10+ specific styles */
 		@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
@@ -105,5 +101,5 @@
 		}
 	</style>
 
-	{ELEMENTS}
+	{{ELEMENTS}}
 </svg>
