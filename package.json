@@ -1,48 +1,54 @@
 {
-    "name": "sarna-maps",
-    "version": "1.0.0",
-    "description": "Battletech maps generator as used on sarna.net",
-    "main": "index.js",
-    "scripts": {
-        "build": "tsc",
-        "start": "node ./dist/main.js",
-        "test": "NODE_ENV=test mocha -r ts-node/register src/**/*.spec.ts"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+ssh://git@gitlab.com/gruese/sarna-maps.git"
-    },
-    "keywords": [
-        "battletech",
-        "sarna",
-        "maps"
-    ],
-    "author": "Christoph Wassermann",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://gitlab.com/gruese/sarna-maps/issues"
-    },
-    "homepage": "https://gitlab.com/gruese/sarna-maps#readme",
-    "dependencies": {
-        "delaunator": "^4.0.1",
-        "dotenv": "^8.1.0",
-        "googleapis": "^43.0.0",
-        "seedrandom": "^3.0.3",
-        "winston": "^3.2.1",
-        "yargs-parser": "^14.0.0"
-    },
-    "devDependencies": {
-        "@types/chai": "^4.2.2",
-        "@types/delaunator": "^3.0.0",
-        "@types/dotenv": "^6.1.1",
-        "@types/mocha": "^5.2.7",
-        "@types/node": "^12.7.5",
-        "@types/seedrandom": "^2.4.28",
-        "@types/yargs-parser": "^13.1.0",
-        "chai": "^4.2.0",
-        "mocha": "^6.2.0",
-        "ts-node": "^8.3.0",
-        "tslint": "^5.20.0",
-        "typescript": "^3.6.2"
-    }
+  "name": "sarna-maps",
+  "version": "2.0.0",
+  "description": "Battletech maps generator as used on sarna.net",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/main.ts",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts",
+    "lint": "eslint --ext .ts ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/gruese/sarna-maps.git"
+  },
+  "keywords": [
+    "battletech",
+    "sarna",
+    "sarna.net",
+    "maps"
+  ],
+  "author": "Grüse",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/gruese/sarna-maps/issues"
+  },
+  "homepage": "https://gitlab.com/gruese/sarna-maps#readme",
+  "dependencies": {
+    "delaunator": "^5.0.0",
+    "dotenv": "^16.0.1",
+    "googleapis": "^105.0.0",
+    "seedrandom": "^3.0.5",
+    "winston": "^3.8.1",
+    "yargs-parser": "^21.0.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.1",
+    "@types/delaunator": "^5.0.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.0.4",
+    "@types/seedrandom": "^3.0.2",
+    "@types/yargs-parser": "^21.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
+    "chai": "^4.3.6",
+    "eslint": "^8.19.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "tsimportlib": "^0.0.3",
+    "typescript": "^4.7.4"
+  }
 }
