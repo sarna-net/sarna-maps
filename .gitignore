@@ -8,3 +8,9 @@ out
 
 # node modules directory
 node_modules
+
+# data directory
+data
+
+# IDE files
+.idea
