@@ -1,13 +1,15 @@
 import { BorderEdgeLoop } from '../voronoi-border';
 import { DelaunayVertex, dynamicImport, generateVoronoiNodes, Point2d, VoronoiCellMode, VoronoiNode } from '../../common';
 import { generateEvenlyDistributedPointsAlongEdgeLoop } from './generate-evenly-distributed-points-along-edge-loop';
+import { Delaunay, Voronoi } from 'd3-delaunay';
 
 export async function placeAreaLabels(borderLoops: Record<string, Array<BorderEdgeLoop>>) {
-  const Delaunator = (await dynamicImport('delaunator')).default;
+  // const Delaunator = (await dynamicImport('delaunator')).default;
 
   let delaunayVertices: Array<DelaunayVertex> = [];
   const delaunayTriangles: Array<{ p1: Point2d, p2: Point2d, p3: Point2d }> = [];
   let voronoiNodes: Array<VoronoiNode> = [];
+  let voronoi: Voronoi<Delaunay.Point> | null = null;
 
   Object.keys(borderLoops).forEach((faction) => {
     if (faction === 'LC') {
@@ -19,7 +21,7 @@ export async function placeAreaLabels(borderLoops: Record<string, Array<BorderEd
       //   });
       // });
 
-      const delaunay = Delaunator.from(delaunayVertices.map((vertex) => [vertex.x, vertex.y]));
+      const delaunay = Delaunay.from(delaunayVertices.map((vertex) => [vertex.x, vertex.y]));
       for (let i = 0; i < delaunay.triangles.length; i += 3) {
         delaunayTriangles.push({
           p1: delaunayVertices[delaunay.triangles[i]],
@@ -27,7 +29,8 @@ export async function placeAreaLabels(borderLoops: Record<string, Array<BorderEd
           p3: delaunayVertices[delaunay.triangles[i + 2]],
         });
       }
-      voronoiNodes = generateVoronoiNodes(delaunay, delaunayVertices, VoronoiCellMode.Centroids);
+      voronoi = delaunay.voronoi([-2000, -2000, 4000, 4000]);
+      // voronoiNodes = generateVoronoiNodes(delaunay, delaunayVertices, VoronoiCellMode.Centroids);
 
       // const delaunayTriangles: Array<[DelaunayVertex, DelaunayVertex, DelaunayVertex]> = [];
       // for (let i = 0; i < delaunay.triangles.length; i += 3) {
@@ -40,9 +43,13 @@ export async function placeAreaLabels(borderLoops: Record<string, Array<BorderEd
     }
   });
 
+  if (!voronoi) {
+    throw new Error('no Voronoi diagram object available');
+  }
+
   return {
     delaunayVertices,
     delaunayTriangles,
-    voronoiNodes,
+    voronoi,
   };
 }

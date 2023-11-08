@@ -26,6 +26,7 @@ export function connectSalients(loops: Record<string, Array<BorderSection>>) {
       const closestEdges = findCloseSectionEdges(loops[faction][i], loops[faction]);
       if (closestEdges.length > 0) {
         mergePoints.push({
+          id: `salient-merge-point-${faction}-${i}`,
           x: 0.5 * (closestEdges[0].closestIslandNode.x + closestEdges[0].closestSectionPoint.x),
           y: 0.5 * (closestEdges[0].closestIslandNode.y + closestEdges[0].closestSectionPoint.y),
           affiliation: faction,

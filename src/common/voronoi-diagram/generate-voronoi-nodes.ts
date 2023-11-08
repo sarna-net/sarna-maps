@@ -42,32 +42,6 @@ export function generateVoronoiNodes<T extends DelaunayVertex>(
     vertex2.adjacentTriIndices.push(vertexIdx);
     vertex3.adjacentTriIndices.push(vertexIdx);
 
-    // A-B and A-C edges:
-    // vertex1.adjacentTriIndices.forEach((vert1AdjTriIndex: number) => {
-    //   // trivially, the current triangle is not its own neighbor
-    //   if(vert1AdjTriIndex === vertexIdx) { return }
-    //   vertex2.adjacentTriIndices.forEach((vert2AdjTriIndex: number) => {
-    //     if(vert1AdjTriIndex === vert2AdjTriIndex) {
-    //       voronoiNode.neighborNodeIndices.push(vert1AdjTriIndex / 3);
-    //     }
-    //   });
-    //   vertex3.adjacentTriIndices.forEach((vert3AdjTriIndex: number) => {
-    //     if(vert1AdjTriIndex === vert3AdjTriIndex) {
-    //       voronoiNode.neighborNodeIndices.push(vert1AdjTriIndex / 3);
-    //     }
-    //   });
-    // });
-    // // B-C edges
-    // vertex2.adjacentTriIndices.forEach((vert2AdjTriIndex: number) => {
-    //   if(vert2AdjTriIndex === vertexIdx) { return }
-    //   vertex3.adjacentTriIndices.forEach((vert3AdjTriIndex: number) => {
-    //     if(vert2AdjTriIndex === vert3AdjTriIndex) {
-    //       voronoiNode.neighborNodeIndices.push(vert2AdjTriIndex / 3);
-    //     }
-    //   });
-    // });
-
-
     // calculate voronoi node coordinates, using the vertex object's positions
     if (cellMode === VoronoiCellMode.Circumcenters) {
       const ccenter = triangleCircumcenter(vertex1, vertex2, vertex3);

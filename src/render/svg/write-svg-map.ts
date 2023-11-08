@@ -30,6 +30,7 @@ import {
   renderVoronoiNodes,
   renderAreaLabels,
 } from './functions';
+import { Delaunay, Voronoi } from 'd3-delaunay';
 
 export function writeSvgMap(
   eraIndex: number,
@@ -47,7 +48,7 @@ export function writeSvgMap(
   pointsOfInterest: Array<Point2d>,
   systemLabels: Array<LabelRectangle>,
   areaLabelTriangles: Array<{ p1: Point2d, p2: Point2d, p3: Point2d }>,
-  areaLabelNodes: Array<VoronoiNode>,
+  areaLabelVoronoi: Voronoi<Delaunay.Point>,
   options: ImageOutputOptions,
 ) {
   // svg viewBox's y is top left, not bottom left
@@ -101,7 +102,7 @@ export function writeSvgMap(
 
   const { css: areaLabelsCss, markup: areaLabelsMarkup } = renderAreaLabels(
     areaLabelTriangles,
-    areaLabelNodes,
+    areaLabelVoronoi,
   );
 
   // const borders = renderBorders(borderLoops, factions);

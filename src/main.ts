@@ -127,7 +127,7 @@ async function writeMap(
     poissonSettings,
   );
   const systemLabels = placeSystemLabels(viewRect, eraIndex, systems, glyphConfig, labelConfig);
-  const { delaunayTriangles: areaLabelTriangles, voronoiNodes: areaLabelNodes } = await placeAreaLabels(voronoiResult.borderLoops || {});
+  const { delaunayTriangles: areaLabelTriangles, voronoi: areaLabelVoronoi } = await placeAreaLabels(voronoiResult.borderLoops || {});
 
   writeSvgMap(
     eraIndex,
@@ -145,7 +145,7 @@ async function writeMap(
     [],
     systemLabels,
     areaLabelTriangles,
-    areaLabelNodes,
+    areaLabelVoronoi,
     {
       dimensions: {
         height: 4000,

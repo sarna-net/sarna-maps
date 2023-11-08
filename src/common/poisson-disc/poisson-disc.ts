@@ -7,7 +7,7 @@ const DEFAULT_POISSON_SETTINGS: PoissonSettings = {
   origin: { x: -50, y: -50 },
   dimensions: { width: 100, height: 100 },
   radius: 10,
-  maxSamples: 10,
+  maxSamples: 20,
   seed: 'poisson-disc',
 };
 

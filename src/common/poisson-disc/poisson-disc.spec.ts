@@ -91,9 +91,10 @@ describe('Poisson Disc algorithm class', () => {
         origin: { x: 0, y: 0 },
         dimensions: { width: 10000, height: 10000 },
         radius: 30,
+        maxSamples: 30,
       },
       defaultPoint,
     ).run();
-    expect(pdisc.aggregatedPoints.length).to.equal(68555);
+    expect(pdisc.aggregatedPoints.length).to.equal(68572);
   }).slow('3s').timeout('6s');
 });

@@ -39,6 +39,7 @@ export async function calculateVoronoiBorders(
 
   // generate noise points for anything outside the actual borders
   const defaultPoissonPoint: PointWithAffiliation = {
+    id: 'poisson-point',
     x: 0,
     y: 0,
     affiliation: EMPTY_FACTION,
@@ -48,6 +49,13 @@ export async function calculateVoronoiBorders(
   // add a special reserved point next to Sol, because the distance to Rigil Kentarus is so small
   const terra = systems.find((system) => system.name === 'Sol');
   const solAffiliation = extractBorderStateAffiliation(terra?.eraAffiliations[era.index] || '');
+
+  // systems.forEach((system) => {
+  //   const aff = extractBorderStateAffiliation(system.eraAffiliations[era.index] || '');
+  //   if (aff === 'IE') {
+  //     console.log(system);
+  //   }
+  // });
 
   let voronoiResult: VoronoiResult = performVoronoiCalculations(
     Delaunator,
@@ -140,13 +148,14 @@ function performVoronoiCalculations(
 ): VoronoiResult {
   poissonDisc.replaceReservedPoints([
     ...systems.map((system) => ({
+      id: system.id,
       x: system.x,
       y: system.y,
       affiliation: extractBorderStateAffiliation(system.eraAffiliations[era.index]),
     })).filter((system) => !IRRELEVANT_AFFILIATIONS.includes(system.affiliation)),
     ...salientPoints,
-    {x: 1, y: 3, affiliation: solAffiliation},
-    {x: 2.5, y: -1.25, affiliation: solAffiliation},
+    {id: 'sol-buffer-point-1', x: 1, y: 3, affiliation: solAffiliation},
+    {id: 'sol-buffer-point-2', x: 2.5, y: -1.25, affiliation: solAffiliation},
   ]);
 
   // filter out points that are irrelevant for drawing the borders, then add an empty adjacency list to each relevant point
