@@ -6,7 +6,8 @@ import {
   System,
   Point2d,
   PoissonDisc,
-  TextTemplate, DelaunayTriangle, VoronoiNode,
+  TextTemplate,
+  DelaunayTriangle,
 } from '../../common';
 import {
   VoronoiBorderEdge,
@@ -15,7 +16,7 @@ import {
   VoronoiBorderNode,
   BorderSection,
   LabelRectangle,
-  PointWithAffiliation,
+  PointWithAffiliation, FactionLabel,
 } from '../../compute'
 import { ImageOutputOptions } from './types';
 import {
@@ -28,9 +29,8 @@ import {
   renderSystems,
   renderSystemLabels,
   renderVoronoiNodes,
-  renderAreaLabels,
+  renderFactionLabels,
 } from './functions';
-import { Delaunay, Voronoi } from 'd3-delaunay';
 
 export function writeSvgMap(
   eraIndex: number,
@@ -47,8 +47,7 @@ export function writeSvgMap(
   borderEdgesMap: Record<string, VoronoiBorderEdge>,
   pointsOfInterest: Array<Point2d>,
   systemLabels: Array<LabelRectangle>,
-  areaLabelTriangles: Array<{ p1: Point2d, p2: Point2d, p3: Point2d }>,
-  areaLabelVoronoi: Voronoi<Delaunay.Point>,
+  factionLabels: Array<FactionLabel>,
   options: ImageOutputOptions,
 ) {
   // svg viewBox's y is top left, not bottom left
@@ -100,28 +99,23 @@ export function writeSvgMap(
     false
   );
 
-  const { css: areaLabelsCss, markup: areaLabelsMarkup } = renderAreaLabels(
-    areaLabelTriangles,
-    areaLabelVoronoi,
-  );
-
-  // const borders = renderBorders(borderLoops, factions);
+  const { defs: factionLabelDefs, css: factionLabelCss, markup: factionLabelsMarkup } = renderFactionLabels(factionLabels);
 
   const docTemplate = new TextTemplate('map-base.svg', path.join(__dirname, './templates'));
   const content = docTemplate.replace({
     width: options.dimensions.width,
     height: options.dimensions.height,
     viewbox: viewBox,
-    defs: borderDefs + systemDefs,
+    defs: borderDefs + systemDefs + factionLabelDefs,
     css: poissonCss +
       delaunayCss +
       voronoiCss +
       borderEdgesCss +
       borderSectionsCss +
       bordersCss +
+      factionLabelCss +
       systemsCss +
       systemLabelsCss +
-      areaLabelsCss +
       poiCss,
     elements: poissonMarkup +
       delaunayMarkup +
@@ -129,9 +123,9 @@ export function writeSvgMap(
       borderEdgesMarkup +
       borderSectionsMarkup +
       bordersMarkup +
+      factionLabelsMarkup +
       systemsMarkup +
       systemLabelsMarkup +
-      areaLabelsMarkup +
       poiMarkup,
   });
 

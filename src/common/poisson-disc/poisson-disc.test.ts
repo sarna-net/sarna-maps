@@ -1,12 +1,11 @@
-import 'mocha';
-import { expect } from 'chai';
+import { describe, it, expect } from 'vitest';
 import { PoissonDisc } from './poisson-disc';
 
 describe('Poisson Disc algorithm class', () => {
 
   const defaultPoint = { x: 0, y: 0, affiliation: 'EMPTY', };
 
-  it('should be instantiated properly with different sets of parameters', () => {
+  it ('should be instantiated properly with different sets of parameters', () => {
     const pdisc1 = new PoissonDisc({}, defaultPoint);
     const pdisc2 = new PoissonDisc(
       {
@@ -85,7 +84,7 @@ describe('Poisson Disc algorithm class', () => {
     expect(pdisc.aggregatedPoints).to.not.deep.include({ x: 98.70916965380187, y: 32.74853081848726, affiliation: 'EMPTY' });
   });
 
-  it('should work for large areas with many points', () => {
+  it('should work for large areas with many points', { timeout: 6000 }, () => {
     const pdisc = new PoissonDisc(
       {
         origin: { x: 0, y: 0 },
@@ -96,5 +95,5 @@ describe('Poisson Disc algorithm class', () => {
       defaultPoint,
     ).run();
     expect(pdisc.aggregatedPoints.length).to.equal(68572);
-  }).slow('3s').timeout('6s');
+  });
 });

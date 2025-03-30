@@ -4,7 +4,13 @@ import yargsParser from 'yargs-parser';
 import { Era, Faction, Logger, System, GlyphCollection } from './common';
 import { readFromGoogleSheet, readFromXlsxFile } from './read';
 import { writeSvgMap } from './render/svg';
-import { calculateVoronoiBorders, placeAreaLabels, placeSystemLabels, SystemLabelOptions } from './compute';
+import {
+  BorderEdgeLoop,
+  calculateVoronoiBorders, FactionLabel,
+  placeAreaLabels,
+  placeSystemLabels,
+  SystemLabelOptions
+} from './compute';
 import { readAndParseYamlFile } from './read/common';
 
 Logger.info(`Sarna map generation script v${process.env.npm_package_version}\n`);
@@ -101,8 +107,8 @@ async function writeMap(
   };
   const factionMap: Record<string, Faction> = {};
   factions.forEach((faction) => factionMap[faction.id] = faction);
-  // const eraIndex = 15; // 2864
-  const eraIndex = 16; // 3025
+  const eraIndex = 15; // 2864
+  // const eraIndex = 16; // 3025
   // const eraIndex = 25; // 3057
   // const eraIndex = 30; // 3059 <-- chaos march
 
@@ -127,7 +133,14 @@ async function writeMap(
     poissonSettings,
   );
   const systemLabels = placeSystemLabels(viewRect, eraIndex, systems, glyphConfig, labelConfig);
-  const { delaunayTriangles: areaLabelTriangles, voronoi: areaLabelVoronoi } = await placeAreaLabels(voronoiResult.borderLoops || {});
+  // const lcBorderLoops = voronoiResult.borderLoops?.LC;
+  // const {
+  //   delaunayTriangles: areaLabelTriangles,
+  //   voronoi: areaLabelVoronoi,
+  //   graphEdges: areaLabelGraphEdges,
+  //   longestPath: areaLabelPath,
+  // } = await placeAreaLabels(lcBorderLoops as Array<BorderEdgeLoop>);
+  const factionLabels = await placeAreaLabels(factions, voronoiResult.borderLoops);
 
   writeSvgMap(
     eraIndex,
@@ -144,8 +157,7 @@ async function writeMap(
     {}, // borderEdgesMap,
     [],
     systemLabels,
-    areaLabelTriangles,
-    areaLabelVoronoi,
+    factionLabels,
     {
       dimensions: {
         height: 4000,

@@ -14,13 +14,12 @@ export function generateEvenlyDistributedPointsAlongEdgeLoop(loop: BorderEdgeLoo
     .reduce((length, sum) => sum + length, 0);
 
   let travelledDistance = 0;
-  let step = 75;
+  let step = 50;
   let currentPosition: Point2d = { x: loop.edges[0].node1.x, y: loop.edges[0].node1.y };
   let remainingDistance = step;
   let currentEdgeIndex = 0;
   points.push(currentPosition);
   while (travelledDistance <= totalLength - step && currentEdgeIndex < loop.edges.length - 1) {
-    console.log('working on edge index', currentEdgeIndex);
     // check distance to next node
     const dist = distance(currentPosition, loop.edges[currentEdgeIndex + 1].node1);
     if (dist > remainingDistance) {
@@ -60,14 +59,4 @@ export function generateEvenlyDistributedPointsAlongEdgeLoop(loop: BorderEdgeLoo
   console.log(`${points.length} POINTS FOR ${loop.edges.length} NODES (${travelledDistance} of ${totalLength} with STEP = ${step})`);
 
   return points;
-  //
-  // for (let i = 0; i < currentEdge.length; i++) {
-  //   if (!startPoint) {
-  //     startPoint = loop.edges[0].node1;
-  //     points.push(startPoint);
-  //   }
-  //   currentEdgeVector = { a: startPoint.x - }
-  // }
-
-
 }

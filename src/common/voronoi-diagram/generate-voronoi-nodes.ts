@@ -94,17 +94,6 @@ export function generateVoronoiNodes<T extends DelaunayVertex>(
         }
       });
     });
-
-    // voronoiNode.neighborNodeIndices.sort((a, b) => a - b);
-    // // remove duplicates
-    // // FIXME why are there duplicates in the first place?
-    // for (let vi = 0; vi < voronoiNode.neighborNodeIndices.length - 1; vi++) {
-    //   if (voronoiNode.neighborNodeIndices[vi] === voronoiNode.neighborNodeIndices[vi + 1]) {
-    //     console.log(`DUPLICATE FOUND FOR VORONOI NODE #${voronoiNode.id}`);
-    //     voronoiNode.neighborNodeIndices.splice(vi, 1);
-    //     vi--;
-    //   }
-    // }
   }
 
   return voronoiNodes;

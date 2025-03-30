@@ -1,10 +1,9 @@
-import { expect } from 'chai';
-import 'mocha';
+import { expect, describe, it } from 'vitest';
 import { extractBorderStateAffiliation } from './extract-border-state-affiliation';
 
 describe('extractBorderStateAffiliation', () => {
 
-  it('should properly recognize simple affiliations', () => {
+  it('should extract simple affiliations', () => {
     expect(extractBorderStateAffiliation('P')).to.equal('P');
     expect(extractBorderStateAffiliation(' P')).to.equal('P');
     expect(extractBorderStateAffiliation('P ')).to.equal('P');
