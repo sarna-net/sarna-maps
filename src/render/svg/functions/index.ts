@@ -2,6 +2,7 @@ export * from './generate-disputed-system-fill-pattern';
 export * from './generate-section-path';
 export * from './render-faction-labels';
 export * from './render-border-edges';
+export * from './render-border-labels';
 export * from './render-border-loops';
 export * from './render-border-sections';
 export * from './render-delaunay-triangles';

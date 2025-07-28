@@ -16,6 +16,7 @@ export interface BasicDisplayOptions {
   displayClusters?: boolean;
   factions?: {
     displayBorders?: boolean;
+    displayBorderLabels?: boolean;
     displayFactionNames?: boolean;
     fillAreas?: boolean;
   };

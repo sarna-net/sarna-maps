@@ -1,9 +1,9 @@
 import {
-  GlyphCollection,
+  GlyphConfig,
   Rectangle2d,
-  RectangleGrid
+  RectangleGrid,
+  SystemLabelConfig,
 } from '../../../common';
-import { SystemLabelOptions } from '../types';
 import { LabelRectangle } from '../../types';
 import { findBestLabelPosition } from './find-best-label-position';
 import { applyManualLabelPlacement } from './apply-manual-label-placement';
@@ -16,17 +16,17 @@ import { applyManualLabelPlacement } from './apply-manual-label-placement';
  * @param viewRect The map bounds (labels cannot be placed outside)
  * @param grid The rectangle grid for collision checking
  * @param glyphSettings The set of glyph settings for the currently used font
- * @param options Label options
+ * @param systemLabelConfig System label configuration
  */
 export function findLabelPosition(
   labelItem: LabelRectangle,
   viewRect: Rectangle2d,
   grid: RectangleGrid,
-  glyphSettings: GlyphCollection,
-  options: SystemLabelOptions,
+  glyphSettings: GlyphConfig,
+  systemLabelConfig: SystemLabelConfig,
 ) {
   // If there is a manual placement definition for the current system, use it to attempt to place the label,
-  const manualPlacement = options.systemLabelOverrides[labelItem.label || ''];
+  const manualPlacement = systemLabelConfig.overrides[labelItem.label || ''];
   if (manualPlacement) {
     applyManualLabelPlacement(labelItem, manualPlacement, viewRect, glyphSettings);
   }

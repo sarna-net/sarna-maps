@@ -1,6 +1,7 @@
 import { GlyphSettings } from './glyph-settings';
 
-export interface GlyphCollection {
+export interface GlyphConfig {
   regular: GlyphSettings;
   small: GlyphSettings;
+  borderLabels?: GlyphSettings;
 }

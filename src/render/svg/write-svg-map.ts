@@ -16,11 +16,14 @@ import {
   VoronoiBorderNode,
   BorderSection,
   LabelRectangle,
-  PointWithAffiliation, FactionLabel,
+  PointWithAffiliation,
+  FactionLabel,
+  BorderLabelsResult,
 } from '../../compute'
 import { ImageOutputOptions } from './types';
 import {
   renderBorderEdges,
+  renderBorderLabels,
   renderBorderLoops,
   renderBorderSections,
   renderDelaunayTriangles,
@@ -45,6 +48,7 @@ export function writeSvgMap(
   borderLoops: Record<string, Array<BorderEdgeLoop>>,
   threeWayNodes: Record<string, Array<string>>,
   borderEdgesMap: Record<string, VoronoiBorderEdge>,
+  borderLabels: BorderLabelsResult,
   pointsOfInterest: Array<Point2d>,
   systemLabels: Array<LabelRectangle>,
   factionLabels: Array<FactionLabel>,
@@ -88,6 +92,14 @@ export function writeSvgMap(
     ? { css: '', markup: '' }
     : renderPointsOfInterest(pointsOfInterest);
 
+  const {
+    css: borderLabelsCss,
+    markup: borderLabelsMarkup,
+    defs: borderLabelsDefs,
+  } = !options.factions?.displayBorderLabels
+    ? { css: '', markup: '', defs: '' }
+    : renderBorderLabels(borderLabels, factions);
+
   const { defs: systemDefs, css: systemsCss, markup: systemsMarkup } = renderSystems(
     systems,
     factions,
@@ -99,20 +111,23 @@ export function writeSvgMap(
     false
   );
 
-  const { defs: factionLabelDefs, css: factionLabelCss, markup: factionLabelsMarkup } = renderFactionLabels(factionLabels);
+  const { defs: factionLabelDefs, css: factionLabelCss, markup: factionLabelsMarkup } = !options.factions?.displayFactionNames
+    ? { css: '', markup: '' }
+    : renderFactionLabels(factionLabels);
 
   const docTemplate = new TextTemplate('map-base.svg', path.join(__dirname, './templates'));
   const content = docTemplate.replace({
     width: options.dimensions.width,
     height: options.dimensions.height,
     viewbox: viewBox,
-    defs: borderDefs + systemDefs + factionLabelDefs,
+    defs: borderDefs + systemDefs + factionLabelDefs + borderLabelsDefs,
     css: poissonCss +
       delaunayCss +
       voronoiCss +
       borderEdgesCss +
       borderSectionsCss +
       bordersCss +
+      borderLabelsCss +
       factionLabelCss +
       systemsCss +
       systemLabelsCss +
@@ -123,6 +138,7 @@ export function writeSvgMap(
       borderEdgesMarkup +
       borderSectionsMarkup +
       bordersMarkup +
+      borderLabelsMarkup +
       factionLabelsMarkup +
       systemsMarkup +
       systemLabelsMarkup +

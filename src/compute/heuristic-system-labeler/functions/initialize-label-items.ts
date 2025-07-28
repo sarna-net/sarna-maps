@@ -1,37 +1,36 @@
 import {
   extractBorderStateAffiliation,
-  GlyphCollection,
+  GlyphConfig,
   IdentifiableRectangle,
   Rectangle2d,
   RectangleGrid,
   System,
+  SystemLabelConfig,
 } from '../../../common';
-import { SystemLabelMarginOptions, SystemLabelOptions } from '../types';
 import { LABEL_ID_PREFIX } from '../constants';
 import { LabelAddition, LabelRectangle } from '../../types';
 
 /**
  * Init function: Create two identifiable rectangle items for each system - one for the system itself, and one
  * for its label, and initialize the label position in the default spot (directly to the right of the system).
- * Then, add both items to a rectangle grid.
+ * Then, add both items to the provided rectangle grid.
  *
  * @param viewRect The bounds of the image to generate (labels cannot be placed outside)
  * @param eraIndex The displayed era's index
  * @param systems The list of systems (includes clusters)
+ * @param grid The rectangle grid to place the objects in
  * @param glyphSettings The glyph settings for the regular sized font
- * @param options The label options
+ * @param systemLabelConfig The label options
  * @returns The collision grid and the system and label rectangular items
  */
 export function initializeLabelItems(
   viewRect: Rectangle2d,
   eraIndex: number,
   systems: Array<System>,
-  glyphSettings: GlyphCollection,
-  options: SystemLabelOptions,
+  grid: RectangleGrid,
+  glyphSettings: GlyphConfig,
+  systemLabelConfig: SystemLabelConfig,
 ) {
-  // Create a rectangle grid that will let us check for label collisions
-  const grid = new RectangleGrid(viewRect);
-
   // Create the rectangular system and label items
   const systemItems: Array<IdentifiableRectangle> = [];
   const labelItems: Array<LabelRectangle> = [];
@@ -39,16 +38,14 @@ export function initializeLabelItems(
     const systemName = system.eraNames[eraIndex];
     const systemAffiliation = extractBorderStateAffiliation(system.eraAffiliations[eraIndex], ['']);
     const additions = getLabelAdditions(system, eraIndex);
-    const labelMargin = getLabelMargin(system, eraIndex, options.labelMargin);
+    const labelMargin = getLabelMargin(system, eraIndex, systemLabelConfig);
 
     // determine label dimensions
-    let labelWidth = options.labelPadding.x * 2;
+    let labelWidth = systemLabelConfig.padding.x * 2;
     for (let i = 0; i < systemName.length; i++) {
-      labelWidth += glyphSettings.regular.widths[systemName[i]] ||
-        glyphSettings.regular.widths['default'] ||
-        options.defaultGlyphWidth;
+      labelWidth += glyphSettings.regular.widths[systemName[i]] || glyphSettings.regular.widths['default'];
     }
-    let labelHeight = glyphSettings.regular.lineHeight + options.labelPadding.y * 2;
+    let labelHeight = glyphSettings.regular.lineHeight + systemLabelConfig.padding.y * 2;
     additions.forEach((addition, labelIndex) => {
       labelHeight += glyphSettings.small.lineHeight;
       addition.delta.y = (additions.length - 1 - labelIndex) * glyphSettings.small.lineHeight;
@@ -88,7 +85,7 @@ export function initializeLabelItems(
       },
       parent: systemItem,
       processed: false,
-      padding: options.labelPadding,
+      padding: systemLabelConfig.padding,
       margin: labelMargin,
       affiliation: systemAffiliation,
       additions: additions,
@@ -100,18 +97,18 @@ export function initializeLabelItems(
     }
     grid.placeItem(labelItem)
   });
-  return { grid, systemItems, labelItems };
+  return { systemItems, labelItems };
 }
 
-function getLabelMargin(system: System, eraIndex: number, marginOptions: SystemLabelMarginOptions) {
+function getLabelMargin(system: System, eraIndex: number, systemLabelConfig: SystemLabelConfig) {
   const capitalLevel = system.eraCapitalLevels[eraIndex];
-  return capitalLevel === 1 && marginOptions.factionCapital
-    ? { ...marginOptions.factionCapital }
-    : capitalLevel === 2 && marginOptions.majorCapital
-    ? { ...marginOptions.majorCapital }
-    : capitalLevel === 3 && marginOptions.minorCapital
-    ? { ...marginOptions.minorCapital }
-    : { ...marginOptions.regular };
+  return capitalLevel === 1 && systemLabelConfig.margins.factionCapital
+    ? { ...systemLabelConfig.margins.factionCapital }
+    : capitalLevel === 2 && systemLabelConfig.margins.majorCapital
+    ? { ...systemLabelConfig.margins.majorCapital }
+    : capitalLevel === 3 && systemLabelConfig.margins.minorCapital
+    ? { ...systemLabelConfig.margins.minorCapital }
+    : { ...systemLabelConfig.margins.regular };
 }
 
 function getLabelAdditions(system: System, eraIndex: number) {

@@ -1,37 +1,5 @@
-import { GlyphCollection, Rectangle2d, System } from '../../common';
+import { GlyphConfig, Rectangle2d, RectangleGrid, System, SystemLabelConfig } from '../../common';
 import { findLabelPosition, initializeLabelItems } from './functions';
-import { SystemLabelOptions } from './types';
-
-// TODO put these options in a config file
-const DEFAULT_SYSTEM_LABEL_OPTIONS: SystemLabelOptions = {
-  // defaultLabelMargin: 0.3,
-  defaultGlyphWidth: 1,
-  labelPadding: {
-    x: 0.25,
-    y: 0.2,
-  },
-  labelMargin: {
-    regular: {
-      top: 0,
-      right: 0.3,
-      bottom: 0.75,
-      left: 0.3,
-    },
-    factionCapital: {
-      top: 1,
-      right: 1.2,
-      bottom: 1.25,
-      left: 1.2,
-    },
-    majorCapital: {
-      top: 0.75,
-      right: 0.7,
-      bottom: 1,
-      left: 0.7,
-    },
-  },
-  systemLabelOverrides: {},
-};
 
 /**
  * Runs a heuristic algorithm in order to place system labels on a canvas with minimal overlap.
@@ -50,20 +18,17 @@ export function placeSystemLabels(
   viewRect: Rectangle2d,
   eraIndex: number,
   systems: Array<System>,
-  glyphSettings: GlyphCollection,
-  labelOptions?: Partial<SystemLabelOptions>
+  grid: RectangleGrid,
+  glyphSettings: GlyphConfig,
+  systemLabelConfig: SystemLabelConfig,
 ) {
-  const options = {
-    ...DEFAULT_SYSTEM_LABEL_OPTIONS,
-    ...(labelOptions || {}),
-  } as SystemLabelOptions;
-
-  const { grid, labelItems } = initializeLabelItems(
+  const { labelItems } = initializeLabelItems(
     viewRect,
     eraIndex,
     systems,
+    grid,
     glyphSettings,
-    options,
+    systemLabelConfig,
   );
 
   // sort label items from right to left
@@ -72,7 +37,7 @@ export function placeSystemLabels(
   labelItems.forEach((labelItem) => {
     // find final label position
     grid.unplaceItem(labelItem);
-    findLabelPosition(labelItem, viewRect, grid, glyphSettings, options);
+    findLabelPosition(labelItem, viewRect, grid, glyphSettings, systemLabelConfig);
     grid.placeItem(labelItem);
   });
 

@@ -1,6 +1,6 @@
 import {
   copyPointCoordinates,
-  GlyphCollection,
+  GlyphConfig,
   Logger,
   Point2d,
   Rectangle2d,
@@ -33,7 +33,7 @@ export function findBestLabelPosition(
   labelItem: LabelRectangle,
   viewRect: Rectangle2d,
   grid: RectangleGrid,
-  glyphSettings: GlyphCollection,
+  glyphSettings: GlyphConfig,
 ) {
   const systemItem = labelItem.parent;
   labelItem.processed = true;

@@ -1,17 +1,24 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import yargsParser from 'yargs-parser';
-import { Era, Faction, Logger, System, GlyphCollection } from './common';
-import { readFromGoogleSheet, readFromXlsxFile } from './read';
+import {
+  Era,
+  Faction,
+  Logger,
+  System,
+  GlyphConfig,
+  RectangleGrid,
+  SystemLabelConfig,
+  BorderLabelConfig
+} from './common';
+import { readConfigFiles, readFromGoogleSheet, readFromXlsxFile } from './read';
 import { writeSvgMap } from './render/svg';
 import {
-  BorderEdgeLoop,
-  calculateVoronoiBorders, FactionLabel,
+  calculateVoronoiBorders,
   placeAreaLabels,
+  placeBorderLabels,
   placeSystemLabels,
-  SystemLabelOptions
 } from './compute';
-import { readAndParseYamlFile } from './read/common';
 
 Logger.info(`Sarna map generation script v${process.env.npm_package_version}\n`);
 
@@ -20,7 +27,7 @@ dotenv.config({ path: configPath });
 const argv = yargsParser(process.argv.slice(2));
 
 Logger.info(`Configured variables: (from ${configPath}):\n`
-  + `GOOGLE_API_KEY: ${process.env.GOOGLE_API_KEY}\n`
+  + `GOOGLE_API_KEY: ${(process.env.GOOGLE_API_KEY || '').replace(/./g, 'X')}\n`
   + `GOOGLE_SPREADSHEET_ID: ${process.env.GOOGLE_SPREADSHEET_ID}\n`
   + `LOCAL_XLSX: ${process.env.LOCAL_XLSX}\n`
   + `LOCAL_JSON: ${process.env.LOCAL_DB}\n`
@@ -34,22 +41,11 @@ async function readData() {
   // read config files
   const configDirectory = path.join(process.cwd(), process.env.CONFIG_DIR || '');
 
-  const glyphConfig = readAndParseYamlFile(
-    path.join(configDirectory, 'glyph-config.yaml'),
-    'glyph config',
-  );
-  if (!glyphConfig) {
-    Logger.fatal(`No glyph config, cannot proceed without one.`);
-    process.exit(1);
-  }
-  let labelConfig = readAndParseYamlFile(
-    path.join(configDirectory, 'label-config.yaml'),
-    'label config',
-  );
-  if (!labelConfig) {
-    Logger.warn(`Starting map script without label config.`);
-    labelConfig = {};
-  }
+  const configs = await readConfigFiles({
+    glyphConfig: path.join(configDirectory, 'glyph-config.yaml'),
+    systemLabelConfig: path.join(configDirectory, 'system-label-config.yaml'),
+    borderLabelConfig: path.join(configDirectory, 'border-label-config.yaml'),
+  })
 
   let sheetData: { eras: Array<Era>; systems: Array<System>; factions: Array<Faction> } = {
     eras: [],
@@ -70,11 +66,7 @@ async function readData() {
   // Logger.info(na?.eraNames[eraIndex - 1], na?.eraNames[eraIndex], na?.eraNames[eraIndex + 1]);
   return {
     sheetData,
-    glyphSettings: {
-      regular: glyphConfig.glyphSettings,
-      small: glyphConfig.glyphSettingsSmall,
-    } as GlyphCollection,
-    labelConfig,
+    ...configs,
   };
 }
 
@@ -82,8 +74,9 @@ async function writeMap(
   factions: Array<Faction>,
   systems: Array<System>,
   eras: Array<Era>,
-  glyphConfig: GlyphCollection,
-  labelConfig: Partial<SystemLabelOptions>,
+  glyphConfig: GlyphConfig,
+  systemLabelConfig: SystemLabelConfig,
+  borderLabelConfig: BorderLabelConfig,
 ) {
   // const viewRect = {
   //   anchor: {
@@ -127,12 +120,30 @@ async function writeMap(
     maxSamples: 30,
     seed: 'sarna',
   }
-  const voronoiResult = await calculateVoronoiBorders(
+
+  // Perform voronoi border calculations
+  const {
+    poissonDisc,
+    delaunayTriangles,
+    delaunayVertices,
+    voronoiNodes,
+    unmodifiedBorderEdges,
+    borderEdges,
+    borderSections,
+    borderLoops,
+    threeWayNodes,
+  } = await calculateVoronoiBorders(
     systems,
     eras[eraIndex],
     poissonSettings,
   );
-  const systemLabels = placeSystemLabels(viewRect, eraIndex, systems, glyphConfig, labelConfig);
+  // Create a rectangle grid that will let us check for label collisions
+  const grid = new RectangleGrid(viewRect);
+  // Place system labels
+  const systemLabels = placeSystemLabels(viewRect, eraIndex, systems, grid, glyphConfig, systemLabelConfig);
+  // Place border labels
+  const borderLabels = placeBorderLabels(viewRect, eraIndex, factionMap, borderLoops || {}, grid, glyphConfig, borderLabelConfig);
+
   // const lcBorderLoops = voronoiResult.borderLoops?.LC;
   // const {
   //   delaunayTriangles: areaLabelTriangles,
@@ -140,21 +151,22 @@ async function writeMap(
   //   graphEdges: areaLabelGraphEdges,
   //   longestPath: areaLabelPath,
   // } = await placeAreaLabels(lcBorderLoops as Array<BorderEdgeLoop>);
-  const factionLabels = await placeAreaLabels(factions, voronoiResult.borderLoops);
+  const factionLabels = await placeAreaLabels(factions, borderLoops);
 
   writeSvgMap(
     eraIndex,
     systems,
     factionMap,
-    voronoiResult.poissonDisc,
-    voronoiResult.delaunayVertices,
-    voronoiResult.delaunayTriangles,
-    voronoiResult.voronoiNodes,
-    voronoiResult.unmodifiedBorderEdges || voronoiResult.borderEdges,
-    voronoiResult.borderSections,
-    voronoiResult.borderLoops || {}, // borderLoops
-    voronoiResult.threeWayNodes,
+    poissonDisc,
+    delaunayVertices,
+    delaunayTriangles,
+    voronoiNodes,
+    unmodifiedBorderEdges || borderEdges,
+    borderSections,
+    borderLoops || {}, // borderLoops
+    threeWayNodes,
     {}, // borderEdgesMap,
+    borderLabels,
     [],
     systemLabels,
     factionLabels,
@@ -175,6 +187,9 @@ async function writeMap(
       displayBorderSections: false,
       displayBorders: true,
       curveBorderEdges: true,
+      factions: {
+        displayBorderLabels: true,
+      }
     },
   );
 }
@@ -182,10 +197,18 @@ async function writeMap(
 async function run() {
   const {
     sheetData,
-    glyphSettings,
-    labelConfig,
+    glyphConfig,
+    systemLabelConfig,
+    borderLabelConfig,
   } = await readData();
-  await writeMap(sheetData.factions, sheetData.systems, sheetData.eras, glyphSettings, labelConfig);
+  await writeMap(
+    sheetData.factions,
+    sheetData.systems,
+    sheetData.eras,
+    glyphConfig,
+    systemLabelConfig,
+    borderLabelConfig,
+  );
 }
 
 run();

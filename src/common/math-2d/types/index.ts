@@ -1,3 +1,4 @@
+export * from './bezier-edge-2d';
 export * from './coordinates-2d';
 export * from './dimensions-2d';
 export * from './edge-2d';

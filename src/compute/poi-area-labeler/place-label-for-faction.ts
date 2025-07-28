@@ -6,7 +6,6 @@ import {
   polylabel,
   PolyLabelPolygon,
   scaleVector,
-  vectorLength
 } from '../../common';
 import { getLabelTokens } from './get-label-tokens';
 

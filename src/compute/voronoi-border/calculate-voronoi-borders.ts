@@ -20,7 +20,7 @@ import {
   generateEdgeControlPointsForSection,
   generateSimpleBorderLoops,
   generateBorderLoops,
-  separateBorderLoops,
+  separateBorderLoops, calculateSectionLength,
 } from './functions';
 import { EMPTY_FACTION } from '../constants';
 
@@ -49,13 +49,6 @@ export async function calculateVoronoiBorders(
   // add a special reserved point next to Sol, because the distance to Rigil Kentarus is so small
   const terra = systems.find((system) => system.name === 'Sol');
   const solAffiliation = extractBorderStateAffiliation(terra?.eraAffiliations[era.index] || '');
-
-  // systems.forEach((system) => {
-  //   const aff = extractBorderStateAffiliation(system.eraAffiliations[era.index] || '');
-  //   if (aff === 'IE') {
-  //     console.log(system);
-  //   }
-  // });
 
   let voronoiResult: VoronoiResult = performVoronoiCalculations(
     Delaunator,
@@ -113,6 +106,10 @@ export async function calculateVoronoiBorders(
 
   // separate edge loop borders
   separateBorderLoops(borderLoops, voronoiResult.delaunayVertices);
+
+  Object.values(borderLoops).forEach((loops) => {
+    loops.forEach((loop) => calculateSectionLength(loop));
+  });
 
   // processBorderLoops(borderLoops, vertices, borderSeparation, controlPointTension);
 

@@ -1,0 +1,24 @@
+# TODO add documentation on what can be configured here, and how to do it
+rules:
+  distanceBetweenCandidates: 7.5
+  labelDistanceToBorder: 1.5
+  maxLabelOverlapArea: 24
+  maxBorderIntersectionDistance: 2
+  minDistanceBetweenLabels: 25
+  minLoopDistanceBetweenLabels: 55
+  minViableScore: .65
+
+scoreWeights:
+  labelOverlap: 100
+  angle: 10
+  borderIntersection: 50
+  centeredness: 15
+  multiline: 10
+  straightness: 20
+
+manualConfigs:
+  CS:
+    - anchor:
+        x: 2
+        y: -4
+      eras: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]

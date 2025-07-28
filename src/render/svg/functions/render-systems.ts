@@ -31,7 +31,10 @@ export function renderSystems(
     const eraName = system.eraNames[eraIndex] || '';
     const eraCapitalLevel = system.eraCapitalLevels[eraIndex] || 0;
     const eraAffiliation = system.eraAffiliations[eraIndex] || '';
-    const displayedFaction = extractBorderStateAffiliation(eraAffiliation);
+    const displayedFaction = extractBorderStateAffiliation(eraAffiliation, ['']);
+    if (displayedFaction === '') {
+      console.debug('empty faction string for', system.name);
+    }
     if (!visibleFactions[displayedFaction]) {
       visibleFactions[displayedFaction] = factions[displayedFaction];
     }
