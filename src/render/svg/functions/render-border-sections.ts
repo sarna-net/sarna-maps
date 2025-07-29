@@ -26,7 +26,7 @@ export function renderBorderSections(
       d: generateSectionPath(borderSection, renderCurves),
       // style: `stroke: #a00; fill: none; stroke-width: 1.25`,
       style: `stroke: ${color}; fill: none; stroke-width: 1.25`,
-      meta: `data-primary-affiliation="${borderSection.primaryAffiliation}"`,
+      meta: `data-affiliations="${borderSection.affiliation1},${borderSection.affiliation2}"`,
     });
   });
   const markup =

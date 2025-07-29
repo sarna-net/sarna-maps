@@ -1,5 +1,6 @@
 import { VoronoiBorderEdge, BorderDelaunayVertex, VoronoiBorderNode } from '../types';
 import { distance, distancePointToLine, lineFromPoints } from '../../../common';
+import { EMPTY_FACTION, INDEPENDENT } from '../../constants';
 
 export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices: BorderDelaunayVertex[]) {
   const borderNodeIndices: Record<string, Array<number>> = {};
@@ -54,9 +55,10 @@ export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices:
     voronoiNode.neighborNodeIndices.forEach((neighborIdx) => {
       // in order to make sure we add edges to the list only once, skip all neighbors that
       // have already been searched themselves
-      if(nodeIdx >= neighborIdx) {
+      if (nodeIdx >= neighborIdx) {
         return;
       }
+
       const neighborNode = voronoiNodes[neighborIdx];
       // find the vertices shared by the node and its neighbor
       const nodeVertexIndices = [
@@ -66,10 +68,18 @@ export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices:
         neighborNode.vertex1Idx, neighborNode.vertex2Idx, neighborNode.vertex3Idx
       ];
       const sharedVertexIndices = nodeVertexIndices.filter((idx) => neighborVertexIndices.includes(idx));
-      if(sharedVertexIndices.length >= 2) {
+      if (sharedVertexIndices.length >= 2) {
         const affiliation1 = vertices[sharedVertexIndices[0]].affiliation;
         const affiliation2 = vertices[sharedVertexIndices[1]].affiliation;
-        if(affiliation1 !== affiliation2) {
+        // do not create border edges between independent and empty areas
+        if (
+          [EMPTY_FACTION, INDEPENDENT].includes(affiliation1) &&
+          [EMPTY_FACTION, INDEPENDENT].includes(affiliation2)
+        ) {
+          return;
+        }
+
+        if (affiliation1 !== affiliation2) {
           const edgeLine = lineFromPoints(voronoiNode, neighborNode);
           const closeness = Math.min(
             distancePointToLine(vertices[sharedVertexIndices[0]], edgeLine),

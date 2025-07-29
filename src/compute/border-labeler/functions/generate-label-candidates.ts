@@ -1,5 +1,8 @@
 import {
-  angleBetweenPoints, BorderLabelConfig, BorderLabelVariant,
+  angleBetweenPoints,
+  BezierEdge2d,
+  BorderLabelConfig,
+  BorderLabelVariant,
   distancePointToLine,
   Faction,
   lineFromPoints, perpendicularEdge, Point2d,
@@ -46,17 +49,27 @@ export function generateLabelCandidates(
     return candidates;
   }
 
+  const edgePath: Array<BezierEdge2d> = loop.edges.map((edge) => ({
+    p1: edge.node1,
+    p2: edge.node2,
+    length: edge.length,
+    p1c1: edge.n1c1,
+    p1c2: edge.n1c2,
+    p2c1: edge.n2c1,
+    p2c2: edge.n2c2,
+  }));
+
   // iterate over edge loop and create candidates in regular intervals
   for (
     let candidatePosition = 0;
     candidatePosition < loopLength;
     candidatePosition += borderLabelConfig.rules.distanceBetweenCandidates
   ) {
-    const controlPointCenter = pointAlongEdgePath(loop.edges, candidatePosition % loopLength);
+    const controlPointCenter = pointAlongEdgePath(edgePath, candidatePosition % loopLength);
     if (controlPointCenter) {
       // find two more points, one on each side of the candidate center point
-      const controlPointLeft = pointAlongEdgePath(loop.edges, (candidatePosition - labelWidthFull * 0.5 + loopLength) % loopLength);
-      const controlPointRight = pointAlongEdgePath(loop.edges, (candidatePosition + labelWidthFull * 0.5) % loopLength);
+      const controlPointLeft = pointAlongEdgePath(edgePath, (candidatePosition - labelWidthFull * 0.5 + loopLength) % loopLength);
+      const controlPointRight = pointAlongEdgePath(edgePath, (candidatePosition + labelWidthFull * 0.5) % loopLength);
       if (!controlPointLeft || !controlPointRight) {
         // TODO adjust distance for next candidate (why?)
         continue;
