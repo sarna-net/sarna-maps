@@ -19,7 +19,7 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
   Object.keys(result.candidatesByFaction).forEach((factionKey) => {
     const candidates = result.candidatesByFaction[factionKey];
     // debug mode output
-    if (false && factionKey === 'CS') {
+    if (factionKey === 'OA') {
       candidates.forEach((candidate, candidateIndex) => {
         if (candidate.labelVariant === 'Abbreviation') {
           return;
@@ -72,6 +72,7 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
           rectClass,
           id: candidate.id,
           label_overlap: candidate.labelOverlapArea,
+          disqualification: candidate.disqualificationReason || '',
         });
 
         if (debugOverlapTemplate) {

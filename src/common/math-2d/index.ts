@@ -27,6 +27,7 @@ export * from './point-is-in-rectangle';
 export * from './point-is-left-of-line';
 export * from './point-on-cubic-bezier-curve';
 export * from './point-on-line';
+export * from './point-on-quadratic-bezier-curve';
 export * from './point-on-unit-circle-by-percent-value';
 export * from './points-are-equal';
 export * from './rad-to-deg';

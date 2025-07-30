@@ -1,5 +1,6 @@
 import { Point2d, Rectangle2d } from './types';
 import { deepCopy } from '../utils';
+import { pointIsLeftOfLine } from './point-is-left-of-line';
 
 enum SIDE {
   NONE = 0,
@@ -81,14 +82,25 @@ export function areaOfRotatedRectangleIntersection(
     }
   }
 
-  // check if the entire rectangle lies within the rotated rectangle
+  // no intersections
   if (nonNullClippedLines.length === 0) {
     if (
-      Math.min(rotatedRect.tl.x, rotatedRect.tr.x, rotatedRect.br.x, rotatedRect.bl.x) < corners.bl.x
-      && Math.max(rotatedRect.tl.x, rotatedRect.tr.x, rotatedRect.br.x, rotatedRect.bl.x) > corners.tl.x
-      && Math.min(rotatedRect.tl.y, rotatedRect.tr.y, rotatedRect.br.y, rotatedRect.bl.y) < corners.br.y
-      && Math.max(rotatedRect.tl.y, rotatedRect.tr.y, rotatedRect.br.y, rotatedRect.bl.y) > corners.tr.y
+      rotatedRect.tl.x > corners.bl.x &&
+      rotatedRect.tl.x < corners.br.x &&
+      rotatedRect.tl.y > corners.br.y &&
+      rotatedRect.tl.y < corners.tr.y
     ) {
+      // one rotated rectangle point is in the rectangle, no intersections
+      // --> the entire rotated rectangle lies within the rectangle
+      polygon.push(rotatedRect.bl, rotatedRect.tl, rotatedRect.tr, rotatedRect.br);
+    } else if (
+      pointIsLeftOfLine(corners.bl, rotatedRect.tr, rotatedRect.tl) &&
+      pointIsLeftOfLine(corners.bl, rotatedRect.tl, rotatedRect.bl) &&
+      pointIsLeftOfLine(corners.bl, rotatedRect.bl, rotatedRect.br) &&
+      pointIsLeftOfLine(corners.bl, rotatedRect.br, rotatedRect.tr)
+    ) {
+      // one rectangle point is in the rotated rectangle, no intersections
+      // --> the entire rectangle lies within the rotated rectangle
       polygon.push(corners.bl);
       polygon.push(corners.tl);
       polygon.push(corners.tr);

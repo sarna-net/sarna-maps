@@ -51,6 +51,10 @@ export interface BorderLabelConfig {
      */
     maxLabelOverlapArea: number;
     /**
+     * The number of map units that a label may cross beyond the border without score penalty
+     */
+    borderIntersectionTolerance: number;
+    /**
      * The maximum length (in map units) that a border label candidate can cross and go beyond the
      * border before it gets disqualified immediately.
      */

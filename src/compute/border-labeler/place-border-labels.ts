@@ -57,12 +57,20 @@ export function placeBorderLabels(
   let totalNumberOfPlacedManualLabels = 0;
   // generate each faction's border labels separately
   Object.keys(borderEdgeLoops).forEach((factionKey) => {
-    if (factionKey === EMPTY_FACTION || factionKey === INDEPENDENT) {
+    if (
+      factionKey === EMPTY_FACTION
+      || factionKey === INDEPENDENT
+      || factionKey === 'D'
+      || factionKey.startsWith('D-')
+    ) {
       return;
     }
     const faction = factionMap[factionKey];
     const factionLoops = borderEdgeLoops[factionKey];
     candidatesByFaction[factionKey] = [];
+
+    // instantiate a lookup grid for this faction's labels
+    const factionLabelGrid = new RectangleGrid({ ...grid.viewRect }, 20);
 
     const factionNameTokens = determineLabelTokens(
       faction, glyphConfig.borderLabels || glyphConfig.regular
@@ -91,15 +99,19 @@ export function placeBorderLabels(
       const abbreviatedCandidates = candidates.filter(
         (candidate) => candidate.labelVariant === BorderLabelVariant.Abbreviation
       );
-      let selectedCandidates = selectBestCandidates(regularCandidates, borderLabelConfig);
-      if (selectedCandidates.length === 0 && loopIndex === 0 && manualCandidates.length > 0) {
+      let selectedCandidates = selectBestCandidates(
+        regularCandidates, borderLabelConfig, factionLabelGrid
+      );
+      if (selectedCandidates.length === 0 && manualCandidates.length > 0) {
         // no valid candidate has been found among the non-abbreviated ones, check if there is one
         // in the label config
         selectedCandidates = [...manualCandidates];
         totalNumberOfPlacedManualLabels += manualCandidates.length;
       } else if (selectedCandidates.length === 0) {
         // if there are still no valid candidates, pick the best ones among the abbreviated versions
-        selectedCandidates = selectBestCandidates(abbreviatedCandidates, borderLabelConfig);
+        selectedCandidates = selectBestCandidates(
+          abbreviatedCandidates, borderLabelConfig, factionLabelGrid
+        );
       }
       candidatesByFaction[factionKey].push(...selectedCandidates);
       totalNumberOfCandidates += candidates.length;

@@ -6,7 +6,7 @@ import {
   distancePointToLine,
   Faction,
   lineFromPoints, perpendicularEdge, Point2d,
-  pointAlongEdgePath, pointIsLeftOfLine,
+  pointAlongEdgePath, pointIsLeftOfLine, pointOnQuadraticBezierCurve,
   radToDeg, scaleVector, Vector2d
 } from '../../../common';
 import { BorderEdgeLoop } from '../../voronoi-border';
@@ -85,12 +85,15 @@ export function generateLabelCandidates(
       const labelAngle = (radToDeg(angleBetweenPoints(controlPointLeft, controlPointRight)) + 360) % 360;
       // determine whether the center point is inside or outside of the control line - inside being further
       // in the edge loop area
-      const centerPointIsOutside = pointIsLeftOfLine(controlPointCenter, controlPointLeft, controlPointRight);
+      let centerPointIsOutside = pointIsLeftOfLine(controlPointCenter, controlPointLeft, controlPointRight);
+      if (loop.isInnerLoop) {
+        centerPointIsOutside = !centerPointIsOutside;
+      }
       // get an edge perpendicular to the control line, pointing inwards
       const perpEdge = perpendicularEdge(
         { p1: controlPointLeft, p2: controlPointRight },
         borderLabelConfig.rules.labelDistanceToBorder,
-        'right'
+        loop.isInnerLoop ? 'left' : 'right',
       );
 
       // We can now construct the candidate's label rectangle by starting from the center control point
@@ -102,7 +105,7 @@ export function generateLabelCandidates(
         b: perpEdge.p2.y - perpEdge.p1.y,
       };
       if (centerPointIsOutside) {
-        scaleVector(perpVector, centerPointDistance + borderLabelConfig.rules.labelDistanceToBorder);
+        scaleVector(perpVector, borderLabelConfig.rules.labelDistanceToBorder + centerPointDistance * 0.75);
       }
       // the next step is to create the actual anchor point, which is the point at the center of the label's baseline
       const anchorPoint: Point2d = {
@@ -110,10 +113,15 @@ export function generateLabelCandidates(
         y: controlPointCenter.y + perpVector.b,
       };
       // next, we will construct a vector parallel to the control line that will help us form our baseline
-      const baselineHalfLengthVector: Vector2d = {
-        a: -perpVector.b,
-        b: perpVector.a,
-      };
+      const baselineHalfLengthVector: Vector2d = loop.isInnerLoop
+        ? {
+          a: perpVector.b,
+          b: -perpVector.a,
+        }
+        : {
+          a: -perpVector.b,
+          b: perpVector.a,
+        };
       // we also clone the perpendicular vector to use for our label's height
       const labelHeightVector: Vector2d = {
         a: perpVector.a,
@@ -139,6 +147,14 @@ export function generateLabelCandidates(
             tl: { x: anchorPoint.x - baselineHalfLengthVector.a, y: anchorPoint.y - baselineHalfLengthVector.b },
             tr: { x: anchorPoint.x + baselineHalfLengthVector.a, y: anchorPoint.y + baselineHalfLengthVector.b },
             br: { x: anchorPoint.x + baselineHalfLengthVector.a + labelHeightVector.a, y: anchorPoint.y + baselineHalfLengthVector.b + labelHeightVector.b },
+          }
+          if (loop.isInnerLoop) {
+            let tmp = rect.bl;
+            rect.bl = rect.br;
+            rect.br = tmp;
+            tmp = rect.tl;
+            rect.tl = rect.tr;
+            rect.tr = tmp;
           }
 
           // figure out the baseline bounds for up to two tokens (a bottom and possibly a middle baseline as well as a top line)

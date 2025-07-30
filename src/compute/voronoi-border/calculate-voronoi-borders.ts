@@ -1,5 +1,5 @@
 import { PointWithAffiliation } from '../types';
-import { BorderDelaunayVertex, VoronoiBorderEdge, VoronoiResult } from './types';
+import { BorderDelaunayVertex, BorderEdgeLoop, VoronoiBorderEdge, VoronoiResult } from './types';
 import {
   Era,
   System,
@@ -20,7 +20,8 @@ import {
   generateEdgeControlPointsForSection,
   generateSimpleBorderLoops,
   generateBorderLoops,
-  separateBorderLoops, calculateSectionLength,
+  separateBorderLoops,
+  calculateSectionLength,
 } from './functions';
 import { EMPTY_FACTION } from '../constants';
 
@@ -107,8 +108,12 @@ export async function calculateVoronoiBorders(
   // separate edge loop borders
   separateBorderLoops(borderLoops, voronoiResult.delaunayVertices);
 
-  Object.values(borderLoops).forEach((loops) => {
-    loops.forEach((loop) => calculateSectionLength(loop));
+  Object.keys(borderLoops).forEach((factionId) => {
+    const loops = borderLoops[factionId];
+    loops.forEach((loop) => {
+      calculateSectionLength(loop);
+      (loop as BorderEdgeLoop).isInnerLoop = loop.innerAffiliation !== factionId;
+    });
   });
 
   // processBorderLoops(borderLoops, vertices, borderSeparation, controlPointTension);

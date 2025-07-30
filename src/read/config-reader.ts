@@ -39,6 +39,7 @@ export async function readConfigFiles(fileNames: {
     ...{
       labelDistanceToBorder: 1,
       distanceBetweenCandidates: 1,
+      borderIntersectionTolerance: 1,
       maxBorderIntersectionDistance: 1,
       minLoopDistanceBetweenLabels: 1,
       minDistanceBetweenLabels: 1,

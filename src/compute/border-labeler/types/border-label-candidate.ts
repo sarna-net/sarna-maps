@@ -15,6 +15,10 @@ export interface BorderLabelCandidate {
    */
   disqualified: boolean;
   /**
+   * The reason for disqualification, if any
+   */
+  disqualificationReason?: string;
+  /**
    * The center of the candidate's text baseline
    */
   anchorPoint: Point2d;
@@ -89,4 +93,11 @@ export interface BorderLabelCandidate {
    * [for visual debugging] The polygonal areas of the label that overlap already existing objects / labels
    */
   overlapPolygons?: Array<Array<Point2d>>;
+  /**
+   * [for visual debugging] Scoring components, unweighted and weighted
+   */
+  scoreComponents?: {
+    weighted: Record<string, number>;
+    unweighted: Record<string, number>;
+  }
 }

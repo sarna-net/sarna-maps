@@ -100,13 +100,14 @@ async function writeMap(
   };
   const factionMap: Record<string, Faction> = {};
   factions.forEach((faction) => factionMap[faction.id] = faction);
-  const eraIndex = 15; // 2864
+  //const eraIndex = 15; // 2864
   // const eraIndex = 16; // 3025
   // const eraIndex = 25; // 3057
   // const eraIndex = 30; // 3059 <-- chaos march
 
   // const eraIndex = 31; // 3063
   // const eraIndex = 32; // 3067
+  const eraIndex = 33; // 3068
   // const eraIndex = 35; // 3079
   // const eraIndex = 41; // 3145
   // const eraIndex = 42; // 3151

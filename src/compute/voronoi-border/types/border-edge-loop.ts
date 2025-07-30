@@ -6,4 +6,5 @@ export interface BorderEdgeLoop {
   minEdgeIdx: number;
   innerAffiliation?: string;
   outerAffiliation?: string;
+  isInnerLoop?: boolean;
 }

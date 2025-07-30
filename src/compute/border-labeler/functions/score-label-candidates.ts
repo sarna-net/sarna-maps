@@ -46,6 +46,11 @@ export function scoreLabelCandidates(
     calculateCandidateLoopOverlap(candidate, loop);
     // find overlaps with any existing objects or labels, and add up the overlapping areas
     calculateCandidateLabelOverlap(candidate, grid);
+    // prepare the candidate object for debugging info
+    candidate.scoreComponents = {
+      weighted: {},
+      unweighted: {},
+    };
 
     // at this point, our candidate contains all necessary information to score it
     // rate the overlap area
@@ -53,9 +58,12 @@ export function scoreLabelCandidates(
       1,
       8 * (candidate.labelOverlapArea || 0) / maximumLabelOverlapArea, // TODO magic number
     );
+    candidate.scoreComponents.unweighted['labelOverlap'] = overlapRating;
     overlapRating *= normalizedWeights.labelOverlap;
+    candidate.scoreComponents.weighted['labelOverlap'] = overlapRating;
     if ((candidate.labelOverlapArea || 0) > borderLabelConfig.rules.maxLabelOverlapArea) {
       candidate.disqualified = true;
+      candidate.disqualificationReason = `label overlap (${candidate.labelOverlapArea})`;
     }
 
     // rate the label's angle
@@ -65,23 +73,35 @@ export function scoreLabelCandidates(
     }
     let angleRating = simplifiedAngle <= 45
       ? -simplifiedAngle/45 + 1
-      : (simplifiedAngle - 45) * 0.8 / 45;
+      : (simplifiedAngle - 45) * 0.75 / 45;
+    candidate.scoreComponents.unweighted['angle'] = angleRating;
     angleRating *= normalizedWeights.angle;
+    candidate.scoreComponents.weighted['angle'] = angleRating;
 
     // rate the straightness
     let straightnessRating = 1 - candidate.borderSectionStraightness / maximumStraightness;
     straightnessRating *= normalizedWeights.straightness;
 
-    // rate the polyline intersection distance
-    let borderIntersectionRating = Math.max(0, 1 - 5 * (candidate.loopOverlapDistance || 0) / maximumLoopOverlap);
+    // rate the border intersection distance
+    let borderIntersectionRating =
+      (candidate.loopOverlapDistance || 0) <= borderLabelConfig.rules.borderIntersectionTolerance
+        ? 1
+        : Math.max(0, 1 - 5 * (candidate.loopOverlapDistance || 0) / maximumLoopOverlap // TODO magic number (factor)
+    );
+    if (candidate.id === 'candidate-OA-L0-58') { console.log('LOOP OVERLAP', candidate.loopOverlapDistance); }
+    candidate.scoreComponents.unweighted['borderIntersection'] = borderIntersectionRating;
     borderIntersectionRating *= normalizedWeights.borderIntersection;
+    candidate.scoreComponents.weighted['borderIntersection'] = borderIntersectionRating;
     if ((candidate.loopOverlapDistance || 0) > borderLabelConfig.rules.maxBorderIntersectionDistance) {
       candidate.disqualified = true;
+      candidate.disqualificationReason = `border intersection (${candidate.loopOverlapDistance})`;
     }
 
     // rate the centeredness
     let centerednessRating = candidate.centeredness;
+    candidate.scoreComponents.unweighted['centeredness'] = centerednessRating;
     centerednessRating *= normalizedWeights.centeredness;
+    candidate.scoreComponents.weighted['centeredness'] = centerednessRating;
 
     // rate the multilined-ness (?)
     let multilineRating = candidate.labelVariant === BorderLabelVariant.MultiLine
@@ -89,9 +109,24 @@ export function scoreLabelCandidates(
       : candidate.labelVariant === BorderLabelVariant.SingleLine
         ? .8
         : 0;
+    candidate.scoreComponents.unweighted['multiline'] = multilineRating;
     multilineRating *= normalizedWeights.multiline;
+    candidate.scoreComponents.weighted['multiline'] = multilineRating;
 
     candidate.score = overlapRating + angleRating + straightnessRating +
       borderIntersectionRating + centerednessRating + multilineRating;
+
+    if (candidate.id === 'candidate-OA-L0-58') {
+      // why the border intersection?
+      console.log(candidate.id, 'score components', candidate.scoreComponents);
+    }
+
+    if (candidate.score < 0 || candidate.score > 1) {
+      console.warn(
+        'Border label candidate has a score that should be impossible, please check:',
+        candidate.id,
+        candidate.score,
+      );
+    }
   });
 }

@@ -7,6 +7,10 @@ export function edgeLength(edge: BezierEdge2d) {
   if (controlPointPath.length === 2) {
     return straightDistance;
   } else if (controlPointPath.length > 2) {
+    // Assuming that our bezier curves are fairly "normal" (not "tricky", as described in the source below)
+    // we use a rough approximation of the true length:
+    // 2/3 times the path length of the control points path + 1/3 the straight distance
+    // https://raphlinus.github.io/curves/2018/12/28/bezier-arclength.html
     let controlPointDistance = 0;
     for (let i = 0; i < controlPointPath.length - 1; i++) {
       controlPointDistance += distance(controlPointPath[i], controlPointPath[i + 1]);
