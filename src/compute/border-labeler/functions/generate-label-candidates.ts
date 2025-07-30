@@ -6,7 +6,7 @@ import {
   distancePointToLine,
   Faction,
   lineFromPoints, perpendicularEdge, Point2d,
-  pointAlongEdgePath, pointIsLeftOfLine, pointOnQuadraticBezierCurve,
+  pointAlongEdgePath, pointIsLeftOfLine,
   radToDeg, scaleVector, Vector2d
 } from '../../../common';
 import { BorderEdgeLoop } from '../../voronoi-border';
