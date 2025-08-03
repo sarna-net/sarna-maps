@@ -1,4 +1,3 @@
-import { Logger } from '../../common';
 import fs from 'fs';
 import yaml from 'yaml';
 
@@ -10,13 +9,13 @@ export function readAndParseYamlFile(filePath: string, contentDescription = 'YAM
   try {
     fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
   } catch (err) {
-    Logger.error(`Could not read ${contentDescription} file: `, err.message);
+    console.error(`Could not read ${contentDescription} file: `, err.message);
     return null;
   }
   try {
     return yaml.parse(fileContent);
   } catch (err) {
-    Logger.error(`Could not parse ${contentDescription}: `, err);
+    console.error(`Could not parse ${contentDescription}: `, err);
     return null;
   }
 }

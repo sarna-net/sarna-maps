@@ -1,4 +1,5 @@
 import {
+  areaOfRectangleIntersection,
   extractBorderStateAffiliation,
   GlyphConfig,
   IdentifiableRectangle,
@@ -36,8 +37,8 @@ export function initializeLabelItems(
   const labelItems: Array<LabelRectangle> = [];
   systems.forEach((system) => {
     const systemName = system.eraNames[eraIndex];
-    const systemAffiliation = extractBorderStateAffiliation(system.eraAffiliations[eraIndex], ['']);
-    const additions = getLabelAdditions(system, eraIndex);
+    const systemAffiliation = extractBorderStateAffiliation(system.eraAffiliations[eraIndex], [''], 'full');
+    const additions = getLabelAdditions(system, systemAffiliation, eraIndex);
     const labelMargin = getLabelMargin(system, eraIndex, systemLabelConfig);
 
     // determine label dimensions
@@ -51,7 +52,7 @@ export function initializeLabelItems(
       addition.delta.y = (additions.length - 1 - labelIndex) * glyphSettings.small.lineHeight;
       let labelAdditionsWidth = 0;
       for (let i = 0; i < addition.text.length; i++) {
-        labelAdditionsWidth += glyphSettings.small.widths[addition.text[i]] || glyphSettings.small.widths.defaultWidth;
+        labelAdditionsWidth += glyphSettings.small.widths[addition.text[i]] || glyphSettings.small.widths.default;
       }
       labelWidth = Math.max(labelWidth, labelAdditionsWidth);
     });
@@ -91,10 +92,10 @@ export function initializeLabelItems(
       additions: additions,
     };
     systemItems.push(systemItem);
-    labelItems.push(labelItem);
     if (!system.isCluster) {
       grid.placeItem(systemItem);
     }
+    labelItems.push(labelItem);
     grid.placeItem(labelItem)
   });
   return { systemItems, labelItems };
@@ -111,7 +112,7 @@ function getLabelMargin(system: System, eraIndex: number, systemLabelConfig: Sys
     : { ...systemLabelConfig.margins.regular };
 }
 
-function getLabelAdditions(system: System, eraIndex: number) {
+function getLabelAdditions(system: System, systemAffiliation: string, eraIndex: number) {
   const capitalLevel = system.eraCapitalLevels[eraIndex];
   const additions: Array<LabelAddition> = [];
   if (capitalLevel === 1) {
@@ -131,6 +132,13 @@ function getLabelAdditions(system: System, eraIndex: number) {
       text: 'minor capital',
       class: 'capital minor',
       delta: { x: 0, y: 0 },
+    });
+  }
+  if (systemAffiliation.endsWith('(H)')) {
+    additions.push({
+      text: `hidden (${systemAffiliation.replace('(H)', '')})`,
+      class: 'hidden',
+      delta: { x: 0, y: 0 }
     });
   }
   return additions;

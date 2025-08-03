@@ -19,7 +19,7 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
   Object.keys(result.candidatesByFaction).forEach((factionKey) => {
     const candidates = result.candidatesByFaction[factionKey];
     // debug mode output
-    if (factionKey === 'OA') {
+    if (false && factionKey === 'WB') {
       candidates.forEach((candidate, candidateIndex) => {
         if (candidate.labelVariant === 'Abbreviation') {
           return;

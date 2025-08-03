@@ -1,3 +1,9 @@
+export * from './validatable/generator-config';
+export { default as GeneratorConfigTi } from './validatable/generator-config-ti';
+export * from './validatable/generator-config-map-layer';
+export { default as GeneratorConfigMapLayerTi } from './validatable/generator-config-map-layer-ti';
+export * from './validatable/generator-config-overlay';
+export { default as GeneratorConfigOverlayTi } from './validatable/generator-config-overlay-ti';
 export * from './border-label-config';
 export * from './border-label-variant';
 export * from './era';

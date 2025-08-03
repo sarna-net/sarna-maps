@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Logger } from './index';
 
 export class TextTemplate {
   private template = '';
@@ -19,7 +18,7 @@ export class TextTemplate {
       }
       this.template = fs.readFileSync(path.join(templatePath, this.name), { encoding: 'utf8' });
     } catch (e) {
-      Logger.warn(`Template "${this.name}" could not be found`, e.message);
+      console.warn(`Template "${this.name}" could not be found`, e.message);
       this.template = '';
     }
   }

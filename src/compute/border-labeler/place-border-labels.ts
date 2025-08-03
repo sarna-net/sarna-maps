@@ -2,7 +2,7 @@ import {
   BorderLabelConfig,
   BorderLabelVariant,
   Faction,
-  GlyphConfig,
+  GlyphConfig, pointIsInRectangle,
   Rectangle2d,
   RectangleGrid,
 } from '../../common';
@@ -33,7 +33,7 @@ import { BorderLabelCandidate, BorderLabelsResult } from './types';
  *    - middle of the edge loop is preferred to the ends, in the case that only a part of the loop is visible
  *   --> all of these conditions are weighted, weights sum to 1
  *
- * @param viewRect The visible part of the universe
+ * @param viewBox The visible part of the universe
  * @param eraIndex The index of the era to draw the labels for
  * @param factionMap The key/value map of all factions, with the faction id as key
  * @param borderEdgeLoops The full list of border edge loops
@@ -42,7 +42,7 @@ import { BorderLabelCandidate, BorderLabelsResult } from './types';
  * @param borderLabelConfig The border label configuration
  */
 export function placeBorderLabels(
-  viewRect: Rectangle2d,
+  viewBox: Rectangle2d,
   eraIndex: number,
   factionMap: Record<string, Faction>,
   borderEdgeLoops: Record<string, Array<BorderEdgeLoop>>,
@@ -55,6 +55,13 @@ export function placeBorderLabels(
   let totalNumberOfCandidates = 0;
   let totalNumberOfPlacedLabels = 0;
   let totalNumberOfPlacedManualLabels = 0;
+
+  // local helper function to check if a candidate's position is at all valid
+  const candidateIsInViewBox = (candidate: BorderLabelCandidate) => pointIsInRectangle(candidate.rect.bl, viewBox)
+      && pointIsInRectangle(candidate.rect.tl, viewBox)
+      && pointIsInRectangle(candidate.rect.tr, viewBox)
+      && pointIsInRectangle(candidate.rect.br, viewBox);
+
   // generate each faction's border labels separately
   Object.keys(borderEdgeLoops).forEach((factionKey) => {
     if (
@@ -80,7 +87,7 @@ export function placeBorderLabels(
       (borderLabelConfig.manualConfigs[faction.id] || []).filter((config) =>
         !config.eras || config.eras.length === 0 || config.eras.includes(eraIndex)),
       factionNameTokens,
-    );
+    ).filter(candidateIsInViewBox);
 
     factionLoops.forEach((loop, loopIndex) => {
       // TODO restrict loop to viewRect
@@ -91,7 +98,7 @@ export function placeBorderLabels(
         loopIndex,
         factionNameTokens,
         borderLabelConfig,
-      );
+      ).filter(candidateIsInViewBox);
       scoreLabelCandidates(candidates, loop, grid, borderLabelConfig);
       const regularCandidates = candidates.filter(
         (candidate) => candidate.labelVariant !== BorderLabelVariant.Abbreviation

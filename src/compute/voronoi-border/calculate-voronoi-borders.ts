@@ -120,6 +120,7 @@ export async function calculateVoronoiBorders(
 
   return {
     ...voronoiResult,
+    salientPoints,
     borderLoops,
   };
 }

@@ -1,0 +1,95 @@
+output: svg # only svg available at the moment
+theme: light # color theme (only light theme available at the moment)
+
+fileOutput:
+  directory: './out'
+  fileNamePattern: '{{SYSTEMNAME}}_{{ERAYEAR}}_{{ERANAME}}.svg' # SYSTEMINDEX, SYSTEMID, SYSTEMNAME, ERAINDEX, ERAID, ERAYEAR, ERANAME
+
+eras: # the eras to create images for - either a list of era indices (0-based), or empty for all eras
+  - 16
+  - 20
+
+iterateObjects:
+  type: system
+  pattern: '.*sol.*'
+
+dimensions: # output image pixel size
+  width: 1000
+  height: 1143
+
+mapLayers: # the different layers showing maps
+  - name: basemap # basemap layer
+    mapUnitDimensions: # dimensions of the basemap (in map units)
+      width: 140
+      height: 160
+    focus: # the focus point of the main map (in map units)
+      point: system
+      delta: # center point offset (in map units)
+        x: 0
+        y: 20
+    elements:
+      systems: true # display systems (as dots)
+      systemLabels: true # display system names
+      factions: # display factions
+        curveBorderEdges: true
+      borderLabels: true # display border labels
+      jumpRings: # draw jump rings
+        radii: # draw circles with these radii
+          - 30
+          - 60
+        delta: # circle center offset (in map units)
+          x: 0
+          y: 20
+
+  - name: minimap # minimap layer
+    dimensions: # minimap pixel size
+      width: 400
+      height: 200
+    position: # top left anchor of the minimap
+      x: 580
+      y: 923
+    mapUnitDimensions: # dimensions of the minimap section (in map units)
+      width: 1200
+      height: 600
+    focus: # the center point of the minimap (in map units)
+      point: system
+    elements:
+      factions:
+        curveBorderEdges: false
+      jumpRings:
+        radii:
+          - 30
+          - 60
+
+overlays: # other items on top of the map layers
+  #- type: text # map title
+  #  attributes: # attributes specific to this type of overlay
+  #    text: '?'
+  - name: minimap-frame
+    type: rectangle # a colored rectangle
+    attributes: # attributes specific to this type of overlay
+      width: 402
+      height: 202
+      strokeWidth: 1px
+    position: # the frame's pixel position (top left point)
+      x: 579
+      y: 922
+  - name: sarna-logo
+    type: svgElement # the sarna logo svg paths
+    attributes: # attributes specific to this type of overlay
+      cssTemplate: sarna-logo.css.tpl
+      svgTemplate: sarna-logo.svg.tpl
+      scale: 1.5
+    position: # the logo's pixel position (top left point)
+      x: 10
+      y: 983 # height - 10 - 150
+  - name: main-map-scale
+    type: scale # a scale displaying the
+    attributes:
+      pixelsPerMapUnit: 7.142857142857143 # 1000 (pixel size) / 140 (main map unit width)
+      max: 50 # maximum unit shown
+      step: 10 # color change after this many units
+      scaleHeight: 10.5
+    position: # the scale's pixel position (top left point)
+      x: 200
+      y: 1121  # 1143 - 12 - 10

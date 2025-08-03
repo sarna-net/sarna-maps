@@ -88,7 +88,6 @@ export function scoreLabelCandidates(
         ? 1
         : Math.max(0, 1 - 5 * (candidate.loopOverlapDistance || 0) / maximumLoopOverlap // TODO magic number (factor)
     );
-    if (candidate.id === 'candidate-OA-L0-58') { console.log('LOOP OVERLAP', candidate.loopOverlapDistance); }
     candidate.scoreComponents.unweighted['borderIntersection'] = borderIntersectionRating;
     borderIntersectionRating *= normalizedWeights.borderIntersection;
     candidate.scoreComponents.weighted['borderIntersection'] = borderIntersectionRating;
@@ -116,10 +115,9 @@ export function scoreLabelCandidates(
     candidate.score = overlapRating + angleRating + straightnessRating +
       borderIntersectionRating + centerednessRating + multilineRating;
 
-    if (candidate.id === 'candidate-OA-L0-58') {
-      // why the border intersection?
-      console.log(candidate.id, 'score components', candidate.scoreComponents);
-    }
+    // if (candidate.id === 'candidate-WB-L4-1') {
+    //   console.log(candidate.id, 'score components', candidate.scoreComponents);
+    // }
 
     if (candidate.score < 0 || candidate.score > 1) {
       console.warn(

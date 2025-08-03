@@ -1,10 +1,10 @@
 # TODO add documentation on what the different parameters mean, and what the valid values are
 rules:
-  distanceBetweenCandidates: 12 # 7.5 seems to be a good value
+  distanceBetweenCandidates: 6 # 12 # 7.5 seems to be a good value
   labelDistanceToBorder: 1.25
   maxLabelOverlapArea: 24
   borderIntersectionTolerance: 0.25
-  maxBorderIntersectionDistance: 5
+  maxBorderIntersectionDistance: 3
   minDistanceBetweenLabels: 40
   minLoopDistanceBetweenLabels: 55
   minViableScore: .65

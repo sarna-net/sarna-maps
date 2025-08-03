@@ -1,7 +1,6 @@
 import {
   copyPointCoordinates,
   GlyphConfig,
-  Logger,
   Point2d,
   Rectangle2d,
   RectangleGrid
@@ -133,7 +132,7 @@ export function findBestLabelPosition(
 
   // no collision-free option found. Use option with minimal collision.
   copyPointCoordinates(bestCandidate.anchor, labelItem.anchor);
-  Logger.log(
+  console.log(
     `Overlapping label: "${labelItem.label}" has an overlap of ${bestCandidate.collisionArea} units. ` +
     `Best position: ${bestCandidate.anchor.x}, ${bestCandidate.anchor.y}. ` +
     `Label position: ${labelItem.anchor.x}, ${labelItem.anchor.y}`,

@@ -1,4 +1,4 @@
-import { Faction } from '../../common';
+import { Faction, Rectangle2d } from '../../common';
 import { BorderEdgeLoop } from '../voronoi-border';
 import { placeLabelForFaction } from './place-label-for-faction';
 import { FactionLabel } from '../types';
@@ -6,10 +6,12 @@ import { FactionLabel } from '../types';
 /**
  * Places a faction label for each faction.
  *
+ * @param viewBox The visible map space section as a rectangle
  * @param factions List of all factions
  * @param edgeLoops All factions' border edge loops
  */
 export async function placeAreaLabels(
+  viewBox: Rectangle2d,
   factions: Array<Faction>,
   edgeLoops?: Record<string, Array<BorderEdgeLoop>>,
 ) {

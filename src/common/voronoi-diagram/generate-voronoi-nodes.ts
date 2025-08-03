@@ -1,4 +1,3 @@
-import { Logger } from '../utils';
 import { triangleCircumcenter } from '../math-2d';
 import { DelaunayVertex, VoronoiCellMode, VoronoiNode } from './types';
 import Delaunator from 'delaunator';
@@ -46,7 +45,7 @@ export function generateVoronoiNodes<T extends DelaunayVertex>(
     if (cellMode === VoronoiCellMode.Circumcenters) {
       const ccenter = triangleCircumcenter(vertex1, vertex2, vertex3);
       if(!ccenter) {
-        Logger.warn(`Cannot calculate circumcenter for voronoi node. ` +
+        console.warn(`Cannot calculate circumcenter for voronoi node. ` +
           `Using centroid instead. Vertices:`,
           vertex1, vertex2, vertex3);
       } else {

@@ -5,9 +5,14 @@ import {
   BorderLabelVariant,
   distancePointToLine,
   Faction,
-  lineFromPoints, perpendicularEdge, Point2d,
-  pointAlongEdgePath, pointIsLeftOfLine,
-  radToDeg, scaleVector, Vector2d
+  lineFromPoints,
+  perpendicularEdge,
+  Point2d,
+  pointAlongEdgePath,
+  pointIsLeftOfLine,
+  radToDeg,
+  scaleVector,
+  Vector2d
 } from '../../../common';
 import { BorderEdgeLoop } from '../../voronoi-border';
 import { BorderLabelBaselines, BorderLabelCandidate, BorderLabelDetails } from '../types';
@@ -39,9 +44,6 @@ export function generateLabelCandidates(
     return [];
   }
 
-  // calculate label dimensions for the faction name
-  const labelWidthFull = factionNameTokens[BorderLabelVariant.SingleLine]?.width || 1;
-
   const loopLength = loop.edges.reduce((sum, edge) => sum + edge.length, 0);
 
   // make sure the loop is long enough to fit at least one candidate
@@ -67,65 +69,23 @@ export function generateLabelCandidates(
   ) {
     const controlPointCenter = pointAlongEdgePath(edgePath, candidatePosition % loopLength);
     if (controlPointCenter) {
-      // find two more points, one on each side of the candidate center point
-      const controlPointLeft = pointAlongEdgePath(edgePath, (candidatePosition - labelWidthFull * 0.5 + loopLength) % loopLength);
-      const controlPointRight = pointAlongEdgePath(edgePath, (candidatePosition + labelWidthFull * 0.5) % loopLength);
-      if (!controlPointLeft || !controlPointRight) {
-        // TODO adjust distance for next candidate (why?)
-        continue;
-      }
-
-      // for further calculations, create a line going through the left and right control points,
-      // we will call it the control line
-      const controlLine = lineFromPoints(controlPointLeft, controlPointRight);
-      // calculate the distance of the center point to the control line, giving us an idea of how straight
-      // this part of the border is
-      const centerPointDistance = distancePointToLine(controlPointCenter, controlLine);
-      // we can also calculate the label's angle, which is important for scoring the candidate
-      const labelAngle = (radToDeg(angleBetweenPoints(controlPointLeft, controlPointRight)) + 360) % 360;
-      // determine whether the center point is inside or outside of the control line - inside being further
-      // in the edge loop area
-      let centerPointIsOutside = pointIsLeftOfLine(controlPointCenter, controlPointLeft, controlPointRight);
-      if (loop.isInnerLoop) {
-        centerPointIsOutside = !centerPointIsOutside;
-      }
-      // get an edge perpendicular to the control line, pointing inwards
-      const perpEdge = perpendicularEdge(
-        { p1: controlPointLeft, p2: controlPointRight },
-        borderLabelConfig.rules.labelDistanceToBorder,
-        loop.isInnerLoop ? 'left' : 'right',
-      );
-
-      // We can now construct the candidate's label rectangle by starting from the center control point
-      // and moving in the direction of the perpendicular edge. How far we have to move depends on whether the center
-      // point is inside or outside of the control line.
-      // First, we need a vector pointing in the right direction, and of the correct length.
-      const perpVector: Vector2d = {
-        a: perpEdge.p2.x - perpEdge.p1.x,
-        b: perpEdge.p2.y - perpEdge.p1.y,
-      };
-      if (centerPointIsOutside) {
-        scaleVector(perpVector, borderLabelConfig.rules.labelDistanceToBorder + centerPointDistance * 0.75);
-      }
-      // the next step is to create the actual anchor point, which is the point at the center of the label's baseline
-      const anchorPoint: Point2d = {
-        x: controlPointCenter.x + perpVector.a,
-        y: controlPointCenter.y + perpVector.b,
-      };
-      // next, we will construct a vector parallel to the control line that will help us form our baseline
-      const baselineHalfLengthVector: Vector2d = loop.isInnerLoop
-        ? {
-          a: perpVector.b,
-          b: -perpVector.a,
-        }
-        : {
-          a: -perpVector.b,
-          b: perpVector.a,
-        };
-      // we also clone the perpendicular vector to use for our label's height
-      const labelHeightVector: Vector2d = {
-        a: perpVector.a,
-        b: perpVector.b,
+      // find two more points, one on each side of the candidate center poin
+      const singleLineWidth = factionNameTokens[BorderLabelVariant.SingleLine]?.width || 1;
+      const multiLineWidth = factionNameTokens[BorderLabelVariant.MultiLine]?.width || 1;
+      const abbrWidth = factionNameTokens[BorderLabelVariant.Abbreviation]?.width || 1;
+      const controlPoints: Record<BorderLabelVariant, [Point2d | undefined, Point2d | undefined]> = {
+        [BorderLabelVariant.SingleLine]: [
+          pointAlongEdgePath(edgePath, (candidatePosition - singleLineWidth * 0.5 + loopLength) % loopLength),
+          pointAlongEdgePath(edgePath, (candidatePosition + singleLineWidth * 0.5) % loopLength),
+        ],
+        [BorderLabelVariant.MultiLine]: [
+          pointAlongEdgePath(edgePath, (candidatePosition - multiLineWidth * 0.5 + loopLength) % loopLength),
+          pointAlongEdgePath(edgePath, (candidatePosition + multiLineWidth * 0.5) % loopLength),
+        ],
+        [BorderLabelVariant.Abbreviation]: [
+          pointAlongEdgePath(edgePath, (candidatePosition - abbrWidth * 0.5 + loopLength) % loopLength),
+          pointAlongEdgePath(edgePath, (candidatePosition + abbrWidth * 0.5) % loopLength),
+        ]
       };
 
       // we will now create two or three different candidates at the same anchor point:
@@ -138,6 +98,68 @@ export function generateLabelCandidates(
         BorderLabelVariant.Abbreviation
       ].forEach((labelVariant) => {
         if (factionNameTokens[labelVariant]) {
+          const controlPointLeft = controlPoints[labelVariant][0];
+          const controlPointRight = controlPoints[labelVariant][1];
+
+          if (!controlPointLeft || !controlPointRight) {
+            // TODO adjust distance for next candidate (why?)
+            return;
+          }
+
+          // for further calculations, create a line going through the left and right control points,
+          // we will call it the control line
+          const controlLine = lineFromPoints(controlPointLeft, controlPointRight);
+          // calculate the distance of the center point to the control line, giving us an idea of how straight
+          // this part of the border is
+          const centerPointDistance = distancePointToLine(controlPointCenter, controlLine);
+          // we can also calculate the label's angle, which is important for scoring the candidate
+          const labelAngle = (radToDeg(angleBetweenPoints(controlPointLeft, controlPointRight)) + 360) % 360;
+          // determine whether the center point is inside or outside of the control line - inside being further
+          // in the edge loop area
+          let centerPointIsOutside = pointIsLeftOfLine(controlPointCenter, controlPointLeft, controlPointRight);
+          if (loop.isInnerLoop) {
+            centerPointIsOutside = !centerPointIsOutside;
+          }
+          // get an edge perpendicular to the control line, pointing inwards
+          const perpEdge = perpendicularEdge(
+            { p1: controlPointLeft, p2: controlPointRight },
+            borderLabelConfig.rules.labelDistanceToBorder,
+            loop.isInnerLoop ? 'left' : 'right',
+          );
+
+          // We can now construct the candidate's label rectangle by starting from the center control point
+          // and moving in the direction of the perpendicular edge. How far we have to move depends on whether the center
+          // point is inside or outside of the control line.
+          // First, we need a vector pointing in the right direction, and of the correct length.
+          const perpVector: Vector2d = {
+            a: perpEdge.p2.x - perpEdge.p1.x,
+            b: perpEdge.p2.y - perpEdge.p1.y,
+          };
+          if (centerPointIsOutside) {
+            scaleVector(perpVector, borderLabelConfig.rules.labelDistanceToBorder + centerPointDistance * 0.75);
+          }
+          // the next step is to create the actual anchor point, which is the point at the center of the label's baseline
+          const anchorPoint: Point2d = {
+            x: controlPointCenter.x + perpVector.a,
+            y: controlPointCenter.y + perpVector.b,
+          };
+          // next, we will construct a vector parallel to the control line that will help us form our baseline
+          const baselineHalfLengthVector: Vector2d = loop.isInnerLoop
+            ? {
+              a: perpVector.b,
+              b: -perpVector.a,
+            }
+            : {
+              a: -perpVector.b,
+              b: perpVector.a,
+            };
+          // we also clone the perpendicular vector to use for our label's height
+          const labelHeightVector: Vector2d = {
+            a: perpVector.a,
+            b: perpVector.b,
+          };
+
+
           scaleVector(baselineHalfLengthVector, factionNameTokens[labelVariant].width * 0.5);
           scaleVector(labelHeightVector, factionNameTokens[labelVariant].height);
 

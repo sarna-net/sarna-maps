@@ -1,11 +1,45 @@
 import { readAndParseYamlFile } from './common';
-import { BorderLabelConfig, GlyphConfig, SystemLabelConfig } from '../common';
+import { BorderLabelConfig, GeneratorConfig, GlyphConfig, SystemLabelConfig } from '../common';
+import {
+  GeneratorConfigTi,
+  GeneratorConfigMapLayerTi,
+  GeneratorConfigOverlayTi,
+} from '../common/types';
+import { createCheckers } from 'ts-interface-checker';
 
 export async function readConfigFiles(fileNames: {
+  generatorConfig: string;
   glyphConfig: string;
   systemLabelConfig: string;
   borderLabelConfig: string;
 }) {
+  // read and validate generator config
+  const generatorConfig = readAndParseYamlFile(
+    fileNames.generatorConfig,
+    'Generator config',
+  );
+  const checkers = createCheckers(
+    GeneratorConfigTi,
+    GeneratorConfigMapLayerTi,
+    GeneratorConfigOverlayTi,
+  );
+  try {
+    checkers.GeneratorConfig.check(generatorConfig);
+    // TODO check filename pattern for output
+  } catch (e) {
+    console.error(
+      `The generator config at ${fileNames.generatorConfig} is not valid:\n` +
+        e.message.replaceAll('value.', '').split('\n').map((line: string) => '  ' + line).join('\n'),
+    );
+    if (e.message.split('\n').length >= 3) {
+      console.error('  ... (first three errors shown)');
+    }
+    console.error('Please refer to the example configs and the generator config documentation.');
+    process.exit(1);
+  }
+  console.info(`Generator config at ${fileNames.generatorConfig} read and parsed successfully`);
+
+
   // TODO use zod or a similar library to make sure the configuration files are valid
   const glyphConfig = readAndParseYamlFile(
     fileNames.glyphConfig,
@@ -62,6 +96,7 @@ export async function readConfigFiles(fileNames: {
   borderLabelConfig.manualConfigs = borderLabelConfig.manualConfigs || {};
 
   return {
+    generatorConfig: generatorConfig as GeneratorConfig,
     glyphConfig: glyphConfig as GlyphConfig,
     systemLabelConfig: systemLabelConfig as SystemLabelConfig,
     borderLabelConfig: borderLabelConfig as BorderLabelConfig,

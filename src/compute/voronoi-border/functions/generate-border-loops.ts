@@ -1,6 +1,6 @@
 import { BorderSection, BorderDelaunayVertex } from '../types';
 import { EMPTY_FACTION, INDEPENDENT } from '../../constants';
-import { deepCopy, Logger, pointIsLeftOfLine, pointsAreEqual } from '../../../common';
+import { deepCopy, pointIsLeftOfLine, pointsAreEqual } from '../../../common';
 import { reverseEdges } from './utils';
 import { BorderEdge } from '../../types';
 import { ensureEdgeLoopClockwiseOrder } from './ensure-edge-loop-clockwise-order';
@@ -12,7 +12,7 @@ export function generateBorderLoops(sections: Array<BorderSection>, vertices: Ar
   };
   // split sections back up so that they again only cover edges sharing the same two factions
   const smallerSections = splitSections(sections);
-  Logger.info(`${sections.length} sections vs. ${smallerSections.length} smaller sections`);
+  console.info(`${sections.length} sections vs. ${smallerSections.length} smaller sections`);
   for (let i = 0; i < smallerSections.length; i++) {
     if (!factionLoops[smallerSections[i].affiliation1]) {
       factionLoops[smallerSections[i].affiliation1] = createFactionLoops(smallerSections[i].affiliation1, smallerSections, vertices);
@@ -107,7 +107,7 @@ function createFactionLoops(faction: string, sections: Array<BorderSection>, ver
       }
     }
     if (iterations >= MAX_ITERATIONS - 1) {
-      Logger.warn(
+      console.warn(
         'Problem during the creation of faction loops: Iteration limit reached',
         faction,
         factionSections.length,

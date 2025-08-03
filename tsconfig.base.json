@@ -21,7 +21,12 @@
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "types": ["node"],
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    "plugins": [
+      {
+        "name": "@valype/typescript-plugin"
+      }
+    ]
   },
   "include": [
     "src/**/*"

@@ -4,6 +4,7 @@ export * from './angle-between-points';
 export * from './area-of-rectangle-intersection';
 export * from './area-of-rotated-rectangle-intersection';
 export * from './area-of-polygon';
+export * from './clamp-point-to-rectangle';
 export * from './copy-point-coordinates';
 export * from './copy-vector';
 export * from './cross-product';

@@ -1,4 +1,4 @@
-import { extractBorderStateAffiliation, Logger, Faction, System, TextTemplate } from '../../../common';
+import { extractBorderStateAffiliation, Faction, System, TextTemplate } from '../../../common';
 import path from 'path';
 import { generateDisputedSystemFillPattern } from './generate-disputed-system-fill-pattern';
 
@@ -31,7 +31,8 @@ export function renderSystems(
     const eraName = system.eraNames[eraIndex] || '';
     const eraCapitalLevel = system.eraCapitalLevels[eraIndex] || 0;
     const eraAffiliation = system.eraAffiliations[eraIndex] || '';
-    const displayedFaction = extractBorderStateAffiliation(eraAffiliation, ['']);
+    const displayedFaction = extractBorderStateAffiliation(eraAffiliation, [''], 'faction');
+    const systemIsHidden = !!eraAffiliation.match(/^[^(]+\(H\)(,.+)?$/);
     if (displayedFaction === '') {
       console.debug('empty faction string for', system.name);
     }
@@ -60,7 +61,7 @@ export function renderSystems(
         y: (-system.y).toFixed(3),
         radius: systemRadius,
         name: eraName,
-        css_class: displayedFaction,
+        css_class: displayedFaction + (systemIsHidden ? ' hidden' : ''),
       });
       if (eraCapitalLevel > 0) {
         markup += capitalDecorationTemplate.replace({
@@ -93,7 +94,7 @@ export function renderSystems(
       defs += generateDisputedSystemFillPattern(factionKey, factions);
       factionCss += `g.systems .system.${factionKey}, g.systems .cluster.${factionKey} { fill: url(#system-fill-${factionKey}) }\n`;
     } else if(!faction) {
-      Logger.warn(`Cannot find faction for affiliation key "${factionKey}". Systems will be displayed in the default color.`);
+      console.warn(`Cannot find faction for affiliation key "${factionKey}". Systems will be displayed in the default color.`);
     } else {
       factionCss += `g.systems .system.${factionKey}, g.systems .cluster.${factionKey} { fill: ${faction?.color || '#000'} }\n`;
     }

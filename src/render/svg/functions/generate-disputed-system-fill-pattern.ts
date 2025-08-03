@@ -1,9 +1,9 @@
-import { Faction, Logger, Point2d, pointOnUnitCircleByPercentValue } from '../../../common';
+import { Faction, Point2d, pointOnUnitCircleByPercentValue } from '../../../common';
 
 export function generateDisputedSystemFillPattern(factionKey: string, factions: Record<string, Faction>) {
   const factionKeys = factionKey.replace(/^D-/i, '').split('-');
   if (factionKeys.length < 2) {
-    Logger.warn(`Cannot create disputed system fill pattern: Need at least two factions in key "${factionKey}"`);
+    console.warn(`Cannot create disputed system fill pattern: Need at least two factions in key "${factionKey}"`);
     return '';
   }
   const paths: Array<string> = [];

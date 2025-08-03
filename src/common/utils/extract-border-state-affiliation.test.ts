@@ -26,10 +26,20 @@ describe('extractBorderStateAffiliation', () => {
     expect(extractBorderStateAffiliation('U,V,W')).to.equal('');
   });
 
-  it('should properly discard hidden systems', () => {
+  it('should properly discard hidden systems in ignore mode', () => {
     expect(extractBorderStateAffiliation('F(H)')).to.equal('');
     expect(extractBorderStateAffiliation('F(H),G,P')).to.equal('');
     expect(extractBorderStateAffiliation('H')).to.equal('H');
+  });
+
+  it('should properly return the main faction for hidden systems in faction mode', () => {
+    expect(extractBorderStateAffiliation('F(H)', [], 'faction')).to.equal('F');
+    expect(extractBorderStateAffiliation('F(H),G,P', [], 'faction')).to.equal('F');
+  });
+
+  it('should properly return the main faction plus the hidden string for hidden systems in full mode', () => {
+    expect(extractBorderStateAffiliation('F(H)', [], 'full')).to.equal('F(H)');
+    expect(extractBorderStateAffiliation('F(H),G,P', [], 'full')).to.equal('F(H)');
   });
 
   it('should properly return disputed systems', () => {

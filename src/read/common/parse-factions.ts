@@ -1,19 +1,20 @@
-import { Faction, Logger } from '../../common';
+import { Faction } from '../../common';
 
 /**
  * Assumptions:
  * - The sheet's first row contains the headers
  * - There are columns named "id", "factionname", "color", "foundingyear" and "dissolutionyear" (case-insensitive)
  * - The colors are recorded in RGB hex format with a prefixed # symbol (e.g. #A55EA6)
+ * TODO all of these assumptions belong in a config file
  *
  * @param rows The data rows, with the rows as the first and the column/cells as the second dimension
  */
 export function parseFactions(rows: Array<Array<string>>) {
-  Logger.info(`Reading factions ...`);
+  console.info(`Reading factions ...`);
   const factions: Array<Faction> = [];
 
   if (!rows || !(rows || []).length) {
-    Logger.info('Faction sheet empty, no factions read.');
+    console.info('Faction sheet empty, no factions read.');
     return factions;
   }
 
@@ -44,6 +45,6 @@ export function parseFactions(rows: Array<Array<string>>) {
     });
   }
 
-  Logger.info(`${factions.length} factions read.`);
+  console.info(`${factions.length} factions read.`);
   return factions;
 }

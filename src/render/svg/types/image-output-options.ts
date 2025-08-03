@@ -4,7 +4,6 @@ import { SnapPosition } from '../../../Constants';
 
 export interface BasicDisplayOptions {
   dimensions: Dimensions2d;
-  viewRect: Rectangle2d;
   displayPoissonPoints?: boolean;
   displayDelaunayTriangles?: boolean;
   displayVoronoiNodes?: boolean;
@@ -14,6 +13,9 @@ export interface BasicDisplayOptions {
   curveBorderEdges?: boolean;
   displayNebulae?: boolean;
   displayClusters?: boolean;
+  debug?: {
+    displaySalients: boolean;
+  };
   factions?: {
     displayBorders?: boolean;
     displayBorderLabels?: boolean;
@@ -34,6 +36,8 @@ export interface BasicDisplayOptions {
 export interface ImageOutputOptions extends BasicDisplayOptions {
   name: string;
   path?: string;
+  universeDimensions: Dimensions2d;
+  mainMapElementsRect: Rectangle2d;
   customStyles?: string;
   systemNamesDropShadow?: boolean;
   factionNamesDropShadow?: boolean;
