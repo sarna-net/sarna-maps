@@ -10,20 +10,24 @@ import { generateSectionPath } from './generate-section-path';
  * @param borderLoops The map of factions with each faction's borders (one or several border loops per faction)
  * @param factions Map of all faction objects, by faction key
  * @param renderCurves true to render control points to curve edges
+ * @param prefix A string used to prefix all css classes and defs
  */
 export function renderBorderLoops(
   borderLoops: Record<string, Array<BorderEdgeLoop>>,
   factions: Record<string, Faction>,
   renderCurves = true,
+  prefix = '',
 ) {
   const templatePath = path.join(__dirname, '../templates');
   const defTemplate = new TextTemplate('disputed-faction-fill-def.svg.tpl', templatePath);
   const cssTemplate = new TextTemplate('border-faction.css.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const edgeTemplate = new TextTemplate('border-path.svg.tpl', templatePath);
   let markup = '';
   let css = '';
   let defs = '';
+  const defPrefix = prefix.length ? prefix + '-' : '';
+  const cssPrefix = prefix.length ? `.${prefix} ` : '';
   Object.keys(borderLoops).forEach((factionKey) => {
     if (!factionKey || factionKey === EMPTY_FACTION || factionKey === INDEPENDENT) {
       return;
@@ -35,6 +39,7 @@ export function renderBorderLoops(
       // factions, everything above 2 will be displayed as "generic disputed"
       if (factionKeys.length === 2) {
         defs += defTemplate.replace({
+          prefix: defPrefix,
           id: factionKey,
           color1: factions[factionKeys[0]].color,
           color2: factions[factionKeys[1]].color,
@@ -43,13 +48,15 @@ export function renderBorderLoops(
         factionKey = 'D';
       }
       css += cssTemplate.replace({
+        prefix: cssPrefix,
         id: factionKey,
         strokeColor: 'transparent',
         strokeWidth: '0',
-        fill: `url(#border-fill-${factionKey})`,
+        fill: `url(#${defPrefix}border-fill-${factionKey})`,
       });
     } else {
       css += cssTemplate.replace({
+        prefix: cssPrefix,
         id: factionKey,
         strokeColor: factions[factionKey]?.color || '#000',
         strokeWidth: '1px',
@@ -69,11 +76,10 @@ export function renderBorderLoops(
     });
 
     if (loopPaths.length > 0) {
-      factionMarkup += edgeTemplate.replace({ d: loopPaths.join(' '), meta: `data-affiliations="${loopAffiliations}"` });
+      factionMarkup += edgeTemplate.replace({ d: loopPaths.join(' ') });
     }
     markup += layerTemplate.replace({
       name: factionKey,
-      id: 'faction-border-' + factionKey,
       css_class: 'faction-border-' + factionKey,
       content: factionMarkup,
     });
@@ -84,7 +90,6 @@ export function renderBorderLoops(
       css,
       markup: layerTemplate.replace({
         name: 'borders-layer',
-        id: 'borders-layer',
         css_class: 'borders',
         content: markup,
       }),

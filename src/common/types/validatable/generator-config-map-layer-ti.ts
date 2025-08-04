@@ -41,6 +41,9 @@ export const GeneratorConfigMapLayer = t.iface([], {
         "x": "number",
         "y": "number",
       })),
+      "strokeWidths": t.opt(t.union("number", t.array("number"))),
+      "strokeColors": t.opt(t.union("string", t.array("string"))),
+      "fillColors": t.opt(t.union("string", t.array("string"))),
     })),
   }),
 });

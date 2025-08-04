@@ -16,7 +16,7 @@ export function renderBorderSections(
   renderCurves = true,
 ) {
   const templatePath = path.join(__dirname, '../templates');
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const edgeTemplate = new TextTemplate('border-section.svg.tpl', templatePath);
   let relaxedEdgeMarkup = '';
   let css = '';

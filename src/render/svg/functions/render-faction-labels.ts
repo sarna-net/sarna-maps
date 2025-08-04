@@ -6,7 +6,7 @@ export function renderFactionLabels(factionLabels: Array<FactionLabel>) {
   const templatePath = path.join(__dirname, '../templates');
   const cssTemplate = new TextTemplate('area-labels.css.tpl', templatePath);
   const factionCssTemplate = new TextTemplate('area-labels-faction.css.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const defTemplate = new TextTemplate('area-label-def.svg.tpl', templatePath);
   const markupTemplateSingleLine = new TextTemplate('area-label-markup-single-line.svg.tpl', templatePath);
   const markupTemplateMultiLine = new TextTemplate('area-label-markup-multi-line.svg.tpl', templatePath);

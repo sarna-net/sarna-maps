@@ -8,6 +8,7 @@ import { generateDisputedSystemFillPattern } from './generate-disputed-system-fi
  * @param systems The systems list
  * @param factions The list of factions
  * @param eraIndex Index of the era to use
+ * @param prefix The prefix string for css and defs
  * @param systemRadius Radius for each system dot
  * @returns The system dots markup
  */
@@ -15,11 +16,12 @@ export function renderSystems(
   systems: System[],
   factions: Record<string, Faction>,
   eraIndex = 0,
-  systemRadius = 1
+  prefix = '',
+  systemRadius = 1,
 ) {
   const templatePath = path.join(__dirname, '../templates');
   const cssTemplate = new TextTemplate('system-points.css.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const systemTemplate = new TextTemplate('system-point.svg.tpl', templatePath);
   const capitalDecorationTemplate = new TextTemplate('system-decoration.svg.tpl', templatePath);
   const clusterTemplate = new TextTemplate('cluster-ellipse.svg.tpl', templatePath);
@@ -27,6 +29,8 @@ export function renderSystems(
 
   let markup = '';
   let defs = '';
+  const defPrefix = prefix.length ? prefix + '-' : '';
+  const cssPrefix = prefix.length ? `.${prefix} ` : '';
   systems.forEach((system) => {
     const eraName = system.eraNames[eraIndex] || '';
     const eraCapitalLevel = system.eraCapitalLevels[eraIndex] || 0;
@@ -91,19 +95,19 @@ export function renderSystems(
     } else if (factionKey === 'D') {
       // CSS for generic disputed systems is part of the default template
     } else if (factionKey.startsWith('D-')) {
-      defs += generateDisputedSystemFillPattern(factionKey, factions);
-      factionCss += `g.systems .system.${factionKey}, g.systems .cluster.${factionKey} { fill: url(#system-fill-${factionKey}) }\n`;
+      defs += generateDisputedSystemFillPattern(factionKey, factions, defPrefix);
+      factionCss += `${cssPrefix}g.systems .system.${factionKey}, g.systems .cluster.${factionKey} { fill: url(#${defPrefix}system-fill-${factionKey}) }\n`;
     } else if(!faction) {
       console.warn(`Cannot find faction for affiliation key "${factionKey}". Systems will be displayed in the default color.`);
     } else {
-      factionCss += `g.systems .system.${factionKey}, g.systems .cluster.${factionKey} { fill: ${faction?.color || '#000'} }\n`;
+      factionCss += `${cssPrefix}g.systems .system.${factionKey}, g.systems .cluster.${factionKey} { fill: ${faction?.color || '#000'} }\n`;
     }
   });
 
   if (markup.trim()) {
     return {
       defs,
-      css: cssTemplate.replace({ faction_colors: factionCss }),
+      css: cssTemplate.replace({ prefix: cssPrefix, faction_colors: factionCss }),
       markup: layerTemplate.replace({
         name: 'systems-dots-layer',
         id: 'systems-dots-layer',

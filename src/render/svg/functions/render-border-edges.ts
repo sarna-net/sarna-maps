@@ -13,7 +13,7 @@ import path from 'path';
 export function renderBorderEdges(borderEdges: Record<string, Array<VoronoiBorderEdge>>) {
   const templatePath = path.join(__dirname, '../templates');
   const cssTemplate = new TextTemplate('border-edge.css.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const edgeTemplate = new TextTemplate('border-edge.svg.tpl', templatePath);
   let markup = '';
   Object.keys(borderEdges).forEach((factionKey) => {

@@ -11,7 +11,7 @@ eras: # the eras to create images for - either a list of era indices (0-based), 
 
 iterateObjects:
   type: system
-  pattern: '.*sol.*'
+  pattern: '^marik$' #'^sol$'
 
 dimensions: # output image pixel size
   width: 1000
@@ -26,7 +26,7 @@ mapLayers: # the different layers showing maps
       point: system
       delta: # center point offset (in map units)
         x: 0
-        y: 20
+        y: 15
     elements:
       systems: true # display systems (as dots)
       systemLabels: true # display system names
@@ -37,17 +37,16 @@ mapLayers: # the different layers showing maps
         radii: # draw circles with these radii
           - 30
           - 60
-        delta: # circle center offset (in map units)
-          x: 0
-          y: 20
+        strokeWidths: .25
+        strokeColors: '#666'
 
   - name: minimap # minimap layer
     dimensions: # minimap pixel size
       width: 400
       height: 200
     position: # top left anchor of the minimap
-      x: 580
-      y: 923
+      x: 588
+      y: 931
     mapUnitDimensions: # dimensions of the minimap section (in map units)
       width: 1200
       height: 600
@@ -58,8 +57,11 @@ mapLayers: # the different layers showing maps
         curveBorderEdges: false
       jumpRings:
         radii:
+          - 2
           - 30
           - 60
+        strokeWidths: [5, 3, 3]
+        strokeColors: ['#f00', '#222', '#222']
 
 overlays: # other items on top of the map layers
   #- type: text # map title
@@ -70,10 +72,10 @@ overlays: # other items on top of the map layers
     attributes: # attributes specific to this type of overlay
       width: 402
       height: 202
-      strokeWidth: 1px
+      strokeWidth: 4
     position: # the frame's pixel position (top left point)
-      x: 579
-      y: 922
+      x: 588
+      y: 931
   - name: sarna-logo
     type: svgElement # the sarna logo svg paths
     attributes: # attributes specific to this type of overlay
@@ -81,8 +83,8 @@ overlays: # other items on top of the map layers
       svgTemplate: sarna-logo.svg.tpl
       scale: 1.5
     position: # the logo's pixel position (top left point)
-      x: 10
-      y: 983 # height - 10 - 150
+      x: 5
+      y: 986 # height - 10 - 150
   - name: main-map-scale
     type: scale # a scale displaying the
     attributes:

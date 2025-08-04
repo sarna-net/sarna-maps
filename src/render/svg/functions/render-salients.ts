@@ -4,7 +4,7 @@ import { SalientPoint } from '../../../compute';
 
 export function renderSalients(points: Array<SalientPoint>) {
   const templatePath = path.join(__dirname, '../templates');
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const salientPointTemplate = new TextTemplate('salient-point.svg.tpl', templatePath);
   const cssTemplate = new TextTemplate('salients.css.tpl', templatePath);
 

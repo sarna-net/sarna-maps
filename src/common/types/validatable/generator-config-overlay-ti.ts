@@ -33,7 +33,7 @@ export const GeneratorConfigOverlayItemRectangle = t.iface(["GeneratorConfigOver
   "attributes": t.iface([], {
     "width": "number",
     "height": "number",
-    "strokeWidth": t.opt("string"),
+    "strokeWidth": t.opt("number"),
     "strokeColor": t.opt("string"),
     "fillColor": t.opt("string"),
   }),

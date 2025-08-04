@@ -2,7 +2,7 @@ import path from 'path';
 import { BorderLabelsResult } from '../../../compute';
 import { Faction, hexStringToRgb, pointOnLine, rgbToHexString, TextTemplate } from '../../../common';
 
-export function renderBorderLabels(result: BorderLabelsResult, factions: Record<string, Faction>) {
+export function renderBorderLabels(result: BorderLabelsResult, factions: Record<string, Faction>, prefix = '') {
   const templatePath = path.join(__dirname, '../templates');
   const debugCssTemplate = new TextTemplate('border-label.debug.css.tpl', templatePath);
   const cssTemplate = new TextTemplate('border-label.css.tpl', templatePath);
@@ -11,11 +11,13 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
   const labelTemplate = new TextTemplate('border-label.svg.tpl', templatePath);
   const labelTokenDefsTemplate = new TextTemplate('border-label-token-defs.svg.tpl', templatePath);
   const labelTokenTemplate = new TextTemplate('border-label-token.svg.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   let debugMarkup = '';
   let defs = '';
   let css = '';
   let markup = '';
+  const defPrefix = prefix.length ? prefix + '-' : '';
+  const cssPrefix = prefix.length ? `.${prefix} ` : '';
   Object.keys(result.candidatesByFaction).forEach((factionKey) => {
     const candidates = result.candidatesByFaction[factionKey];
     // debug mode output
@@ -130,7 +132,7 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
         const endPoint = pointOnLine(midPoint, baseline.p2, token.width * 0.5);
         // create label path for defs section
         labelDefs += labelTokenDefsTemplate.replace({
-          id: tokenId,
+          id: defPrefix + tokenId,
           path: `M`
             + startPoint.x.toFixed(2) + ','
             + (-startPoint.y).toFixed(2)
@@ -140,7 +142,7 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
         });
         // create label tokens
         labelMarkup += labelTokenTemplate.replace({
-          id: tokenId,
+          id: defPrefix + tokenId,
           token: token.str,
         });
       });
@@ -152,6 +154,7 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
     });
     if (candidates.length > 0) {
       css += cssTemplate.replace({
+        prefix: cssPrefix,
         factionKey,
         color: factionLabelColor,
       });
@@ -164,12 +167,10 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
         + css,
       markup: layerTemplate.replace({
         name: 'border-labels-debug-layer',
-        id: 'border-labels-debug-layer',
         css_class: 'border-labels',
         content: debugMarkup,
       }) + layerTemplate.replace({
         name: 'border-labels-layer',
-        id: 'border-labels-layer',
         css_class: 'border-labels',
         content: markup,
       }),
@@ -180,7 +181,6 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
     css,
     markup: layerTemplate.replace({
       name: 'border-labels-layer',
-      id: 'border-labels-layer',
       css_class: 'border-labels',
       content: markup,
     }),

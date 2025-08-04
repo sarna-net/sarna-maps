@@ -1,1 +1,1 @@
-g.border-labels .{{FACTIONKEY}} text { fill: {{COLOR}}; }
+{{PREFIX}}g.border-labels .{{FACTIONKEY}} text { fill: {{COLOR}}; }

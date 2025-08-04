@@ -80,6 +80,24 @@ export interface GeneratorConfigMapLayer {
        * Circle center offset (in map units)
        */
       delta?: { x: number; y: number;};
+      /**
+       * Stroke widths for the jump rings.
+       * If only one width is provided, the same width will be used for all rings.
+       * Default is 0
+       */
+      strokeWidths?: number | number[];
+      /**
+       * Stroke colors for the jump rings.
+       * If only one color is provided, the same color will be used for all rings.
+       * Default is black
+       */
+      strokeColors?: string | string[];
+      /**
+       * Fill colors for the jump rings.
+       * If only one color is provided, the same color will be used for all rings.
+       * Default is no fill
+       */
+      fillColors?: string | string[];
     }
   }
 }

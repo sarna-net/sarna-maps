@@ -13,7 +13,7 @@ import path from 'path';
 export function renderPoissonPoints(poissonPoints: Point2d[], areaRadius = 35, pointRadius = 3) {
   const templatePath = path.join(__dirname, '../templates');
   const cssTemplate = new TextTemplate('poisson-points.css.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const pointTemplate = new TextTemplate('poisson-point.svg.tpl', templatePath);
 
   let markup = '';

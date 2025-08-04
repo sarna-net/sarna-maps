@@ -135,75 +135,76 @@ async function writeMap(
   };
   const factionMap: Record<string, Faction> = {};
   factions.forEach((faction) => factionMap[faction.id] = faction);
-  //const eraIndex = 15; // 2864
-  // const eraIndex = 16; // 3025
-  // const eraIndex = 25; // 3057
-  // const eraIndex = 30; // 3059 <-- chaos march
 
-  // const eraIndex = 31; // 3063
-  // const eraIndex = 32; // 3067
-  const eraIndex = 33; // 3068
-  // const eraIndex = 35; // 3079
-  // const eraIndex = 41; // 3145
-  // const eraIndex = 42; // 3151
-  console.info(eras.find((era) => era.index === eraIndex));
-
-  // TODO put these settings into a config file
-  const poissonSettings = {
-    origin: universeRect.anchor,
-    dimensions: universeRect.dimensions,
-    radius: 30,
-    maxSamples: 30,
-    seed: 'sarna',
-  }
-
-  // Perform voronoi border calculations
-  const {
-    poissonDisc,
-    delaunayTriangles,
-    delaunayVertices,
-    voronoiNodes,
-    unmodifiedBorderEdges,
-    borderEdges,
-    borderSections,
-    borderLoops,
-    threeWayNodes,
-    salientPoints,
-  } = await calculateVoronoiBorders(
-    systems,
-    eras[eraIndex],
-    poissonSettings,
-  );
-  // TODO how do we best configure this using a config file? (view could also be centered on a system)
-  // x=64.875 y=-67.773
-  // System: Algol
-  const systemX = 64.875;
-  const systemY = -67.773;
-  const visibleViewRect = {
-    anchor: { x: systemX - 70, y: systemY - 80 },
-    dimensions: { width: 140, height: 160 },
-  };
-  // TODO configure this in a config file
-  const outputDimensions = {
-    width: 1000,
-    height: 1143
-  };
-  // Create a rectangle grid that will let us check for label collisions
-  const grid = new RectangleGrid(visibleViewRect);
-  const visibleSystems = restrictSystemsToViewbox(visibleViewRect, systems);
-
-  // Place system labels
-  const systemLabels = placeSystemLabels(visibleViewRect, eraIndex, visibleSystems, grid, glyphConfig, systemLabelConfig);
-
-  // Limit border loops to the visible section of the map
-  const boundedLoops = restrictBorderLoopsToViewbox(
-    borderLoops || {},
-    visibleViewRect,
-    15, // TODO put this in a config file
-  );
-
-  // Place border labels
-  const borderLabels = placeBorderLabels(visibleViewRect, eraIndex, factionMap, borderLoops || {}, grid, glyphConfig, borderLabelConfig);
+  // //const eraIndex = 15; // 2864
+  // // const eraIndex = 16; // 3025
+  // // const eraIndex = 25; // 3057
+  // // const eraIndex = 30; // 3059 <-- chaos march
+  //
+  // // const eraIndex = 31; // 3063
+  // // const eraIndex = 32; // 3067
+  // const eraIndex = 33; // 3068
+  // // const eraIndex = 35; // 3079
+  // // const eraIndex = 41; // 3145
+  // // const eraIndex = 42; // 3151
+  // console.info(eras.find((era) => era.index === eraIndex));
+  //
+  // // TODO put these settings into a config file
+  // const poissonSettings = {
+  //   origin: universeRect.anchor,
+  //   dimensions: universeRect.dimensions,
+  //   radius: 30,
+  //   maxSamples: 30,
+  //   seed: 'sarna',
+  // }
+  //
+  // // Perform voronoi border calculations
+  // const {
+  //   poissonDisc,
+  //   delaunayTriangles,
+  //   delaunayVertices,
+  //   voronoiNodes,
+  //   unmodifiedBorderEdges,
+  //   borderEdges,
+  //   borderSections,
+  //   borderLoops,
+  //   threeWayNodes,
+  //   salientPoints,
+  // } = await calculateVoronoiBorders(
+  //   systems,
+  //   eras[eraIndex],
+  //   poissonSettings,
+  // );
+  // // TODO how do we best configure this using a config file? (view could also be centered on a system)
+  // // x=64.875 y=-67.773
+  // // System: Algol
+  // const systemX = 64.875;
+  // const systemY = -67.773;
+  // const visibleViewRect = {
+  //   anchor: { x: systemX - 70, y: systemY - 80 },
+  //   dimensions: { width: 140, height: 160 },
+  // };
+  // // TODO configure this in a config file
+  // const outputDimensions = {
+  //   width: 1000,
+  //   height: 1143
+  // };
+  // // Create a rectangle grid that will let us check for label collisions
+  // const grid = new RectangleGrid(visibleViewRect);
+  // const visibleSystems = restrictSystemsToViewbox(visibleViewRect, systems);
+  //
+  // // Place system labels
+  // const systemLabels = placeSystemLabels(visibleViewRect, eraIndex, visibleSystems, grid, glyphConfig, systemLabelConfig);
+  //
+  // // Limit border loops to the visible section of the map
+  // const boundedLoops = restrictBorderLoopsToViewbox(
+  //   borderLoops || {},
+  //   visibleViewRect,
+  //   15, // TODO put this in a config file
+  // );
+  //
+  // // Place border labels
+  // const borderLabels = placeBorderLabels(visibleViewRect, eraIndex, factionMap, borderLoops || {}, grid, glyphConfig, borderLabelConfig);
 
   // const lcBorderLoops = voronoiResult.borderLoops?.LC;
   // const {
@@ -257,7 +258,15 @@ async function writeMap(
   //   },
   // );
 
-  writeSvgMaps(generatorConfig, eras, systems);
+  await writeSvgMaps(
+    generatorConfig,
+    glyphConfig,
+    systemLabelConfig,
+    borderLabelConfig,
+    eras,
+    factionMap,
+    systems,
+  );
 }
 
 async function run() {

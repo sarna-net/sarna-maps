@@ -67,7 +67,7 @@ export interface GeneratorConfigOverlayItemRectangle extends GeneratorConfigOver
     /**
      * The width of the frame's border, in pixels (defaults to 0)
      */
-    strokeWidth?: string;
+    strokeWidth?: number;
     /**
      * The color of the frame's border, in css color format (defaults to black)
      */

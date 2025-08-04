@@ -13,7 +13,7 @@ import path from 'path';
 export function renderVoronoiNodes(voronoiNodes: Array<VoronoiBorderNode>, delaunayVertices: Array<BorderDelaunayVertex>) {
   const templatePath = path.join(__dirname, '../templates');
   const cssTemplate = new TextTemplate('voronoi-node.css.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const nodeTemplate = new TextTemplate('voronoi-node.svg.tpl', templatePath);
 
   let markup = '';

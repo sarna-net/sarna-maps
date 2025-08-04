@@ -11,7 +11,7 @@ import path from 'path';
 export function renderDelaunayTriangles(delaunayTriangles: Array<DelaunayTriangle<DelaunayVertex>>) {
   const templatePath = path.join(__dirname, '../templates');
   const cssTemplate = new TextTemplate('delaunay-triangles.css.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const triangleTemplate = new TextTemplate('delaunay-triangle.svg.tpl', templatePath);
 
   let markup = '';

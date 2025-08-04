@@ -2,13 +2,15 @@ import path from 'path';
 import { TextTemplate } from '../../../common';
 import { LabelRectangle } from '../../../compute';
 
-export function renderSystemLabels(labels: Array<LabelRectangle>, renderFrames = false) {
+export function renderSystemLabels(labels: Array<LabelRectangle>, prefix = '', renderFrames = false) {
   const templatePath = path.join(__dirname, '../templates');
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const labelTemplate = new TextTemplate('system-label.svg.tpl', templatePath);
   const additionTemplate = new TextTemplate('system-label-addition.svg.tpl', templatePath);
   const additionPartTemplate = new TextTemplate('system-label-addition-part.svg.tpl', templatePath);
   const connectorTemplate = new TextTemplate('system-label-connector.svg.tpl', templatePath);
+  const defPrefix = prefix.length ? prefix + '-' : '';
+  const cssPrefix = prefix.length ? `.${prefix} ` : '';
 
   let markup = '';
   labels.forEach((label) => {
@@ -26,6 +28,7 @@ export function renderSystemLabels(labels: Array<LabelRectangle>, renderFrames =
       ).join(' L');
       markup += connectorTemplate.replace({ d, name: label.label });
     }
+
     // main label
     markup += labelTemplate.replace({
       x: (label.anchor.x + label.padding.x + label.delta.x).toFixed(3),
@@ -58,8 +61,7 @@ export function renderSystemLabels(labels: Array<LabelRectangle>, renderFrames =
       css: '',
       markup: layerTemplate.replace({
         name: 'systems-labels-layer',
-        id: 'systems-labels-layer',
-        css_class: 'system-labels',
+        css_class: cssPrefix + 'system-labels',
         content: markup,
       }),
     };
