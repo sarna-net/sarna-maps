@@ -17,6 +17,7 @@ export * from './render-svg-element';
 export * from './render-points-of-interest';
 export * from './render-poisson-points';
 export * from './render-salients';
+export * from './render-scale';
 export * from './render-systems';
 export * from './render-system-labels';
 export * from './render-voronoi-nodes';

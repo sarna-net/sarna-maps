@@ -43,16 +43,16 @@ export async function writeSvgMaps(
 
     // Perform voronoi border calculations
     const {
-      poissonDisc,
-      delaunayTriangles,
-      delaunayVertices,
-      voronoiNodes,
-      unmodifiedBorderEdges,
-      borderEdges,
-      borderSections,
+      // poissonDisc,
+      // delaunayTriangles,
+      // delaunayVertices,
+      // voronoiNodes,
+      // unmodifiedBorderEdges,
+      // borderEdges,
+      // borderSections,
       borderLoops,
-      threeWayNodes,
-      salientPoints,
+      // threeWayNodes,
+      // salientPoints,
     } = await calculateVoronoiBorders(
       systems,
       era,

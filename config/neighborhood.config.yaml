@@ -72,10 +72,10 @@ overlays: # other items on top of the map layers
     attributes: # attributes specific to this type of overlay
       width: 402
       height: 202
-      strokeWidth: 4
+      strokeWidth: 3
     position: # the frame's pixel position (top left point)
-      x: 588
-      y: 931
+      x: 587
+      y: 930
   - name: sarna-logo
     type: svgElement # the sarna logo svg paths
     attributes: # attributes specific to this type of overlay
@@ -86,12 +86,22 @@ overlays: # other items on top of the map layers
       x: 5
       y: 986 # height - 10 - 150
   - name: main-map-scale
-    type: scale # a scale displaying the
+    type: scale # a scale displaying the relation of pixels to map units
     attributes:
       pixelsPerMapUnit: 7.142857142857143 # 1000 (pixel size) / 140 (main map unit width)
       max: 50 # maximum unit shown
       step: 10 # color change after this many units
-      scaleHeight: 10.5
-    position: # the scale's pixel position (top left point)
-      x: 200
-      y: 1121  # 1143 - 12 - 10
+      scaleHeight: 12
+    position: # the scale's pixel position (top left point of the scale bar)
+      x: 160
+      y: 1118  # 1143 - 11 - 10
+  - name: main-map-scale-frame
+    type: rectangle
+    attributes:
+      width: 357.15
+      height: 12
+      strokeWidth: 2.5
+    position:
+      x: 160
+      y: 1118
+

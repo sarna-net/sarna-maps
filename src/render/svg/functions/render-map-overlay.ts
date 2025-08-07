@@ -1,6 +1,7 @@
 import { Era, GeneratorConfigOverlay, System } from '../../../common';
 import { renderRectangle } from './render-rectangle';
 import { renderSvgElement } from './render-svg-element';
+import { renderScale } from './render-scale';
 
 export function renderMapOverlay(config: GeneratorConfigOverlay, era: Era, system?: System) {
   switch (config.type) {
@@ -16,8 +17,17 @@ export function renderMapOverlay(config: GeneratorConfigOverlay, era: Era, syste
       );
     // case 'text':
     //   return renderMapOverlayText();
-    // case 'scale':
-    //   return renderScale();
+    case 'scale':
+      return renderScale(
+        config.name,
+        config.position,
+        config.attributes.pixelsPerMapUnit,
+        config.attributes.step,
+        config.attributes.max,
+        config.attributes.scaleHeight,
+        config.attributes.labelsPosition,
+        config.attributes.mapUnitName,
+      );
     case 'svgElement':
       return renderSvgElement(
         config.name,
