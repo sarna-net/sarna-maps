@@ -1,3 +1,7 @@
+// IMPORTANT: Whenever you change something in this file, re-run
+//   npm start build:validation-interfaces
+// to make sure that generator configs can still be validated correctly
+
 interface GeneratorConfigOverlayItemBase {
   /**
    * The overlay's name

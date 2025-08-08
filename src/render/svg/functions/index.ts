@@ -8,6 +8,7 @@ export * from './render-border-labels';
 export * from './render-border-loops';
 export * from './render-border-sections';
 export * from './render-delaunay-triangles';
+export * from './render-directional-indicators';
 export * from './render-jump-rings';
 export * from './render-map-layer';
 export * from './render-map-overlay';

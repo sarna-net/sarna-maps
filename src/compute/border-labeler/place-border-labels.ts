@@ -89,8 +89,17 @@ export function placeBorderLabels(
       factionNameTokens,
     ).filter(candidateIsInViewBox);
 
+    // place manual candidates first
+    manualCandidates.forEach((candidate) => factionLabelGrid.placeItem({
+      id: candidate.id,
+      anchor: { ...candidate.anchorPoint },
+      dimensions: { width: 1, height: 1 },
+    }));
+    totalNumberOfPlacedManualLabels += manualCandidates.length;
+    candidatesByFaction[factionKey].push(...manualCandidates);
+    totalNumberOfCandidates += manualCandidates.length;
+
     factionLoops.forEach((loop, loopIndex) => {
-      // TODO restrict loop to viewRect
       // find and score candidates
       const candidates = generateLabelCandidates(
         faction,
@@ -109,12 +118,24 @@ export function placeBorderLabels(
       let selectedCandidates = selectBestCandidates(
         regularCandidates, borderLabelConfig, factionLabelGrid
       );
-      if (selectedCandidates.length === 0 && manualCandidates.length > 0) {
-        // no valid candidate has been found among the non-abbreviated ones, check if there is one
-        // in the label config
-        selectedCandidates = [...manualCandidates];
-        totalNumberOfPlacedManualLabels += manualCandidates.length;
-      } else if (selectedCandidates.length === 0) {
+      // if (factionKey === 'CS') {
+      //   console.log('outside CS', selectedCandidates.length, manualCandidates.length, 'L' +loopIndex);
+      //   console.log('loop', loop);
+      // }
+      // if (selectedCandidates.length === 0 && manualCandidates.length > 0) {
+      //   // no valid candidate has been found among the non-abbreviated ones, check if there is one
+      //   // in the label config
+      //   if (factionKey === 'CS') {
+      //     console.log('CS', selectedCandidates.length, manualCandidates.length, 'L' + loopIndex);
+      //   }
+      //   manualCandidates.forEach((candidate) => grid.placeItem({
+      //     id: candidate.id,
+      //     anchor: { ...candidate.anchorPoint },
+      //     dimensions: { width: 1, height: 1 },
+      //   }));
+      //   selectedCandidates = [...manualCandidates];
+      //   totalNumberOfPlacedManualLabels += manualCandidates.length;
+      if (selectedCandidates.length === 0) {
         // if there are still no valid candidates, pick the best ones among the abbreviated versions
         selectedCandidates = selectBestCandidates(
           abbreviatedCandidates, borderLabelConfig, factionLabelGrid

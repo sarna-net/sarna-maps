@@ -45,10 +45,27 @@ export const GeneratorConfigMapLayer = t.iface([], {
       "strokeColors": t.opt(t.union("string", t.array("string"))),
       "fillColors": t.opt(t.union("string", t.array("string"))),
     })),
+    "directionalIndicators": t.opt(t.array("GeneratorConfigMapLayerDirectionalIndicator")),
   }),
+});
+
+export const GeneratorConfigMapLayerDirectionalIndicator = t.iface([], {
+  "coordinates": t.iface([], {
+    "x": "number",
+    "y": "number",
+  }),
+  "text": "string",
+  "textSizeFactor": t.opt("number"),
+  "strokeWidth": t.opt("number"),
+  "strokeColor": t.opt("string"),
+  "fillColor": t.opt("string"),
+  "minimumIndicatorDistance": t.opt("number"),
+  "minimumMeasurementDistance": t.opt("number"),
+  "mapUnitName": t.opt("string"),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
   GeneratorConfigMapLayer,
+  GeneratorConfigMapLayerDirectionalIndicator,
 };
 export default exportedTypeSuite;

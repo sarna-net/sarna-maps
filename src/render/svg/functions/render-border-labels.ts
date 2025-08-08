@@ -2,10 +2,11 @@ import path from 'path';
 import { BorderLabelsResult } from '../../../compute';
 import { Faction, hexStringToRgb, pointOnLine, rgbToHexString, TextTemplate } from '../../../common';
 
-export function renderBorderLabels(result: BorderLabelsResult, factions: Record<string, Faction>, prefix = '') {
+export function renderBorderLabels(result: BorderLabelsResult, factions: Record<string, Faction>, prefix = '', pixelsPerMapUnit = 1) {
   const templatePath = path.join(__dirname, '../templates');
   const debugCssTemplate = new TextTemplate('border-label.debug.css.tpl', templatePath);
-  const cssTemplate = new TextTemplate('border-label.css.tpl', templatePath);
+  const cssTemplate = new TextTemplate('border-labels.css.tpl', templatePath);
+  const labelCssTemplate = new TextTemplate('border-label.css.tpl', templatePath);
   const debugLabelTemplate = new TextTemplate('border-label.debug.svg.tpl', templatePath);
   const debugOverlapTemplate = new TextTemplate('border-label.overlap.debug.svg.tpl', templatePath);
   const labelTemplate = new TextTemplate('border-label.svg.tpl', templatePath);
@@ -153,14 +154,16 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
       });
     });
     if (candidates.length > 0) {
-      css += cssTemplate.replace({
+      css += labelCssTemplate.replace({
         prefix: cssPrefix,
         factionKey,
         color: factionLabelColor,
+        shadowOffset: .01 * pixelsPerMapUnit,
       });
     }
     defs += labelDefs;
   });
+  css += cssTemplate.replace({ prefix: cssPrefix })
   if (debugMarkup.trim()) {
     return {
       css: debugCssTemplate.replace()

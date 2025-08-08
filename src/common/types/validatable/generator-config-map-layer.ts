@@ -1,3 +1,7 @@
+// IMPORTANT: Whenever you change something in this file, re-run
+//   npm start build:validation-interfaces
+// to make sure that generator configs can still be validated correctly
+
 export interface GeneratorConfigMapLayer {
   /**
    * Map layer name (will not be displayed)
@@ -98,6 +102,54 @@ export interface GeneratorConfigMapLayer {
        * Default is no fill
        */
       fillColors?: string | string[];
-    }
+    },
+    /**
+     * Any directional indicators that the map layer should show (e.g. the arrow to Terra on the minimap)
+     */
+    directionalIndicators?: GeneratorConfigMapLayerDirectionalIndicator[];
   }
+}
+
+export interface GeneratorConfigMapLayerDirectionalIndicator {
+  /**
+   * Coordinates that the indicator points to
+   */
+  coordinates: {
+    x: number;
+    y: number;
+  };
+  /**
+   * The indicator text to display
+   */
+  text: string;
+  /**
+   * The size factor for the indicator text (default is 1)
+   */
+  textSizeFactor?: number;
+  /**
+   * The indicator arrow's stroke width (default is 4)
+   */
+  strokeWidth?: number;
+  /**
+   * The indicator arrow's stroke color (default is white)
+   */
+  strokeColor?: string;
+  /**
+   * The indicator arrow's fill color (default is #a00, i.e. red)
+   */
+  fillColor?: string;
+  /**
+   * The minimum distance of the coordinates from the visible map rectangle
+   * at which the indicator is displayed (default 0)
+   */
+  minimumIndicatorDistance?: number;
+  /**
+   * The minimum distance of the coordinates from the visible map rectangle
+   * at which a measurement in full map units is displayed (default is 10)
+   */
+  minimumMeasurementDistance?: number;
+  /**
+   * The name of the map units (default is "LY")
+   */
+  mapUnitName?: string;
 }

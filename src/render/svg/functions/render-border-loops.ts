@@ -46,6 +46,12 @@ export function renderBorderLoops(
         });
       } else {
         factionKey = 'D';
+        defs += defTemplate.replace({
+          prefix: defPrefix,
+          id: factionKey,
+          color1: '#c86464',
+          color2: 'transparent',
+        });
       }
       css += cssTemplate.replace({
         prefix: cssPrefix,

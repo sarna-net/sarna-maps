@@ -23,6 +23,10 @@ export function renderScale(
   const unitNamePadding = 8;
   const fontSize = 20;
 
+  const labelY = labelsPosition === 'above'
+    ? -stepLabelPadding
+    : scaleHeight + stepLabelPadding + fontSize * 0.75; // 0.75 * fontSize is an approximation of the line height
+
   let stepMarkup = '';
   let stepClass = 'black';
   if (step > 0 && max > 0) {
@@ -34,7 +38,7 @@ export function renderScale(
         width: (Math.min(max - i, step) * pixelsPerMapUnit).toFixed(2),
         height: scaleHeight,
         labelX: (i * pixelsPerMapUnit).toFixed(2),
-        labelY: -stepLabelPadding,
+        labelY,
         labelText: String(i),
       });
       stepClass = stepClass === 'black' ? 'white' : 'black';
@@ -49,7 +53,7 @@ export function renderScale(
     unitNameX: max * pixelsPerMapUnit + unitNamePadding,
     unitNameY: scaleHeight * 0.5,
     labelX: (max * pixelsPerMapUnit).toFixed(2),
-    labelY: -stepLabelPadding,
+    labelY,
     labelText: max,
   });
 

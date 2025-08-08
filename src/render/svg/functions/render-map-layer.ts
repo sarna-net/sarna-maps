@@ -19,6 +19,7 @@ import { renderSystemLabels } from './render-system-labels';
 import { renderBorderLabels } from './render-border-labels';
 import path from 'path';
 import { renderJumpRings } from './render-jump-rings';
+import { renderDirectionalIndicators } from './render-directional-indicators';
 
 /**
  * Render a single configured map section
@@ -127,7 +128,7 @@ export function renderMapLayer(
     : { defs: '', css: '', markup: '' };
 
   const { defs: borderLabelDefs, css: borderLabelCss, markup: borderLabelMarkup } = mapLayerConfig.elements.borderLabels
-    ? renderBorderLabels(borderLabels, factionMap, layerCssClass)
+    ? renderBorderLabels(borderLabels, factionMap, layerCssClass, zoomFactor)
     : { defs: '', css: '', markup: '' };
 
   const { defs: jumpRingDefs, css: jumpRingCss, markup: jumpRingMarkup } = mapLayerConfig.elements.jumpRings
@@ -139,8 +140,11 @@ export function renderMapLayer(
     : { defs: '', css: '', markup: '' };
 
   const { css: systemLabelCss, markup: systemLabelMarkup } = mapLayerConfig.elements.systemLabels
-    ? renderSystemLabels(systemLabels, layerCssClass)
+    ? renderSystemLabels(systemLabels, layerCssClass, zoomFactor)
     : { css: '', markup: '' };
+
+  const { css: directionalIndicatorsCss, markup: directionalIndicatorsMarkup } =
+    renderDirectionalIndicators(globalConfigs.glyphConfig, visibleViewRect, mapLayerConfig.elements.directionalIndicators || [], layerCssClass);
 
   // PHASE 3: Assemble and return result
   const templatePath = path.join(__dirname, '../templates');
@@ -158,7 +162,7 @@ export function renderMapLayer(
     height: visibleViewRect.dimensions.height,
   });
 
-  const markup = [factionMarkup, borderLabelMarkup, jumpRingMarkup, systemMarkup, systemLabelMarkup]
+  const markup = [factionMarkup, borderLabelMarkup, jumpRingMarkup, systemMarkup, systemLabelMarkup, directionalIndicatorsMarkup]
     .filter((code) => !!code.trim())
     .join('\n');
   if (markup) {
@@ -166,7 +170,7 @@ export function renderMapLayer(
       defs: [mapSectionDef, factionDefs, borderLabelDefs, jumpRingDefs, systemDefs]
         .filter((code) => !!code.trim())
         .join('\n'),
-      css: [mapSectionCss, factionCss, borderLabelCss, jumpRingCss, systemCss, systemLabelCss]
+      css: [mapSectionCss, factionCss, borderLabelCss, jumpRingCss, systemCss, systemLabelCss, directionalIndicatorsCss]
         .filter((code) => !!code.trim())
         .join('\n'),
       markup: layerTemplate.replace({

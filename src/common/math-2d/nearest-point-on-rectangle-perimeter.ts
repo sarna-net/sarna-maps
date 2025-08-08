@@ -44,9 +44,18 @@ export function nearestPointOnRectanglePerimeter(p: Point2d, rect: Rectangle2d, 
       ret = { x: left, y: top };
   }
 
-  if(ret.x === left || ret.x === right) {
+  if ((ret.x === left || ret.x === right) && (ret.y === top || ret.y === bottom)) {
+    // we are in a corner
+    if (m === dl || m === dr) {
+      // left or right distance is the smallest
+      ret.x = clampNumber(ret.x, left + distFromCorner, right - distFromCorner);
+    } else {
+      // top or bottom distance is the smallest
+      ret.y = clampNumber(ret.y, bottom + distFromCorner, top - distFromCorner);
+    }
+  } else if ((ret.x === left || ret.x === right)) {
     ret.y = clampNumber(ret.y, bottom + distFromCorner, top - distFromCorner);
-  } else if(ret.y === top || ret.y === bottom) {
+  } else if (ret.y === top || ret.y === bottom) {
     ret.x = clampNumber(ret.x, left + distFromCorner, right - distFromCorner);
   }
 

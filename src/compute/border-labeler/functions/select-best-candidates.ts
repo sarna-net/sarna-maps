@@ -20,18 +20,18 @@ export function selectBestCandidates(
     const candidateSearchArea = {
       id: remainingCandidates[i].id + '-search-area',
       anchor: {
-        x: remainingCandidates[i].anchorPoint.x - borderLabelConfig.rules.minLoopDistanceBetweenLabels,
-        y: remainingCandidates[i].anchorPoint.y - borderLabelConfig.rules.minLoopDistanceBetweenLabels,
+        x: remainingCandidates[i].anchorPoint.x - borderLabelConfig.rules.minDistanceBetweenLabels,
+        y: remainingCandidates[i].anchorPoint.y - borderLabelConfig.rules.minDistanceBetweenLabels,
       },
       dimensions: {
-        width: borderLabelConfig.rules.minLoopDistanceBetweenLabels * 2,
-        height: borderLabelConfig.rules.minLoopDistanceBetweenLabels * 2
+        width: borderLabelConfig.rules.minDistanceBetweenLabels * 2,
+        height: borderLabelConfig.rules.minDistanceBetweenLabels * 2
       },
     };
     for (let j = 0; j < i; j++) {
       if (!remainingCandidates[j].disqualified &&
         Math.abs(remainingCandidates[j].positionOnEdgeLoop - remainingCandidates[i].positionOnEdgeLoop)
-        < borderLabelConfig.rules.minLoopDistanceBetweenLabels
+        < borderLabelConfig.rules.minDistanceBetweenLabels
       ) {
         remainingCandidates[i].disqualified = true;
         remainingCandidates[i].disqualificationReason = `edge loop distance to other candidate is too small (${remainingCandidates[j].id})`

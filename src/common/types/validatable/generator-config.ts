@@ -1,6 +1,10 @@
 import { GeneratorConfigMapLayer } from './generator-config-map-layer';
 import { GeneratorConfigOverlay } from './generator-config-overlay';
 
+// IMPORTANT: Whenever you change something in this file, re-run
+//   npm start build:validation-interfaces
+// to make sure that generator configs can still be validated correctly
+
 export interface GeneratorConfig {
   /**
    * Output type (only svg available at the moment)

@@ -3,15 +3,15 @@ theme: light # color theme (only light theme available at the moment)
 
 fileOutput:
   directory: './out'
-  fileNamePattern: '{{SYSTEMNAME}}_{{ERAYEAR}}_{{ERANAME}}.svg' # SYSTEMINDEX, SYSTEMID, SYSTEMNAME, ERAINDEX, ERAID, ERAYEAR, ERANAME
+  fileNamePattern: '{{SYSTEMNAME}}_{{ERAYEAR}}_{{ERANAME}}.svg' # available placeholders: SYSTEMINDEX, SYSTEMID, SYSTEMNAME, ERAINDEX, ERAID, ERAYEAR, ERANAME
 
 eras: # the eras to create images for - either a list of era indices (0-based), or empty for all eras
-  - 16
-  - 20
+#  - 16 # 3025
+  - 20 # 3050
 
 iterateObjects:
   type: system
-  pattern: '^marik$' #'^sol$'
+  pattern: '^sol$' # a regular expression to restrict which system maps will be generated
 
 dimensions: # output image pixel size
   width: 1000
@@ -62,6 +62,12 @@ mapLayers: # the different layers showing maps
           - 60
         strokeWidths: [5, 3, 3]
         strokeColors: ['#f00', '#222', '#222']
+      directionalIndicators:
+        - coordinates:
+            x: 0
+            y: 0
+          text: Terra
+          textSizeFactor: 20
 
 overlays: # other items on top of the map layers
   #- type: text # map title

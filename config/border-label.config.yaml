@@ -1,13 +1,13 @@
 # TODO add documentation on what the different parameters mean, and what the valid values are
 rules:
-  distanceBetweenCandidates: 6 # 12 # 7.5 seems to be a good value
+  distanceBetweenCandidates: 3 # 6 # 12 # 7.5 seems to be a good value
   labelDistanceToBorder: 1.25
   maxLabelOverlapArea: 24
   borderIntersectionTolerance: 0.25
   maxBorderIntersectionDistance: 3
   minDistanceBetweenLabels: 40
   minLoopDistanceBetweenLabels: 55
-  minViableScore: .65
+  minViableScore: .6
 
 scoreWeights:
   labelOverlap: 100
@@ -22,4 +22,4 @@ manualConfigs:
     - anchor:
         x: 2
         y: -4
-      eras: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+      eras: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
