@@ -28,7 +28,6 @@
   "dependencies": {
     "d3-delaunay": "^6.0.4",
     "delaunator": "^5.0.1",
-    "dotenv": "^17.2.1",
     "googleapis": "^148.0.0",
     "node-dijkstra": "^2.5.0",
     "node-xlsx": "^0.24.0",

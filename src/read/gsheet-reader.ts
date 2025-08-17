@@ -1,18 +1,12 @@
 import { sheets_v4 } from 'googleapis';
 import { parseEras, parseFactions, parseSystems } from './common';
+import { DataSourceConfig } from '../common';
 
-export async function readFromGoogleSheet(spreadsheetId: string, apiKey: string) {
-  const sheetIndices = {
-    columns: parseInt(process.env.SUCKIT_SHEET_INDEX_COLUMNS || '', 10),
-    factions: parseInt(process.env.SUCKIT_SHEET_INDEX_FACTIONS || '', 10),
-    systems: parseInt(process.env.SUCKIT_SHEET_INDEX_SYSTEMS || '', 10),
-    nebulae: parseInt(process.env.SUCKIT_SHEET_INDEX_NEBULAE || '', 10),
-  }
-
-  const sheetsClient = new sheets_v4.Sheets({ auth: apiKey });
+export async function readFromGoogleSheet(dataSourceConfig: DataSourceConfig) {
+  const sheetsClient = new sheets_v4.Sheets({ auth: dataSourceConfig.googleSheetsConfig?.apiKey || '' });
 
   const spreadsheet = (await sheetsClient.spreadsheets.get({
-    spreadsheetId,
+    spreadsheetId: dataSourceConfig.googleSheetsConfig?.spreadsheetId || '',
     //includeGridData: true
   })).data;
   if(!spreadsheet || !spreadsheet.sheets) {
@@ -20,13 +14,17 @@ export async function readFromGoogleSheet(spreadsheetId: string, apiKey: string)
   }
 
   const sheetNames = {
-    columns: spreadsheet.sheets[sheetIndices.columns]?.properties?.title || '',
-    factions: spreadsheet.sheets[sheetIndices.factions]?.properties?.title || '',
-    systems: spreadsheet.sheets[sheetIndices.systems]?.properties?.title || '',
-    nebulae: spreadsheet.sheets[sheetIndices.nebulae]?.properties?.title || '',
+    columns: spreadsheet.sheets[dataSourceConfig.sheetIndices.columns]?.properties?.title || '',
+    factions: spreadsheet.sheets[dataSourceConfig.sheetIndices.factions]?.properties?.title || '',
+    systems: spreadsheet.sheets[dataSourceConfig.sheetIndices.systems]?.properties?.title || '',
+    nebulae: spreadsheet.sheets[dataSourceConfig.sheetIndices.nebulae]?.properties?.title || '',
   }
 
-  const dataRanges = await readDataRanges(spreadsheetId, sheetsClient, sheetNames);
+  const dataRanges = await readDataRanges(
+    dataSourceConfig.googleSheetsConfig?.spreadsheetId || '',
+    sheetsClient,
+    sheetNames,
+  );
 
   const eras = parseEras(dataRanges[0].values as unknown as Array<Array<string>>);
 

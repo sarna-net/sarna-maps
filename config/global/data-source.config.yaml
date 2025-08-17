@@ -1,0 +1,37 @@
+# This is an example file. Copy or rename to config.env and populate the variables below
+# with your values.
+
+useSource: local # local or google
+
+# Local file configuration pointing to an xlsx file. Will be used by default.
+localFileConfig:
+  # The local directory containing the SUCKit spreadsheet.
+  # If using a relative path, the directory is interpreted to be relative to this project's main directory.
+  directory: './data'
+  # The filename of the SUCKit spreadsheet
+  filename: 'Sarna Unified Cartography Kit (Official)_mod.xlsx'
+
+# Google Sheets configuration. Will only be used if the useSource field (see above) is set to google.
+googleSheetsConfig:
+  # Your Google API key
+  # DO NOT SHARE A REAL API KEY OR COMMIT IT TO GITHUB
+  apiKey: '12345'
+  # The sheet ID of the Google spreadsheet that contains the data (the official SUCKit by default).
+  # The URL of the spreadsheet would look something like this:
+  # https://docs.google.com/spreadsheets/d/<GOOGLE_SPREADSHEET_ID>
+  #
+  # Note that whatever spreadsheet is used here will have to adhere to the same format and conventions
+  # as the SUCKit, otherwise there will probably be errors when reading the sheet or generating
+  # the maps.
+  spreadsheetId: '1uO6aZ20rfEcAZJ-nDRhCnaNUiCPemuoOOd67Zqi1MVM'
+
+# 0-based indices of the different sheets that are required to draw the maps
+sheetIndices:
+  # the index of the sheet containing column and era descriptions
+  columns: 1
+  # the index of the sheet containing the systems
+  systems: 2
+  # the index of the sheet containing the factions
+  factions: 3
+  # the index of the sheet containing the nebulae (TODO not currently used)
+  nebulae: 5

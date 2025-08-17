@@ -1,5 +1,5 @@
 import { readAndParseYamlFile } from './common';
-import { BorderLabelConfig, GeneratorConfig, GlyphConfig, SystemLabelConfig } from '../common';
+import { BorderLabelConfig, GeneratorConfig, DataSourceConfig, GlyphConfig, SystemLabelConfig } from '../common';
 import {
   GeneratorConfigTi,
   GeneratorConfigMapLayerTi,
@@ -9,6 +9,7 @@ import { createCheckers } from 'ts-interface-checker';
 
 export async function readConfigFiles(fileNames: {
   generatorConfig: string;
+  dataSourceConfig: string;
   glyphConfig: string;
   systemLabelConfig: string;
   borderLabelConfig: string;
@@ -41,6 +42,14 @@ export async function readConfigFiles(fileNames: {
 
 
   // TODO use zod or a similar library to make sure the configuration files are valid
+  const dataSourceConfig = readAndParseYamlFile(
+    fileNames.dataSourceConfig,
+    'data source config',
+  ) as DataSourceConfig;
+  if (!dataSourceConfig) {
+    throw new Error('Data source configuration missing or incomplete');
+  }
+
   const glyphConfig = readAndParseYamlFile(
     fileNames.glyphConfig,
     'glyph config',
@@ -97,6 +106,7 @@ export async function readConfigFiles(fileNames: {
 
   return {
     generatorConfig: generatorConfig as GeneratorConfig,
+    dataSourceConfig: dataSourceConfig as DataSourceConfig,
     glyphConfig: glyphConfig as GlyphConfig,
     systemLabelConfig: systemLabelConfig as SystemLabelConfig,
     borderLabelConfig: borderLabelConfig as BorderLabelConfig,

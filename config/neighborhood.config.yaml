@@ -84,8 +84,8 @@ overlays: # other items on top of the map layers
     position: # the frame's pixel position (top left point)
       x: 587
       y: 930
-  - name: sarna-logo
-    type: svgElement # the sarna logo svg paths
+  - name: sarna-logo # the sarna logo svg element
+    type: svgElement
     attributes: # attributes specific to this type of overlay
       cssTemplate: sarna-logo.css.tpl
       svgTemplate: sarna-logo.svg.tpl
