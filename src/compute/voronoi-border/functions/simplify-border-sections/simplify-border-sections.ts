@@ -1,4 +1,3 @@
-import { Logger } from '../../../../common';
 import { BorderSection, BorderDelaunayVertex } from '../../types';
 import { pruneShortEdges } from './prune-short-edges';
 import { relaxBorderSection } from './relax-border-section';
@@ -30,7 +29,7 @@ export function simplifyBorderSections(
     edgesSubdivided += subdivideDangerousEdges(borderSection, vertices, threeWayNodes);
   });
 
-  Logger.info(`${shortEdgesPruned} edges removed during short edge pruning`);
-  Logger.info(`${straightEdgesPruned} edges removed during straight edge pruning`);
-  Logger.info(`${edgesSubdivided} dangerous edges subdivided`);
+  console.info(`${shortEdgesPruned} edges removed during short edge pruning`);
+  console.info(`${straightEdgesPruned} edges removed during straight edge pruning`);
+  console.info(`${edgesSubdivided} dangerous edges subdivided`);
 }

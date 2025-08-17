@@ -1,0 +1,269 @@
+# TODO add documentation on what can be configured here, and how to do it
+padding:
+  x: 0.25
+  y: 0.2
+margins:
+  regular:
+    top: 0
+    right: 0.3
+    bottom: 0.75
+    left: 0.3
+  factionCapital:
+    top: 1
+    right: 1.2
+    bottom: 1.25
+    left: 1.2
+  majorCapital:
+    top: 0.75
+    right: 0.7
+    bottom: 1
+    left: 0.7
+overrides:
+  Badlands Cluster:
+    - position:
+        x: center
+        y: bottom
+    - position:
+        x: center
+        y: center
+    - position:
+        x: center
+        y: top
+  Berenson:
+    - position:
+        x: left
+        y: center
+  Brocchi's Cluster:
+    - position:
+        x: right
+        y: center
+  Castor:
+    - position:
+        x: center
+        y: bottom
+  Chaine Cluster:
+    - position:
+        x: center
+        y: top
+  Dark Nebula:
+    - position:
+        x: center
+        y: center
+  Denebola:
+    - position:
+        x: left
+        y: top
+      delta:
+        x: 2
+        y: 0
+  Dubhe:
+    - position:
+        x: center
+        y: bottom
+      delta:
+        x: 1.4
+        y: 0
+  Enders Cluster:
+    - position:
+        x: right
+        y: center
+  Hyades Cluster:
+    - position:
+        x: center
+        y: center
+      delta:
+        x: 23
+        y: -3.5
+      connector:
+        - x: 9
+          y: -3.5
+    - position:
+        x: center
+        y: center
+      delta:
+        x: -20
+        y: 8.5
+      connector:
+        - x: -10
+          y: 8.5
+    - position:
+        x: center
+        y: center
+      delta:
+        x: -15
+        y: -14
+      connector:
+        - x: -10
+          y: -7
+    - position:
+        x: center
+        y: center
+      delta:
+        x: 17
+        y: 8
+      connector:
+        - x: 7
+          y: 8
+  Ishtar:
+    - position:
+        x: left
+        y: center
+  Jansen's Hold:
+    - position:
+        x: center
+        y: top
+      delta:
+        x: -3
+        y: 0
+  Keid:
+    - position:
+        x: right
+        y: center
+      delta:
+        x: 0
+        y: 0.5
+  Landmark:
+    - position:
+        x: center
+        y: bottom
+      delta:
+        x: -2
+        y: 0
+  MacLeod's Land:
+    - position:
+        x: center
+        y: top
+  Maia:
+    - position:
+        x: center
+        y: bottom
+      delta:
+        x: 2
+        y: 0
+  Menion:
+    - position:
+        x: center
+        y: bottom
+  Menkalinan:
+    - position:
+        x: center
+        y: bottom
+      delta:
+        x: -1
+        y: 0
+  Merope:
+    - position:
+        x: left
+        y: center
+  New Home:
+    - position:
+        x: center
+        y: bottom
+      delta:
+        x: -1
+        y: 0
+  New Vallis:
+    - position:
+        x: center
+        y: top
+  Pinard:
+    - position:
+        x: center
+        y: bottom
+    - position:
+        x: left
+        y: center
+      delta:
+        x: 0
+        y: -1.5
+  Pirates Haven Cluster:
+    - position:
+        x: center
+        y: bottom
+    - position:
+        x: center
+        y: center
+    - position:
+        x: center
+        y: top
+  Pleiades Cluster:
+    - position:
+        x: center
+        y: center
+      delta:
+        x: 13
+        y: 10
+      connector:
+        - x: 2
+          y: 10
+    - position:
+        x: center
+        y: center
+      delta:
+        x: 0
+        y: 5
+    - position:
+        x: center
+        y: center
+      delta:
+        x: -2
+        y: -13
+      connector:
+        - x: -3
+          y: -10
+    - position:
+        x: right
+        y: center
+  Procyon:
+    - position:
+        x: center
+        y: bottom
+  Rigil Kentarus:
+    - position:
+        x: center
+        y: top
+      delta:
+        x: 0
+        y: 0
+  Sirius:
+    - position:
+        x: left
+        y: center
+  Sol:
+    - position:
+        x: right
+        y: center
+      delta:
+        x: 0
+        y: 0.75
+  Tau Ceti:
+    - position:
+        x: center
+        y: top
+  Taurus:
+    - position:
+        x: right
+        y: center
+      delta:
+        x: 1
+        y: -9
+      connector:
+        - x: 0.75
+          y: -8.5
+    - position:
+        x: left
+        y: center
+      delta:
+        x: -2
+        y: -0.5
+      connector: true
+    - position:
+        x: center
+        y: bottom
+      delta:
+        x: 1
+        y: 0.5
+  Zebebelgenubi:
+    - position:
+        x: center
+        y: bottom

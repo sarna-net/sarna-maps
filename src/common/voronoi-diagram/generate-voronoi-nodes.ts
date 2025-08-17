@@ -1,4 +1,3 @@
-import { Logger } from '../utils';
 import { triangleCircumcenter } from '../math-2d';
 import { DelaunayVertex, VoronoiCellMode, VoronoiNode } from './types';
 import Delaunator from 'delaunator';
@@ -42,37 +41,11 @@ export function generateVoronoiNodes<T extends DelaunayVertex>(
     vertex2.adjacentTriIndices.push(vertexIdx);
     vertex3.adjacentTriIndices.push(vertexIdx);
 
-    // A-B and A-C edges:
-    // vertex1.adjacentTriIndices.forEach((vert1AdjTriIndex: number) => {
-    //   // trivially, the current triangle is not its own neighbor
-    //   if(vert1AdjTriIndex === vertexIdx) { return }
-    //   vertex2.adjacentTriIndices.forEach((vert2AdjTriIndex: number) => {
-    //     if(vert1AdjTriIndex === vert2AdjTriIndex) {
-    //       voronoiNode.neighborNodeIndices.push(vert1AdjTriIndex / 3);
-    //     }
-    //   });
-    //   vertex3.adjacentTriIndices.forEach((vert3AdjTriIndex: number) => {
-    //     if(vert1AdjTriIndex === vert3AdjTriIndex) {
-    //       voronoiNode.neighborNodeIndices.push(vert1AdjTriIndex / 3);
-    //     }
-    //   });
-    // });
-    // // B-C edges
-    // vertex2.adjacentTriIndices.forEach((vert2AdjTriIndex: number) => {
-    //   if(vert2AdjTriIndex === vertexIdx) { return }
-    //   vertex3.adjacentTriIndices.forEach((vert3AdjTriIndex: number) => {
-    //     if(vert2AdjTriIndex === vert3AdjTriIndex) {
-    //       voronoiNode.neighborNodeIndices.push(vert2AdjTriIndex / 3);
-    //     }
-    //   });
-    // });
-
-
     // calculate voronoi node coordinates, using the vertex object's positions
     if (cellMode === VoronoiCellMode.Circumcenters) {
       const ccenter = triangleCircumcenter(vertex1, vertex2, vertex3);
       if(!ccenter) {
-        Logger.warn(`Cannot calculate circumcenter for voronoi node. ` +
+        console.warn(`Cannot calculate circumcenter for voronoi node. ` +
           `Using centroid instead. Vertices:`,
           vertex1, vertex2, vertex3);
       } else {
@@ -120,17 +93,6 @@ export function generateVoronoiNodes<T extends DelaunayVertex>(
         }
       });
     });
-
-    // voronoiNode.neighborNodeIndices.sort((a, b) => a - b);
-    // // remove duplicates
-    // // FIXME why are there duplicates in the first place?
-    // for (let vi = 0; vi < voronoiNode.neighborNodeIndices.length - 1; vi++) {
-    //   if (voronoiNode.neighborNodeIndices[vi] === voronoiNode.neighborNodeIndices[vi + 1]) {
-    //     console.log(`DUPLICATE FOUND FOR VORONOI NODE #${voronoiNode.id}`);
-    //     voronoiNode.neighborNodeIndices.splice(vi, 1);
-    //     vi--;
-    //   }
-    // }
   }
 
   return voronoiNodes;

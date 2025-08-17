@@ -1,13 +1,12 @@
 import { LabelRectangle } from '../../types';
 import {
-  GlyphCollection,
-  Logger,
+  GlyphConfig,
   nearestPointOnEllipsePerimeter,
   nearestPointOnRectanglePerimeter,
   Point2d,
   Rectangle2d,
+  SystemLabelOverrideConfig,
 } from '../../../common';
-import { SystemLabelOverrideConfig } from '../types';
 
 /**
  * Attempts to set the label's position according to what is defined in the provided manual configuration (including
@@ -22,7 +21,7 @@ export function applyManualLabelPlacement(
   label: LabelRectangle,
   configs: Array<SystemLabelOverrideConfig>,
   viewRect: Rectangle2d,
-  glyphSettings: GlyphCollection,
+  glyphSettings: GlyphConfig,
 ) {
   // Try placing the label according to each of the manual configs, until the first one that fits into the current
   // viewport.
@@ -45,7 +44,7 @@ export function applyManualLabelPlacement(
 function applySingleManualConfig(
   label: LabelRectangle,
   config: SystemLabelOverrideConfig,
-  glyphSettings: GlyphCollection,
+  glyphSettings: GlyphConfig,
 ) {
   const systemItem = label.parent;
 
@@ -122,7 +121,7 @@ function applySingleManualConfig(
       // Add the starting and end points
       const pointOnPerimeter = nearestPointOnEllipsePerimeter(label.connectorPoints[0], ellipse);
       if (!pointOnPerimeter) {
-        Logger.error(`Cannot connect label for ${label.label}: Nearest point on ellipse perimeter not found`);
+        console.error(`Cannot connect label for ${label.label}: Nearest point on ellipse perimeter not found`);
       } else {
         label.connectorPoints.unshift(pointOnPerimeter);
       }

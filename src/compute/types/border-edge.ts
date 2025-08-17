@@ -12,4 +12,5 @@ export interface BorderEdge {
   n1c2?: Point2d;
   n2c1?: Point2d;
   n2c2?: Point2d;
+  isInvisible?: boolean;
 }

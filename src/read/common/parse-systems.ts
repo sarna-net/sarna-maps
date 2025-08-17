@@ -1,5 +1,5 @@
 import { parseSingleSystem, SystemRow } from './parse-single-system';
-import { Era, Logger, System } from '../../common';
+import { Era, System } from '../../common';
 
 /**
  * Assumptions:
@@ -7,6 +7,7 @@ import { Era, Logger, System } from '../../common';
  * - The first eight columns (up to and including column H) contain the following column names, not case-sensitive:
  *    "id", "systemname", "alternatename", "x", "y", "size", "distance (ly)"
  * - Starting from the ninth column (I), the columns are a chronological list of eras (as defined in the description sheet)
+ * TODO all of these assumptions belong in a config file
  *
  * @param rows The data rows, with the rows as the first and the column/cells as the second dimension
  * @param eras The previously parsed eras array
@@ -17,10 +18,10 @@ export function parseSystems(rows: Array<Array<string>>, eras: Array<Era>) {
 
   const systems: Array<System> = [];
 
-  Logger.info('Reading systems ...');
+  console.info('Reading systems ...');
 
   if (!rows || !(rows || []).length) {
-    Logger.info('Systems sheet empty, no factions read.');
+    console.info('Systems sheet empty, no factions read.');
     return [] as Array<System>;
   }
 
@@ -61,6 +62,6 @@ export function parseSystems(rows: Array<Array<string>>, eras: Array<Era>) {
   // sort systems so that clusters are painted first and appear at the bottom (visually)
   systems.sort((a,b) => (b.radiusX + b.radiusY) - (a.radiusX + a.radiusY));
 
-  Logger.info(`${systems.length} systems read.`);
+  console.info(`${systems.length} systems read.`);
   return systems;
 }

@@ -1,0 +1,115 @@
+output: svg # only svg available at the moment
+theme: light # color theme (light or dark)
+
+fileOutput:
+  directory: './out'
+  fileNamePattern: '{{SYSTEMNAME}}_{{ERAYEAR}}_{{ERANAME}}.svg' # available placeholders: SYSTEMINDEX, SYSTEMID, SYSTEMNAME, ERAINDEX, ERAID, ERAYEAR, ERANAME
+
+eras: # the eras to create images for - either a list of era indices (0-based), or empty for all eras
+#  - 16 # 3025
+  - 20 # 3050
+
+iterateObjects:
+  type: system
+  pattern: '(^sol$)|(^taurus$)|(^detroit$)' # a regular expression to restrict which system maps will be generated
+
+dimensions: # output image pixel size
+  width: 1000
+  height: 1143
+
+mapLayers: # the different layers showing maps
+  - name: basemap # basemap layer
+    mapUnitDimensions: # dimensions of the basemap (in map units)
+      width: 140
+      height: 160
+    focus: # the focus point of the main map (in map units)
+      point: system
+      delta: # center point offset (in map units)
+        x: 0
+        y: 15
+    elements:
+      systems: true # display systems (as dots)
+      systemLabels: true # display system names
+      connectionLines: # display jump connections
+        maximumDistance: 30
+      factions: # display factions
+        curveBorderEdges: true
+      borderLabels: true # display border labels
+      jumpRings: # draw jump rings
+        radii: # draw circles with these radii
+          - 30
+          - 60
+        strokeWidths: .25
+        strokeColors: '#666'
+
+  - name: minimap # minimap layer
+    dimensions: # minimap pixel size
+      width: 400
+      height: 200
+    position: # top left anchor of the minimap
+      x: 588
+      y: 931
+    mapUnitDimensions: # dimensions of the minimap section (in map units)
+      width: 1200
+      height: 600
+    focus: # the center point of the minimap (in map units)
+      point: system
+    elements:
+      factions:
+        curveBorderEdges: false
+      jumpRings:
+        radii:
+          - 2
+          - 30
+          - 60
+        strokeWidths: [5, 3, 3]
+        strokeColors: ['#f00', '#222', '#222']
+      directionalIndicators:
+        - coordinates:
+            x: 0
+            y: 0
+          text: Terra
+          textSizeFactor: 20
+
+overlays: # other items on top of the map layers
+  #- type: text # map title
+  #  attributes: # attributes specific to this type of overlay
+  #    text: '?'
+  - name: minimap-frame
+    type: rectangle # a colored rectangle
+    attributes: # attributes specific to this type of overlay
+      width: 402
+      height: 202
+      strokeWidth: 3
+    position: # the frame's pixel position (top left point)
+      x: 587
+      y: 930
+  - name: sarna-logo
+    type: svgElement # the sarna logo svg paths
+    attributes: # attributes specific to this type of overlay
+      cssTemplate: sarna-logo.css.tpl
+      svgTemplate: sarna-logo.svg.tpl
+      scale: 1.5
+    position: # the logo's pixel position (top left point)
+      x: 5
+      y: 986 # height - 10 - 150
+  - name: main-map-scale
+    type: scale # a scale displaying the relation of pixels to map units
+    attributes:
+      pixelsPerMapUnit: 7.142857142857143 # 1000 (pixel size) / 140 (main map unit width)
+      max: 50 # maximum unit shown
+      step: 10 # color change after this many units
+      scaleHeight: 12
+    position: # the scale's pixel position (top left point of the scale bar)
+      x: 160
+      y: 1118  # 1143 - 11 - 10
+  - name: main-map-scale-frame
+    type: rectangle
+    attributes:
+      width: 357.15
+      height: 12
+      strokeWidth: 2.5
+    position:
+      x: 160
+      y: 1118
+

@@ -7,13 +7,14 @@ import { vectorLength } from './vector-length';
  * @param vector The vector to scale
  * @param size The size to scale to
  */
-export function scaleVector(vector: Vector2d, size: number): void {
+export function scaleVector(vector: Vector2d, size: number): Vector2d {
   const magnitude = vectorLength(vector);
   if (magnitude === 0) {
-    return;
+    return vector;
   }
   // eslint-disable-next-line no-param-reassign
   vector.a = (vector.a * size) / magnitude;
   // eslint-disable-next-line no-param-reassign
   vector.b = (vector.b * size) / magnitude;
+  return vector;
 }

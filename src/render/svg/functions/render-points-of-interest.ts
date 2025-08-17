@@ -1,9 +1,9 @@
 import { Point2d, TextTemplate } from '../../../common';
 import path from 'path';
 
-export function renderPointsOfInterest(points: Array<Point2d>) {
-  const templatePath = path.join(__dirname, '../templates');
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+export function renderPointsOfInterest(points: Array<Point2d>, theme: 'light' | 'dark') {
+  const templatePath = path.join(__dirname, '../templates/', theme);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const pointTemplate = new TextTemplate('point-of-interest.svg.tpl', templatePath);
 
   let markup = '';

@@ -1,7 +1,6 @@
 import {
   copyPointCoordinates,
-  GlyphCollection,
-  Logger,
+  GlyphConfig,
   Point2d,
   Rectangle2d,
   RectangleGrid
@@ -33,7 +32,7 @@ export function findBestLabelPosition(
   labelItem: LabelRectangle,
   viewRect: Rectangle2d,
   grid: RectangleGrid,
-  glyphSettings: GlyphCollection,
+  glyphSettings: GlyphConfig,
 ) {
   const systemItem = labelItem.parent;
   labelItem.processed = true;
@@ -133,7 +132,7 @@ export function findBestLabelPosition(
 
   // no collision-free option found. Use option with minimal collision.
   copyPointCoordinates(bestCandidate.anchor, labelItem.anchor);
-  Logger.log(
+  console.log(
     `Overlapping label: "${labelItem.label}" has an overlap of ${bestCandidate.collisionArea} units. ` +
     `Best position: ${bestCandidate.anchor.x}, ${bestCandidate.anchor.y}. ` +
     `Label position: ${labelItem.anchor.x}, ${labelItem.anchor.y}`,

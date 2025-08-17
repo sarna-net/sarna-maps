@@ -1,5 +1,6 @@
 import { BorderSection, BorderDelaunayVertex } from '../../types';
 import { updateEdgeValues } from '../utils';
+import { EMPTY_FACTION, INDEPENDENT } from '../../../constants';
 
 /**
  * Simplifies border section by replacing very short edges with direct connections
@@ -24,8 +25,19 @@ export function pruneShortEdges(
     if (length > threshold || section.edges.length < 2) {
       continue;
     }
-    const numOfBorderAffiliations1 = Object.keys(section.edges[i].node1.borderAffiliations).length;
-    const numOfBorderAffiliations2 = Object.keys(section.edges[i].node2.borderAffiliations).length;
+    let numOfBorderAffiliations1 = Object.keys(section.edges[i].node1.borderAffiliations).length;
+    let numOfBorderAffiliations2 = Object.keys(section.edges[i].node2.borderAffiliations).length;
+
+    // make sure that I/empty border points are disregarded
+    const borderAffiliations1 = section.edges[i].node1.borderAffiliations;
+    if (borderAffiliations1[INDEPENDENT] && borderAffiliations1[EMPTY_FACTION]) {
+      numOfBorderAffiliations1 -= 2;
+    }
+    const borderAffiliations2 = section.edges[i].node2.borderAffiliations;
+    if (borderAffiliations2[INDEPENDENT] && borderAffiliations2[EMPTY_FACTION]) {
+      numOfBorderAffiliations2 -= 2;
+    }
+
     if (
       i > 0 &&
       i < section.edges.length - 1 &&

@@ -1,3 +1,4 @@
+export * from './calculate-section-length';
 export * from './connect-salients';
 export * from './ensure-edge-loop-clockwise-order';
 export * from './generate-border-edges';

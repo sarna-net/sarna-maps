@@ -4,7 +4,7 @@ import { VoronoiBorderEdge } from './voronoi-border-edge';
 import { BorderEdgeLoop } from './border-edge-loop';
 import { BorderDelaunayVertex } from './border-delaunay-vertex';
 import { DelaunayTriangle, PoissonDisc } from '../../../common';
-import { PointWithAffiliation } from '../../types';
+import { PointWithAffiliation, SalientPoint } from '../../types';
 
 export interface VoronoiResult {
   delaunayVertices: Array<BorderDelaunayVertex>;
@@ -16,4 +16,5 @@ export interface VoronoiResult {
   poissonDisc: PoissonDisc<PointWithAffiliation>;
   threeWayNodes: Record<string, Array<string>>;
   voronoiNodes: Array<VoronoiBorderNode>;
+  salientPoints?: Array<SalientPoint>;
 }

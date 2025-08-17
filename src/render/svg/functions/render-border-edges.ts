@@ -10,10 +10,10 @@ import path from 'path';
  * @param borderEdges The map of factions with each faction's border edges
  * @returns
  */
-export function renderBorderEdges(borderEdges: Record<string, Array<VoronoiBorderEdge>>) {
-  const templatePath = path.join(__dirname, '../templates');
+export function renderBorderEdges(borderEdges: Record<string, Array<VoronoiBorderEdge>>, theme: 'light' | 'dark') {
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const cssTemplate = new TextTemplate('border-edge.css.tpl', templatePath);
-  const layerTemplate = new TextTemplate('map-layer.svg.tpl', templatePath);
+  const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const edgeTemplate = new TextTemplate('border-edge.svg.tpl', templatePath);
   let markup = '';
   Object.keys(borderEdges).forEach((factionKey) => {

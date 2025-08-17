@@ -1,5 +1,5 @@
 import { PointWithAffiliation } from '../types';
-import { BorderDelaunayVertex, VoronoiBorderEdge, VoronoiResult } from './types';
+import { BorderDelaunayVertex, BorderEdgeLoop, VoronoiBorderEdge, VoronoiResult } from './types';
 import {
   Era,
   System,
@@ -21,6 +21,7 @@ import {
   generateSimpleBorderLoops,
   generateBorderLoops,
   separateBorderLoops,
+  calculateSectionLength,
 } from './functions';
 import { EMPTY_FACTION } from '../constants';
 
@@ -39,6 +40,7 @@ export async function calculateVoronoiBorders(
 
   // generate noise points for anything outside the actual borders
   const defaultPoissonPoint: PointWithAffiliation = {
+    id: 'poisson-point',
     x: 0,
     y: 0,
     affiliation: EMPTY_FACTION,
@@ -106,10 +108,19 @@ export async function calculateVoronoiBorders(
   // separate edge loop borders
   separateBorderLoops(borderLoops, voronoiResult.delaunayVertices);
 
+  Object.keys(borderLoops).forEach((factionId) => {
+    const loops = borderLoops[factionId];
+    loops.forEach((loop) => {
+      calculateSectionLength(loop);
+      (loop as BorderEdgeLoop).isInnerLoop = loop.innerAffiliation !== factionId;
+    });
+  });
+
   // processBorderLoops(borderLoops, vertices, borderSeparation, controlPointTension);
 
   return {
     ...voronoiResult,
+    salientPoints,
     borderLoops,
   };
 }
@@ -140,13 +151,14 @@ function performVoronoiCalculations(
 ): VoronoiResult {
   poissonDisc.replaceReservedPoints([
     ...systems.map((system) => ({
+      id: system.id,
       x: system.x,
       y: system.y,
       affiliation: extractBorderStateAffiliation(system.eraAffiliations[era.index]),
     })).filter((system) => !IRRELEVANT_AFFILIATIONS.includes(system.affiliation)),
     ...salientPoints,
-    {x: 1, y: 3, affiliation: solAffiliation},
-    {x: 2.5, y: -1.25, affiliation: solAffiliation},
+    {id: 'sol-buffer-point-1', x: 1, y: 3, affiliation: solAffiliation},
+    {id: 'sol-buffer-point-2', x: 2.5, y: -1.25, affiliation: solAffiliation},
   ]);
 
   // filter out points that are irrelevant for drawing the borders, then add an empty adjacency list to each relevant point

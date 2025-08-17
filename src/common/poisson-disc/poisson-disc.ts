@@ -1,13 +1,12 @@
 import seedrandom from 'seedrandom';
 import { Point2d } from '../math-2d';
 import { PoissonSettings } from './types';
-import { Logger } from '../utils';
 
 const DEFAULT_POISSON_SETTINGS: PoissonSettings = {
   origin: { x: -50, y: -50 },
   dimensions: { width: 100, height: 100 },
   radius: 10,
-  maxSamples: 10,
+  maxSamples: 20,
   seed: 'poisson-disc',
 };
 
@@ -87,7 +86,7 @@ export class PoissonDisc<T extends Point2d> {
       }
       this.generatedPoints.push(sample);
     }
-    Logger.info(`blue noise generation done, ${this.sampleSize} points generated`);
+    console.info(`blue noise generation done, ${this.sampleSize} points generated`);
     this.replaceReservedPoints(this.reservedPoints);
     return this;
   }

@@ -1,6 +1,6 @@
 import { VoronoiBorderEdge, BorderSection, VoronoiBorderNode } from '../types';
 import { distance, nearestPointOnLineSegment, Point2d } from '../../../common';
-import { PointWithAffiliation } from '../../types';
+import { SalientPoint } from '../../types';
 
 /**
  * A salient as understood here is a thin stretch of territory ranging into
@@ -18,7 +18,7 @@ import { PointWithAffiliation } from '../../types';
  *    different affiliation
  */
 export function connectSalients(loops: Record<string, Array<BorderSection>>) {
-  const mergePoints: Array<PointWithAffiliation> = [];
+  const mergePoints: Array<SalientPoint> = [];
 
   for (let faction in loops) {
     // run the salient logic for each loop that is not the largest for that faction
@@ -26,9 +26,11 @@ export function connectSalients(loops: Record<string, Array<BorderSection>>) {
       const closestEdges = findCloseSectionEdges(loops[faction][i], loops[faction]);
       if (closestEdges.length > 0) {
         mergePoints.push({
+          id: `salient-merge-point-${faction}-${i}`,
           x: 0.5 * (closestEdges[0].closestIslandNode.x + closestEdges[0].closestSectionPoint.x),
           y: 0.5 * (closestEdges[0].closestIslandNode.y + closestEdges[0].closestSectionPoint.y),
           affiliation: faction,
+          info: `from loop ${i}`
         });
       }
     }

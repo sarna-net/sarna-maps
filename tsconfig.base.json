@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ESNext",
     "module": "CommonJS",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "listEmittedFiles": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -20,7 +21,12 @@
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "types": ["node"],
-    "lib": ["esnext"]
+    "lib": ["ESNext"],
+    "plugins": [
+      {
+        "name": "@valype/typescript-plugin"
+      }
+    ]
   },
   "include": [
     "src/**/*"
