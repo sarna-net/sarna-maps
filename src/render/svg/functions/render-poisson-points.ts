@@ -6,12 +6,18 @@ import path from 'path';
  * Deactivated by default, this is mostly for visual debugging.
  *
  * @param poissonPoints The array of generated poisson points
+ * @param theme The render color theme
  * @param areaRadius The "exclusive" radius of each point
  * @param pointRadius The visual radius of each point
  * @returns The poisson SVG markup and CSS styles
  */
-export function renderPoissonPoints(poissonPoints: Point2d[], areaRadius = 35, pointRadius = 3) {
-  const templatePath = path.join(__dirname, '../templates');
+export function renderPoissonPoints(
+  poissonPoints: Point2d[],
+  theme: 'light' | 'dark',
+  areaRadius = 35,
+  pointRadius = 3,
+) {
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const cssTemplate = new TextTemplate('poisson-points.css.tpl', templatePath);
   const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const pointTemplate = new TextTemplate('poisson-point.svg.tpl', templatePath);

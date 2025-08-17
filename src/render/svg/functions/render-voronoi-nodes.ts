@@ -8,10 +8,15 @@ import path from 'path';
  *
  * @param voronoiNodes The list of voronoi nodes
  * @param delaunayVertices The list of delaunay vertices
+ * @param theme The render color theme
  * @returns The voronoi SVG markup and CSS styles
  */
-export function renderVoronoiNodes(voronoiNodes: Array<VoronoiBorderNode>, delaunayVertices: Array<BorderDelaunayVertex>) {
-  const templatePath = path.join(__dirname, '../templates');
+export function renderVoronoiNodes(
+  voronoiNodes: Array<VoronoiBorderNode>,
+  delaunayVertices: Array<BorderDelaunayVertex>,
+  theme: 'light' | 'dark',
+) {
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const cssTemplate = new TextTemplate('voronoi-node.css.tpl', templatePath);
   const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const nodeTemplate = new TextTemplate('voronoi-node.svg.tpl', templatePath);

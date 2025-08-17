@@ -1,5 +1,5 @@
 output: svg # only svg available at the moment
-theme: light # color theme (only light theme available at the moment)
+theme: light # color theme (light or dark)
 
 fileOutput:
   directory: './out'
@@ -11,7 +11,7 @@ eras: # the eras to create images for - either a list of era indices (0-based), 
 
 iterateObjects:
   type: system
-  pattern: '^sol$' # a regular expression to restrict which system maps will be generated
+  pattern: '(^sol$)|(^taurus$)|(^detroit$)' # a regular expression to restrict which system maps will be generated
 
 dimensions: # output image pixel size
   width: 1000
@@ -30,6 +30,8 @@ mapLayers: # the different layers showing maps
     elements:
       systems: true # display systems (as dots)
       systemLabels: true # display system names
+      connectionLines: # display jump connections
+        maximumDistance: 30
       factions: # display factions
         curveBorderEdges: true
       borderLabels: true # display border labels

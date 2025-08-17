@@ -17,9 +17,10 @@ export function renderDirectionalIndicators(
   glyphConfig: GlyphConfig,
   visibleViewRect: Rectangle2d,
   indicatorConfigs: Array<GeneratorConfigMapLayerDirectionalIndicator>,
+  theme: 'light' | 'dark',
   prefix = ''
 ) {
-  const templatePath = path.join(__dirname, '../templates');
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const indicatorTemplate = new TextTemplate('directional-indicator.svg.tpl', templatePath);
   const textTemplate = new TextTemplate('directional-indicator-text.svg.tpl', templatePath);
   const cssTemplate = new TextTemplate('directional-indicator.css.tpl', templatePath);

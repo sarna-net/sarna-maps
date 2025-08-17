@@ -7,6 +7,7 @@ import { generateDisputedSystemFillPattern } from './generate-disputed-system-fi
  *
  * @param systems The systems list
  * @param factions The list of factions
+ * @param theme The render color theme
  * @param eraIndex Index of the era to use
  * @param prefix The prefix string for css and defs
  * @param systemRadius Radius for each system dot
@@ -15,11 +16,12 @@ import { generateDisputedSystemFillPattern } from './generate-disputed-system-fi
 export function renderSystems(
   systems: System[],
   factions: Record<string, Faction>,
+  theme: 'light' | 'dark',
   eraIndex = 0,
   prefix = '',
   systemRadius = 1,
 ) {
-  const templatePath = path.join(__dirname, '../templates');
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const cssTemplate = new TextTemplate('system-points.css.tpl', templatePath);
   const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const systemTemplate = new TextTemplate('system-point.svg.tpl', templatePath);

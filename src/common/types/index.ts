@@ -6,6 +6,7 @@ export * from './validatable/generator-config-overlay';
 export { default as GeneratorConfigOverlayTi } from './validatable/generator-config-overlay-ti';
 export * from './border-label-config';
 export * from './border-label-variant';
+export * from './connection-line';
 export * from './era';
 export * from './faction';
 export * from './glyph-config';

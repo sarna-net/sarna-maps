@@ -2,8 +2,8 @@ import { TextTemplate } from '../../../common';
 import path from 'path';
 import { SalientPoint } from '../../../compute';
 
-export function renderSalients(points: Array<SalientPoint>) {
-  const templatePath = path.join(__dirname, '../templates');
+export function renderSalients(points: Array<SalientPoint>, theme: 'light' | 'dark') {
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const salientPointTemplate = new TextTemplate('salient-point.svg.tpl', templatePath);
   const cssTemplate = new TextTemplate('salients.css.tpl', templatePath);

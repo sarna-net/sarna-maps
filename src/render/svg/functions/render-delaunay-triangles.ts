@@ -6,10 +6,14 @@ import path from 'path';
  * Deactivated by default, this is mostly for visual debugging.
  *
  * @param delaunayTriangles The array of delaunay triangles
+ * @param theme The render color theme
  * @returns The delaunay SVG markup and CSS styles
  */
-export function renderDelaunayTriangles(delaunayTriangles: Array<DelaunayTriangle<DelaunayVertex>>) {
-  const templatePath = path.join(__dirname, '../templates');
+export function renderDelaunayTriangles(
+  delaunayTriangles: Array<DelaunayTriangle<DelaunayVertex>>,
+  theme: 'light' | 'dark',
+) {
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const cssTemplate = new TextTemplate('delaunay-triangles.css.tpl', templatePath);
   const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const triangleTemplate = new TextTemplate('delaunay-triangle.svg.tpl', templatePath);

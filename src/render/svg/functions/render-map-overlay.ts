@@ -3,7 +3,12 @@ import { renderRectangle } from './render-rectangle';
 import { renderSvgElement } from './render-svg-element';
 import { renderScale } from './render-scale';
 
-export function renderMapOverlay(config: GeneratorConfigOverlay, era: Era, system?: System) {
+export function renderMapOverlay(
+  config: GeneratorConfigOverlay,
+  theme: 'light' | 'dark',
+  era: Era,
+  system?: System,
+) {
   switch (config.type) {
     case 'rectangle':
       return renderRectangle(
@@ -11,6 +16,7 @@ export function renderMapOverlay(config: GeneratorConfigOverlay, era: Era, syste
         config.position,
         config.attributes.width,
         config.attributes.height,
+        theme,
         config.attributes.strokeWidth,
         config.attributes.strokeColor,
         config.attributes.fillColor,
@@ -24,6 +30,7 @@ export function renderMapOverlay(config: GeneratorConfigOverlay, era: Era, syste
         config.attributes.pixelsPerMapUnit,
         config.attributes.step,
         config.attributes.max,
+        theme,
         config.attributes.scaleHeight,
         config.attributes.labelsPosition,
         config.attributes.mapUnitName,
@@ -32,6 +39,7 @@ export function renderMapOverlay(config: GeneratorConfigOverlay, era: Era, syste
       return renderSvgElement(
         config.name,
         config.position,
+        theme,
         config.attributes.svgTemplate,
         config.attributes.cssTemplate,
         config.attributes.scale,

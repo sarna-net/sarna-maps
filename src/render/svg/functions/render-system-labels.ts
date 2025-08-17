@@ -2,8 +2,14 @@ import path from 'path';
 import { TextTemplate } from '../../../common';
 import { LabelRectangle } from '../../../compute';
 
-export function renderSystemLabels(labels: Array<LabelRectangle>, prefix = '', pixelsPerMapUnit = 1, renderFrames = false) {
-  const templatePath = path.join(__dirname, '../templates');
+export function renderSystemLabels(
+  labels: Array<LabelRectangle>,
+  theme: 'light' | 'dark',
+  prefix = '',
+  pixelsPerMapUnit = 1,
+  renderFrames = false,
+) {
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
   const labelTemplate = new TextTemplate('system-label.svg.tpl', templatePath);
   const labelCssTemplate = new TextTemplate('system-label.css.tpl', templatePath);

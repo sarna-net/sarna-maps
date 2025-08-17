@@ -1,7 +1,12 @@
 import { GeneratorConfigMapLayer, Point2d, TextTemplate } from '../../../common';
 import path from 'path';
 
-export function renderJumpRings(mapLayerConfig: GeneratorConfigMapLayer, centerPoint: Point2d, prefix = '') {
+export function renderJumpRings(
+  mapLayerConfig: GeneratorConfigMapLayer,
+  centerPoint: Point2d,
+  theme: 'light' | 'dark',
+  prefix = '',
+) {
   const radii = mapLayerConfig.elements.jumpRings?.radii || [];
   const groupCssClass = 'jump-rings';
   const jumpRadiusCenter = {
@@ -10,7 +15,7 @@ export function renderJumpRings(mapLayerConfig: GeneratorConfigMapLayer, centerP
   };
 
   if (radii.length > 0) {
-    const templatePath = path.join(__dirname, '../templates');
+    const templatePath = path.join(__dirname, '../templates/', theme);
     const groupTemplate = new TextTemplate('element-group.svg.tpl', templatePath);
     const circleTemplate = new TextTemplate('jump-circle.svg.tpl', templatePath);
     const circleCssTemplate = new TextTemplate('jump-circle.css.tpl', templatePath);

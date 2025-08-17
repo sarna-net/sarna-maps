@@ -15,7 +15,7 @@ scoreWeights:
   borderIntersection: 50
   centeredness: 15
   multiline: 10
-  straightness: 20
+  straightness: 40
 
 manualConfigs:
   CS:

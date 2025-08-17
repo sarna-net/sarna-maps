@@ -1,5 +1,5 @@
 import {
-  BorderLabelConfig,
+  BorderLabelConfig, ConnectionLine,
   Dimensions2d,
   Era, Faction,
   GeneratorConfigMapLayer,
@@ -20,10 +20,13 @@ import { renderBorderLabels } from './render-border-labels';
 import path from 'path';
 import { renderJumpRings } from './render-jump-rings';
 import { renderDirectionalIndicators } from './render-directional-indicators';
+import { generateConnectionLines } from '../../../compute/connection-lines';
+import { renderConnectionLines } from './render-connection-lines';
 
 /**
  * Render a single configured map section
  *
+ * @param theme The render color theme
  * @param imageDimensions The parent map image dimensions
  * @param mapLayerConfig The configuration object for this map layer
  * @param globalConfigs The global configuration objects
@@ -34,6 +37,7 @@ import { renderDirectionalIndicators } from './render-directional-indicators';
  * @param focusedSystem The focused system for this map section, if any
  */
 export function renderMapLayer(
+  theme: 'light' | 'dark',
   imageDimensions: Dimensions2d,
   mapLayerConfig: GeneratorConfigMapLayer,
   globalConfigs: {
@@ -73,10 +77,10 @@ export function renderMapLayer(
   };
 
   let transform = `scale(${zoomFactor.toFixed(6)}) ` +
-    `translate(${(-focusPoint.x + (mapLayerConfig.focus?.delta?.x || 0) + mapLayerConfig.mapUnitDimensions.width * 0.5).toFixed(3)}px,` +
-    `${(focusPoint.y - (mapLayerConfig.focus?.delta?.y || 0) + mapLayerConfig.mapUnitDimensions.height * 0.5).toFixed(3)}px)`;
+    `translate(${(-focusPoint.x + (mapLayerConfig.focus?.delta?.x || 0) + mapLayerConfig.mapUnitDimensions.width * 0.5).toFixed(3)},` +
+    `${(focusPoint.y - (mapLayerConfig.focus?.delta?.y || 0) + mapLayerConfig.mapUnitDimensions.height * 0.5).toFixed(3)})`;
   if (mapLayerConfig.position) {
-    transform = `translate(${mapLayerConfig.position.x}px,${mapLayerConfig.position.y}px) ${transform}`;
+    transform = `translate(${mapLayerConfig.position.x},${mapLayerConfig.position.y}) ${transform}`;
   }
 
   const visibleSystems = mapLayerConfig.elements.systems || mapLayerConfig.elements.systemLabels
@@ -97,6 +101,14 @@ export function renderMapLayer(
         globalConfigs.systemLabelConfig,
       )
     : [];
+
+  const connectionLines = !!mapLayerConfig.elements.connectionLines
+    ? generateConnectionLines(
+      systems,
+      visibleViewRect,
+      mapLayerConfig.elements.connectionLines.minimumDistance,
+      mapLayerConfig.elements.connectionLines.maximumDistance
+    ) : [];
 
   // Limit border loops to the visible section of the map
   const boundedLoops = !!mapLayerConfig.elements.factions
@@ -124,30 +136,41 @@ export function renderMapLayer(
   const layerCssClass = mapLayerConfig.name.replace(/\s+/g, '-');
 
   const { defs: factionDefs, css: factionCss, markup: factionMarkup } = mapLayerConfig.elements.factions
-    ? renderBorderLoops(boundedLoops, factionMap, mapLayerConfig.elements.factions.curveBorderEdges, layerCssClass)
+    ? renderBorderLoops(boundedLoops, factionMap, theme, mapLayerConfig.elements.factions.curveBorderEdges, layerCssClass)
     : { defs: '', css: '', markup: '' };
 
   const { defs: borderLabelDefs, css: borderLabelCss, markup: borderLabelMarkup } = mapLayerConfig.elements.borderLabels
-    ? renderBorderLabels(borderLabels, factionMap, layerCssClass, zoomFactor)
+    ? renderBorderLabels(borderLabels, factionMap, theme, layerCssClass, zoomFactor)
     : { defs: '', css: '', markup: '' };
 
   const { defs: jumpRingDefs, css: jumpRingCss, markup: jumpRingMarkup } = mapLayerConfig.elements.jumpRings
-    ? renderJumpRings(mapLayerConfig, focusPoint, layerCssClass)
+    ? renderJumpRings(mapLayerConfig, focusPoint, theme, layerCssClass)
     : { defs: '', css: '', markup: '' };
 
+  const { defs: connectionLineDefs, css: connectionLineCss, markup: connectionLineMarkup } =
+    mapLayerConfig.elements.connectionLines
+      ? renderConnectionLines(connectionLines, theme)
+      : { defs: '', css: '', markup: '' };
+
   const { defs: systemDefs, css: systemCss, markup: systemMarkup } = mapLayerConfig.elements.systems
-    ? renderSystems(visibleSystems, factionMap, era.index, layerCssClass)
+    ? renderSystems(visibleSystems, factionMap, theme, era.index, layerCssClass)
     : { defs: '', css: '', markup: '' };
 
   const { css: systemLabelCss, markup: systemLabelMarkup } = mapLayerConfig.elements.systemLabels
-    ? renderSystemLabels(systemLabels, layerCssClass, zoomFactor)
+    ? renderSystemLabels(systemLabels, theme, layerCssClass, zoomFactor)
     : { css: '', markup: '' };
 
   const { css: directionalIndicatorsCss, markup: directionalIndicatorsMarkup } =
-    renderDirectionalIndicators(globalConfigs.glyphConfig, visibleViewRect, mapLayerConfig.elements.directionalIndicators || [], layerCssClass);
+    renderDirectionalIndicators(
+      globalConfigs.glyphConfig,
+      visibleViewRect,
+      mapLayerConfig.elements.directionalIndicators || [],
+      theme,
+      layerCssClass,
+    );
 
   // PHASE 3: Assemble and return result
-  const templatePath = path.join(__dirname, '../templates');
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const layerTemplate = new TextTemplate('map-section.svg.tpl', templatePath);
   const defsTemplate = new TextTemplate('map-section-def.svg.tpl', templatePath);
   const cssTemplate = new TextTemplate('map-section.css.tpl', templatePath);
@@ -162,7 +185,15 @@ export function renderMapLayer(
     height: visibleViewRect.dimensions.height,
   });
 
-  const markup = [factionMarkup, borderLabelMarkup, jumpRingMarkup, systemMarkup, systemLabelMarkup, directionalIndicatorsMarkup]
+  const markup = [
+    factionMarkup,
+    borderLabelMarkup,
+    jumpRingMarkup,
+    connectionLineMarkup,
+    systemMarkup,
+    systemLabelMarkup,
+    directionalIndicatorsMarkup,
+  ]
     .filter((code) => !!code.trim())
     .join('\n');
   if (markup) {
@@ -170,7 +201,16 @@ export function renderMapLayer(
       defs: [mapSectionDef, factionDefs, borderLabelDefs, jumpRingDefs, systemDefs]
         .filter((code) => !!code.trim())
         .join('\n'),
-      css: [mapSectionCss, factionCss, borderLabelCss, jumpRingCss, systemCss, systemLabelCss, directionalIndicatorsCss]
+      css: [
+        mapSectionCss,
+        factionCss,
+        borderLabelCss,
+        jumpRingCss,
+        systemCss,
+        connectionLineCss,
+        systemLabelCss,
+        directionalIndicatorsCss,
+      ]
         .filter((code) => !!code.trim())
         .join('\n'),
       markup: layerTemplate.replace({

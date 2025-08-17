@@ -9,16 +9,18 @@ import { generateSectionPath } from './generate-section-path';
  *
  * @param borderLoops The map of factions with each faction's borders (one or several border loops per faction)
  * @param factions Map of all faction objects, by faction key
+ * @param theme The render color theme
  * @param renderCurves true to render control points to curve edges
  * @param prefix A string used to prefix all css classes and defs
  */
 export function renderBorderLoops(
   borderLoops: Record<string, Array<BorderEdgeLoop>>,
   factions: Record<string, Faction>,
+  theme: 'light' | 'dark',
   renderCurves = true,
   prefix = '',
 ) {
-  const templatePath = path.join(__dirname, '../templates');
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const defTemplate = new TextTemplate('disputed-faction-fill-def.svg.tpl', templatePath);
   const cssTemplate = new TextTemplate('border-faction.css.tpl', templatePath);
   const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);

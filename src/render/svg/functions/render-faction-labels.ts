@@ -2,8 +2,8 @@ import path from 'path';
 import { hslToRgb, rgbToHsl, TextTemplate } from '../../../common';
 import { FactionLabel } from '../../../compute';
 
-export function renderFactionLabels(factionLabels: Array<FactionLabel>) {
-  const templatePath = path.join(__dirname, '../templates');
+export function renderFactionLabels(factionLabels: Array<FactionLabel>, theme: 'light' | 'dark') {
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const cssTemplate = new TextTemplate('area-labels.css.tpl', templatePath);
   const factionCssTemplate = new TextTemplate('area-labels-faction.css.tpl', templatePath);
   const layerTemplate = new TextTemplate('element-group.svg.tpl', templatePath);

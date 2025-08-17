@@ -25,13 +25,16 @@ export function renderSingleMapImage(
   systems: Array<System>,
   focusedSystem?: System,
 ) {
-  const docTemplate = new TextTemplate('map-base-new.svg.tpl', path.join(__dirname, '../templates'));
+  const theme = generatorConfig.theme || 'light';
+  const templatePath = path.join(__dirname, '../templates/', theme);
+  const docTemplate = new TextTemplate('map-base.svg.tpl', templatePath);
 
   // generate code for all map sections and all overlays
   const elements: Array<{ defs: string; css: string; markup: string; }> = [];
   elements.push(
     ...(generatorConfig.mapLayers || []).map((mapLayerConfig) =>
       renderMapLayer(
+        theme,
         generatorConfig.dimensions,
         mapLayerConfig,
         globalConfigs,
@@ -42,7 +45,9 @@ export function renderSingleMapImage(
         focusedSystem,
       ),
     ),
-    ...(generatorConfig.overlays || []).map((overlay) => renderMapOverlay(overlay, era, focusedSystem)),
+    ...(generatorConfig.overlays || []).map((overlay) =>
+      renderMapOverlay(overlay, theme, era, focusedSystem)
+    ),
   );
 
   return docTemplate.replace({

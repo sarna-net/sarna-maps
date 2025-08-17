@@ -6,11 +6,12 @@ export function renderRectangle(
   position: Point2d,
   width: number,
   height: number,
+  theme: 'light' | 'dark',
   strokeWidth?: number,
   strokeColor?: string,
   fillColor?: string,
 ) {
-  const templatePath = path.join(__dirname, '../templates');
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const rectTemplate = new TextTemplate('overlay-rectangle.svg.tpl', templatePath);
   const rectCssTemplate = new TextTemplate('overlay-rectangle.css.tpl', templatePath);
   const safeName = name.replace(/\s+/g, '');

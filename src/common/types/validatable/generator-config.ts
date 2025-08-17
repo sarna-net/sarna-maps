@@ -11,7 +11,7 @@ export interface GeneratorConfig {
    */
   output: 'svg';
   /**
-   * color theme (default light) TODO implement dark theme
+   * color theme (default light)
    */
   theme?: 'light' | 'dark';
   /**

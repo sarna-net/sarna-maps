@@ -73,6 +73,19 @@ export interface GeneratorConfigMapLayer {
      */
     borderLabels?: boolean;
     /**
+     * Draw connection lines (jump lines)
+     */
+    connectionLines?: {
+      /**
+       * The minimum distance at which a connection line is drawn (default 1)
+       */
+      minimumDistance?: number;
+      /**
+       * The maximum distance at which a connection line is drawn (default 30)
+       */
+      maximumDistance?: number;
+    };
+    /**
      * Draw jump rings (circles around the focus point)
      */
     jumpRings?: {

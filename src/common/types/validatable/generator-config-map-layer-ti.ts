@@ -35,6 +35,10 @@ export const GeneratorConfigMapLayer = t.iface([], {
       "curveBorderEdges": t.opt("boolean"),
     })),
     "borderLabels": t.opt("boolean"),
+    "connectionLines": t.opt(t.iface([], {
+      "minimumDistance": t.opt("number"),
+      "maximumDistance": t.opt("number"),
+    })),
     "jumpRings": t.opt(t.iface([], {
       "radii": t.array("number"),
       "delta": t.opt(t.iface([], {

@@ -7,11 +7,12 @@ export function renderScale(
   pixelsPerMapUnit: number,
   step: number,
   max: number,
+  theme: 'light' | 'dark',
   scaleHeight = 10,
   labelsPosition: 'above' | 'below' = 'above',
   mapUnitName = 'LY',
 ) {
-  const templatePath = path.join(__dirname, '../templates');
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const scaleTemplate = new TextTemplate('scale.svg.tpl', templatePath);
   const cssTemplate = new TextTemplate('scale.css.tpl', templatePath);
   const stepTemplate = new TextTemplate('scale-step.svg.tpl', templatePath);
@@ -47,7 +48,7 @@ export function renderScale(
 
   const markup = scaleTemplate.replace({
     css_class,
-    transform: `translate(${position.x}px, ${position.y}px)`,
+    transform: `translate(${position.x}, ${position.y})`,
     stepElements: stepMarkup,
     unitName: mapUnitName,
     unitNameX: max * pixelsPerMapUnit + unitNamePadding,

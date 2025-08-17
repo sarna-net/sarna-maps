@@ -1,9 +1,23 @@
 import path from 'path';
 import { BorderLabelsResult } from '../../../compute';
-import { Faction, hexStringToRgb, pointOnLine, rgbToHexString, TextTemplate } from '../../../common';
+import {
+  Faction,
+  hexStringToRgb,
+  hslToRgb,
+  pointOnLine,
+  rgbToHexString,
+  rgbToHsl,
+  TextTemplate
+} from '../../../common';
 
-export function renderBorderLabels(result: BorderLabelsResult, factions: Record<string, Faction>, prefix = '', pixelsPerMapUnit = 1) {
-  const templatePath = path.join(__dirname, '../templates');
+export function renderBorderLabels(
+  result: BorderLabelsResult,
+  factions: Record<string, Faction>,
+  theme: 'light' | 'dark',
+  prefix = '',
+  pixelsPerMapUnit = 1,
+) {
+  const templatePath = path.join(__dirname, '../templates/', theme);
   const debugCssTemplate = new TextTemplate('border-label.debug.css.tpl', templatePath);
   const cssTemplate = new TextTemplate('border-labels.css.tpl', templatePath);
   const labelCssTemplate = new TextTemplate('border-label.css.tpl', templatePath);
@@ -95,27 +109,53 @@ export function renderBorderLabels(result: BorderLabelsResult, factions: Record<
     }
 
     // make sure the border labels are visible against the faction background
-    const rgba = hexStringToRgb(factions[factionKey]?.color || '#000')
-      || { r: 0, g: 0, b: 0, };
-    rgba.r *= 255;
-    rgba.g *= 255;
-    rgba.b *= 255;
-    while(rgba.r + rgba.g + rgba.b >= 500) {
-      rgba.r *= .8;
-      rgba.g *= .8;
-      rgba.b *= .8;
+    const colorHsl = rgbToHsl(factions[factionKey]?.color || '#000');
+    if (theme === 'light') {
+      if (colorHsl.l >= 0.8) {
+        colorHsl.l *= 0.25;
+      } else if (colorHsl.l >= 0.5) {
+        colorHsl.l *= 0.5;
+      }
+    } else {
+      if (colorHsl.l <= 0.2) {
+        colorHsl.l *= 2;
+      } else if (colorHsl.l <= 0.5) {
+        colorHsl.l *= 1.25;
+      }
     }
-    while(rgba.r + rgba.g >= 420) {
-      //rgba.r = rgba.g = rgba.b = 0;
-      rgba.r *= .4;
-      rgba.g *= .4;
-      rgba.b *= .4;
-    }
-    const factionLabelColor = rgbToHexString({
-      r: Math.round(rgba.r),
-      g: Math.round(rgba.g),
-      b: Math.round(rgba.b),
-    });
+    const factionLabelColor = hslToRgb(colorHsl);
+
+
+    // const rgba = hexStringToRgb(factions[factionKey]?.color || '#000')
+    //   || { r: 0, g: 0, b: 0, };
+    // rgba.r *= 255;
+    // rgba.g *= 255;
+    // rgba.b *= 255;
+    // if (theme === 'light') {
+    //   while (rgba.r + rgba.g + rgba.b >= 500) {
+    //     rgba.r *= .8;
+    //     rgba.g *= .8;
+    //     rgba.b *= .8;
+    //   }
+    //   while (rgba.r + rgba.g >= 420) {
+    //     //rgba.r = rgba.g = rgba.b = 0;
+    //     rgba.r *= .4;
+    //     rgba.g *= .4;
+    //     rgba.b *= .4;
+    //   }
+    // } else {
+    //   while (rgba.r + rgba.g + rgba.b <= 420) {
+    //     rgba.r = Math.min(255, rgba.r * 1.1);
+    //     rgba.g = Math.min(255, rgba.r * 1.1);
+    //     rgba.b = Math.min(255, rgba.r * 1.1);
+    //   }
+    // }
+    //
+    // const factionLabelColor = rgbToHexString({
+    //   r: Math.round(rgba.r),
+    //   g: Math.round(rgba.g),
+    //   b: Math.round(rgba.b),
+    // });
 
     let labelDefs = '';
     candidates.forEach((candidate) => {
