@@ -3,6 +3,7 @@ import { pruneShortEdges } from './prune-short-edges';
 import { relaxBorderSection } from './relax-border-section';
 import { mergeStraightEdges } from './merge-straight-edges';
 import { subdivideDangerousEdges } from './subdivide-dangerous-edges';
+import { logger } from '../../../../common';
 
 /**
  * Simplifies all border sections by pruning short edges and straightening / relaxing edge sequences.
@@ -29,7 +30,7 @@ export function simplifyBorderSections(
     edgesSubdivided += subdivideDangerousEdges(borderSection, vertices, threeWayNodes);
   });
 
-  console.info(`${shortEdgesPruned} edges removed during short edge pruning`);
-  console.info(`${straightEdgesPruned} edges removed during straight edge pruning`);
-  console.info(`${edgesSubdivided} dangerous edges subdivided`);
+  logger.info(`${shortEdgesPruned} edges removed during short edge pruning`);
+  logger.info(`${straightEdgesPruned} edges removed during straight edge pruning`);
+  logger.info(`${edgesSubdivided} dangerous edges subdivided`);
 }

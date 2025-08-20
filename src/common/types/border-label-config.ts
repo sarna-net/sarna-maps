@@ -78,9 +78,16 @@ export interface BorderLabelConfig {
      * The minimum score that a label candidate can have and still be considered for placement.
      * Note that labels will be sorted by score in descending order and placed as long as a) there
      * is enough space and b) their scores are above or equal to this value.
-     * Candidate score is a value between 0 and 1.
+     * The border label candidate score is a value between 0 and 1.
      */
     minViableScore: number;
+    /**
+     * The minimum score for a candidate to be considered "good". All candidates below this threshold
+     * will be disregarded, unless not enough suitable candidates can be found for a given faction, in
+     * which case the algorithm will also consider candidates down to the minViableScore (see above).
+     * The border label candidate score is a value between 0 and 1.
+     */
+    minGoodScore: number;
   };
   /**
    * The numeric weights that determine how important each quality parameter of a label candidate is.

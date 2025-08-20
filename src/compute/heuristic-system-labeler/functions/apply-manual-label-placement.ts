@@ -1,6 +1,6 @@
 import { LabelRectangle } from '../../types';
 import {
-  GlyphConfig,
+  GlyphConfig, logger,
   nearestPointOnEllipsePerimeter,
   nearestPointOnRectanglePerimeter,
   Point2d,
@@ -121,7 +121,7 @@ function applySingleManualConfig(
       // Add the starting and end points
       const pointOnPerimeter = nearestPointOnEllipsePerimeter(label.connectorPoints[0], ellipse);
       if (!pointOnPerimeter) {
-        console.error(`Cannot connect label for ${label.label}: Nearest point on ellipse perimeter not found`);
+        logger.error(`Cannot connect label for ${label.label}: Nearest point on ellipse perimeter not found`);
       } else {
         label.connectorPoints.unshift(pointOnPerimeter);
       }

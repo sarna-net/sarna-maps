@@ -1,6 +1,6 @@
 import { BorderSection } from '../types';
 import { EMPTY_FACTION, INDEPENDENT } from '../../constants';
-import { deepCopy, pointsAreEqual } from '../../../common';
+import { deepCopy, logger, pointsAreEqual } from '../../../common';
 import { reverseEdges } from './utils';
 
 export function generateSimpleBorderLoops(sections: Array<BorderSection>) {
@@ -64,12 +64,12 @@ function createFactionLoops(faction: string, sections: Array<BorderSection>) {
       }
     }
     if (iterations >= MAX_ITERATIONS - 1) {
-      console.warn(
+      logger.warn(
         'Problem during the creation of simple faction loops: Iteration limit reached',
         faction,
         factionSections.length,
       );
-      // console.log(factionSections[0].edges[0], factionSections[0].edges[1] );
+      // logger.debug(factionSections[0].edges[0], factionSections[0].edges[1] );
     }
   }
   loops.forEach(

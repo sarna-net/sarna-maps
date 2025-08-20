@@ -8,16 +8,17 @@ rules:
   minDistanceBetweenLabels: 40
   minLoopDistanceBetweenLabels: 55
   cornerDistanceFactor: .05
-  minViableScore: .6
+  minViableScore: .65
+  minGoodScore: .75
 
 scoreWeights:
-  labelOverlap: 120
+  labelOverlap: 115
   angle: 10
   borderIntersection: 50
   centeredness: 0
   cornerScore: 50
-  multiline: 15
-  straightness: 40
+  multiline: 30
+  straightness: 45
 
 manualConfigs:
   CS:

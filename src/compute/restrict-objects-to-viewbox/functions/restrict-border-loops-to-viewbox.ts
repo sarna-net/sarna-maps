@@ -1,5 +1,5 @@
 import { BorderEdgeLoop, VoronoiBorderEdge } from '../../voronoi-border';
-import { clampPointToRectangle, distance, Point2d, pointIsInRectangle, Rectangle2d } from '../../../common';
+import { clampPointToRectangle, distance, logger, Point2d, pointIsInRectangle, Rectangle2d } from '../../../common';
 
 /**
  * Create bounded borders that only display the actually visible section of space.
@@ -160,7 +160,7 @@ function aggregateOutsidePointsIntoInvisibleEdges(
   }
   // at the very end, if there are more or less than two points remaining, something went wrong
   if (outsidePoints.length !== 2) {
-    console.warn(idPrefix, 'wrong remaining number of outside points', outsidePoints.length);
+    logger.warn(idPrefix, 'wrong remaining number of outside points', outsidePoints.length);
     return edges;
   }
   edges.push(newEdge(outsidePoints[0], outsidePoints[1]));

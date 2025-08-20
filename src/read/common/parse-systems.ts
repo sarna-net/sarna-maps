@@ -1,5 +1,5 @@
 import { parseSingleSystem, SystemRow } from './parse-single-system';
-import { Era, System } from '../../common';
+import { Era, logger, System } from '../../common';
 
 /**
  * Assumptions:
@@ -18,10 +18,10 @@ export function parseSystems(rows: Array<Array<string>>, eras: Array<Era>) {
 
   const systems: Array<System> = [];
 
-  console.info('Reading systems ...');
+  logger.info('Reading systems ...');
 
   if (!rows || !(rows || []).length) {
-    console.info('Systems sheet empty, no factions read.');
+    logger.info('Systems sheet empty, no factions read.');
     return [] as Array<System>;
   }
 
@@ -62,6 +62,6 @@ export function parseSystems(rows: Array<Array<string>>, eras: Array<Era>) {
   // sort systems so that clusters are painted first and appear at the bottom (visually)
   systems.sort((a,b) => (b.radiusX + b.radiusY) - (a.radiusX + a.radiusY));
 
-  console.info(`${systems.length} systems read.`);
+  logger.info(`${systems.length} systems read.`);
   return systems;
 }

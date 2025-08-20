@@ -1,4 +1,4 @@
-import { distance, Point2d, scaleVector } from '../../common';
+import { distance, logger, Point2d, scaleVector } from '../../common';
 import { BorderEdgeLoop } from '../voronoi-border';
 
 /**
@@ -56,7 +56,7 @@ export function generateEvenlyDistributedPointsAlongEdgeLoop(loop: BorderEdgeLoo
     }
   }
 
-  console.log(`${points.length} POINTS FOR ${loop.edges.length} NODES (${travelledDistance} of ${totalLength} with STEP = ${step})`);
+  logger.debug(`${points.length} POINTS FOR ${loop.edges.length} NODES (${travelledDistance} of ${totalLength} with STEP = ${step})`);
 
   return points;
 }

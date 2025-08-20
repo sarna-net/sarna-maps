@@ -1,5 +1,5 @@
 import { Point2d, Rectangle2d } from './types';
-import { deepCopy } from '../utils';
+import { deepCopy, logger } from '../utils';
 import { pointIsLeftOfLine } from './point-is-left-of-line';
 
 enum SIDE {
@@ -122,12 +122,12 @@ export function areaOfRotatedRectangleIntersection(
         curPt = polygon[i];
       }
       nextPt = polygon[(i+1) % polygon.length];
-      //console.log('polygon length is '+polygon.length+', nextPt is now ' + ((i+1) % polygon.length), nextPt);
+      //logger.log('polygon length is '+polygon.length+', nextPt is now ' + ((i+1) % polygon.length), nextPt);
     }
     // check remaining point count
     if (polygon.length < 2) {
       // something's funky
-      console.warn('polygon could not be built with one point');
+      logger.warn('polygon could not be built with one point');
       break;
     }
     // find out if the points lie on any of the rectangle's sides
@@ -197,10 +197,10 @@ function rectLineClip(rect: Rectangle2d, pFrom: Point2d, pTo: Point2d) {
   const xMax = rect.anchor.x + rect.dimensions.width;
   const yMin = rect.anchor.y;
   const yMax = rect.anchor.y + rect.dimensions.height;
-  //console.log('xMin ' + xMin.toFixed(2) + ', xMax ' + xMax.toFixed(2) );
-  //console.log('yMin ' + yMin.toFixed(2) + ', yMax ' + yMax.toFixed(2) );
-  //console.log('pFrom ' + pFrom.x + ',' + pFrom.y);
-  //console.log('pTo ' + pTo.x + ',' + pTo.y);
+  //logger.log('xMin ' + xMin.toFixed(2) + ', xMax ' + xMax.toFixed(2) );
+  //logger.log('yMin ' + yMin.toFixed(2) + ', yMax ' + yMax.toFixed(2) );
+  //logger.log('pFrom ' + pFrom.x + ',' + pFrom.y);
+  //logger.log('pTo ' + pTo.x + ',' + pTo.y);
   const p0 = deepCopy(pFrom);
   const p1 = deepCopy(pTo);
   let x: number;

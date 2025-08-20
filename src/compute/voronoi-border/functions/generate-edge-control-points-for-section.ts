@@ -1,4 +1,4 @@
-import { dotProduct, normalizeVector, Point2d, generateBezierControlPoints } from '../../../common';
+import { dotProduct, normalizeVector, Point2d, generateBezierControlPoints, logger } from '../../../common';
 import { BorderSection, VoronoiBorderEdge, VoronoiBorderNode } from '../types';
 
 /**
@@ -126,13 +126,13 @@ function findStraightestAdjacentEdge(
       normalizeVector(v1);
       normalizeVector(v2);
       const dot = dotProduct(v1, v2);
-      // console.info(`Adjacent edge ${edgeCandidateId}, dot: ${dot.toFixed(4)}`);
+      // logger.info(`Adjacent edge ${edgeCandidateId}, dot: ${dot.toFixed(4)}`);
       if (dot > bestCandidateDot && dot >= minimumDotProductForAdjacency) {
         bestCandidateDot = dot;
         bestCandidate = [ n1, n2, n3 ];
       }
     } else {
-      console.warn(`Edge "${edgeCandidateId}" no longer exists`);
+      logger.warn(`Edge "${edgeCandidateId}" no longer exists`);
     }
   });
   return bestCandidate;

@@ -7,6 +7,7 @@ export * from './get-random-color';
 export * from './hex-string-to-rgb';
 export * from './hsl-to-rgb';
 export * from './hsv-to-rgb';
+export * from './logger';
 export * from './polylabel';
 export * from './rectangle-grid';
 export * from './rgb-to-hex-string';

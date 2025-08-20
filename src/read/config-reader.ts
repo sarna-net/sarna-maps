@@ -1,5 +1,12 @@
 import { readAndParseYamlFile } from './common';
-import { BorderLabelConfig, GeneratorConfig, DataSourceConfig, GlyphConfig, SystemLabelConfig } from '../common';
+import {
+  BorderLabelConfig,
+  GeneratorConfig,
+  DataSourceConfig,
+  GlyphConfig,
+  SystemLabelConfig,
+  logger
+} from '../common';
 import {
   GeneratorConfigTi,
   GeneratorConfigMapLayerTi,
@@ -28,17 +35,17 @@ export async function readConfigFiles(fileNames: {
     checkers.GeneratorConfig.check(generatorConfig);
     // TODO check filename pattern for output
   } catch (e) {
-    console.error(
+    logger.error(
       `The generator config at ${fileNames.generatorConfig} is not valid:\n` +
         e.message.replaceAll('value.', '').split('\n').map((line: string) => '  ' + line).join('\n'),
     );
     if (e.message.split('\n').length >= 3) {
-      console.error('  ... (first three errors shown)');
+      logger.error('  ... (first three errors shown)');
     }
-    console.error('Please refer to the example configs and the generator config documentation.');
+    logger.error('Please refer to the example configs and the generator config documentation.');
     process.exit(1);
   }
-  console.info(`Generator config at ${fileNames.generatorConfig} read and parsed successfully`);
+  logger.info(`Generator config at ${fileNames.generatorConfig} read and parsed successfully`);
 
 
   // TODO use zod or a similar library to make sure the configuration files are valid
@@ -89,6 +96,7 @@ export async function readConfigFiles(fileNames: {
       maxLabelOverlapArea: 1,
       cornerDistanceFactor: 1,
       minViableScore: 1,
+      minGoodScore: 1,
     },
     ...(borderLabelConfig.rules || {}),
   };

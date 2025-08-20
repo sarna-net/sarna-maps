@@ -4,6 +4,7 @@ import {
   GeneratorConfigOverlayTi,
 } from './common/types';
 import { createCheckers } from 'ts-interface-checker';
+import { logger } from './common';
 
 function run() {
   const checkers = createCheckers(
@@ -17,7 +18,7 @@ function run() {
       fileOutput: 123
     });
   } catch (e) {
-    console.log(e.message);
+    logger.debug(e.message);
   }
 
   return null;

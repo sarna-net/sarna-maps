@@ -30,8 +30,8 @@ mapLayers: # the different layers showing maps
     elements:
       systems: true # display systems (as dots)
       systemLabels: true # display system names
-      connectionLines: # display jump lines
-        maximumDistance: 30
+#      connectionLines: # display jump lines
+#        maximumDistance: 30
       factions: # display factions
         curveBorderEdges: true
       borderLabels: true # display border labels
