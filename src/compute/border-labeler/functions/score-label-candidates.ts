@@ -80,7 +80,9 @@ export function scoreLabelCandidates(
 
     // rate the straightness
     let straightnessRating = 1 - candidate.borderSectionStraightness / maximumStraightness;
+    candidate.scoreComponents.unweighted['straightness'] = straightnessRating;
     straightnessRating *= normalizedWeights.straightness;
+    candidate.scoreComponents.weighted['straightness'] = straightnessRating;
 
     // rate the border intersection distance
     let borderIntersectionRating =
@@ -102,6 +104,12 @@ export function scoreLabelCandidates(
     centerednessRating *= normalizedWeights.centeredness;
     candidate.scoreComponents.weighted['centeredness'] = centerednessRating;
 
+    // use the previously calculated cornerScore
+    let cornerScoreRating = candidate.cornerScore;
+    candidate.scoreComponents.unweighted['cornerScore'] = cornerScoreRating;
+    cornerScoreRating *= normalizedWeights.cornerScore;
+    candidate.scoreComponents.weighted['cornerScore'] = cornerScoreRating;
+
     // rate the multilined-ness (?)
     let multilineRating = candidate.labelVariant === BorderLabelVariant.MultiLine
       ? 1
@@ -113,7 +121,7 @@ export function scoreLabelCandidates(
     candidate.scoreComponents.weighted['multiline'] = multilineRating;
 
     candidate.score = overlapRating + angleRating + straightnessRating +
-      borderIntersectionRating + centerednessRating + multilineRating;
+      borderIntersectionRating + centerednessRating + cornerScoreRating + multilineRating;
 
     // if (candidate.id === 'candidate-WB-L4-1') {
     //   console.log(candidate.id, 'score components', candidate.scoreComponents);

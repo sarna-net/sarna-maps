@@ -2,10 +2,8 @@ import path from 'path';
 import { BorderLabelsResult } from '../../../compute';
 import {
   Faction,
-  hexStringToRgb,
   hslToRgb,
   pointOnLine,
-  rgbToHexString,
   rgbToHsl,
   TextTemplate
 } from '../../../common';
@@ -36,11 +34,11 @@ export function renderBorderLabels(
   Object.keys(result.candidatesByFaction).forEach((factionKey) => {
     const candidates = result.candidatesByFaction[factionKey];
     // debug mode output
-    if (false && factionKey === 'WB') {
+    if (false && factionKey === 'FWL') {
       candidates.forEach((candidate, candidateIndex) => {
-        if (candidate.labelVariant === 'Abbreviation') {
-          return;
-        }
+        // if (candidate.labelVariant === 'Abbreviation') {
+        //   return;
+        // }
         const rectPath = `M` + candidate.rect.bl.x.toFixed(2) + `,`
           + (-candidate.rect.bl.y).toFixed(2) + ' L'
           + candidate.rect.tl.x.toFixed(2) + ','
@@ -112,9 +110,9 @@ export function renderBorderLabels(
     const colorHsl = rgbToHsl(factions[factionKey]?.color || '#000');
     if (theme === 'light') {
       if (colorHsl.l >= 0.8) {
-        colorHsl.l *= 0.25;
-      } else if (colorHsl.l >= 0.5) {
-        colorHsl.l *= 0.5;
+        colorHsl.l *= 0.4;
+      } else if (colorHsl.l >= 0.45) {
+        colorHsl.l *= 0.6;
       }
     } else {
       if (colorHsl.l <= 0.2) {
@@ -124,38 +122,6 @@ export function renderBorderLabels(
       }
     }
     const factionLabelColor = hslToRgb(colorHsl);
-
-
-    // const rgba = hexStringToRgb(factions[factionKey]?.color || '#000')
-    //   || { r: 0, g: 0, b: 0, };
-    // rgba.r *= 255;
-    // rgba.g *= 255;
-    // rgba.b *= 255;
-    // if (theme === 'light') {
-    //   while (rgba.r + rgba.g + rgba.b >= 500) {
-    //     rgba.r *= .8;
-    //     rgba.g *= .8;
-    //     rgba.b *= .8;
-    //   }
-    //   while (rgba.r + rgba.g >= 420) {
-    //     //rgba.r = rgba.g = rgba.b = 0;
-    //     rgba.r *= .4;
-    //     rgba.g *= .4;
-    //     rgba.b *= .4;
-    //   }
-    // } else {
-    //   while (rgba.r + rgba.g + rgba.b <= 420) {
-    //     rgba.r = Math.min(255, rgba.r * 1.1);
-    //     rgba.g = Math.min(255, rgba.r * 1.1);
-    //     rgba.b = Math.min(255, rgba.r * 1.1);
-    //   }
-    // }
-    //
-    // const factionLabelColor = rgbToHexString({
-    //   r: Math.round(rgba.r),
-    //   g: Math.round(rgba.g),
-    //   b: Math.round(rgba.b),
-    // });
 
     let labelDefs = '';
     candidates.forEach((candidate) => {

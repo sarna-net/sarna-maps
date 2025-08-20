@@ -7,7 +7,7 @@ import {
   Faction,
   lineFromPoints,
   perpendicularEdge,
-  Point2d,
+  Point2d, Point2dWithEdgeContext,
   pointAlongEdgePath,
   pointIsLeftOfLine,
   radToDeg,
@@ -69,22 +69,22 @@ export function generateLabelCandidates(
   ) {
     const controlPointCenter = pointAlongEdgePath(edgePath, candidatePosition % loopLength);
     if (controlPointCenter) {
-      // find two more points, one on each side of the candidate center poin
+      // find two more points, one on each side of the candidate center point
       const singleLineWidth = factionNameTokens[BorderLabelVariant.SingleLine]?.width || 1;
       const multiLineWidth = factionNameTokens[BorderLabelVariant.MultiLine]?.width || 1;
       const abbrWidth = factionNameTokens[BorderLabelVariant.Abbreviation]?.width || 1;
-      const controlPoints: Record<BorderLabelVariant, [Point2d | undefined, Point2d | undefined]> = {
+      const controlPoints: Record<BorderLabelVariant, [Point2dWithEdgeContext | undefined, Point2dWithEdgeContext | undefined]> = {
         [BorderLabelVariant.SingleLine]: [
-          pointAlongEdgePath(edgePath, (candidatePosition - singleLineWidth * 0.5 + loopLength) % loopLength),
-          pointAlongEdgePath(edgePath, (candidatePosition + singleLineWidth * 0.5) % loopLength),
+          pointAlongEdgePath(edgePath, (candidatePosition - singleLineWidth * 0.5 + loopLength) % loopLength, true),
+          pointAlongEdgePath(edgePath, (candidatePosition + singleLineWidth * 0.5) % loopLength, true),
         ],
         [BorderLabelVariant.MultiLine]: [
-          pointAlongEdgePath(edgePath, (candidatePosition - multiLineWidth * 0.5 + loopLength) % loopLength),
-          pointAlongEdgePath(edgePath, (candidatePosition + multiLineWidth * 0.5) % loopLength),
+          pointAlongEdgePath(edgePath, (candidatePosition - multiLineWidth * 0.5 + loopLength) % loopLength, true),
+          pointAlongEdgePath(edgePath, (candidatePosition + multiLineWidth * 0.5) % loopLength, true),
         ],
         [BorderLabelVariant.Abbreviation]: [
-          pointAlongEdgePath(edgePath, (candidatePosition - abbrWidth * 0.5 + loopLength) % loopLength),
-          pointAlongEdgePath(edgePath, (candidatePosition + abbrWidth * 0.5) % loopLength),
+          pointAlongEdgePath(edgePath, (candidatePosition - abbrWidth * 0.5 + loopLength) % loopLength, true),
+          pointAlongEdgePath(edgePath, (candidatePosition + abbrWidth * 0.5) % loopLength, true),
         ]
       };
 
@@ -106,23 +106,37 @@ export function generateLabelCandidates(
             return;
           }
 
+          // Generate the candidate's corner score, based on the distance to any corners in the edge path
+          // the adjacentEdgesDotProduct field contains information about the angle of the closest edge point:
+          // - a dot product of -1 indicates a 180° angle - no corner (good)
+          // - a dot product of 0 indicates a 90° angle (bad)
+          // - a dot product of 1 indicates a 0° angle, i.e. the two edges are on top of each other (worst case)
+          // In order to bring the value into the range [0,1], where 1 is an optimal score, we will switch the
+          // results around and add the distance (using a factor)
+          // The candidate's corner score is the lower of the two points' (left & right) scores.
+          const leftCornerScore = -Math.min(controlPointLeft.adjacentEdgesDotProduct || 0, 0)
+            + (controlPointLeft.distanceToClosestPoint || 0) * borderLabelConfig.rules.cornerDistanceFactor;
+          const rightCornerScore = -Math.min(controlPointRight.adjacentEdgesDotProduct || 0, 0)
+            + (controlPointRight.distanceToClosestPoint || 0) * borderLabelConfig.rules.cornerDistanceFactor;
+          const cornerScore = Math.min(1, leftCornerScore, rightCornerScore);
+
           // for further calculations, create a line going through the left and right control points,
           // we will call it the control line
-          const controlLine = lineFromPoints(controlPointLeft, controlPointRight);
+          const controlLine = lineFromPoints(controlPointLeft.point, controlPointRight.point);
           // calculate the distance of the center point to the control line, giving us an idea of how straight
           // this part of the border is
-          const centerPointDistance = distancePointToLine(controlPointCenter, controlLine);
+          const centerPointDistance = distancePointToLine(controlPointCenter.point, controlLine);
           // we can also calculate the label's angle, which is important for scoring the candidate
-          const labelAngle = (radToDeg(angleBetweenPoints(controlPointLeft, controlPointRight)) + 360) % 360;
+          const labelAngle = (radToDeg(angleBetweenPoints(controlPointLeft.point, controlPointRight.point)) + 360) % 360;
           // determine whether the center point is inside or outside of the control line - inside being further
           // in the edge loop area
-          let centerPointIsOutside = pointIsLeftOfLine(controlPointCenter, controlPointLeft, controlPointRight);
+          let centerPointIsOutside = pointIsLeftOfLine(controlPointCenter.point, controlPointLeft.point, controlPointRight.point);
           if (loop.isInnerLoop) {
             centerPointIsOutside = !centerPointIsOutside;
           }
           // get an edge perpendicular to the control line, pointing inwards
           const perpEdge = perpendicularEdge(
-            { p1: controlPointLeft, p2: controlPointRight },
+            { p1: controlPointLeft.point, p2: controlPointRight.point },
             borderLabelConfig.rules.labelDistanceToBorder,
             loop.isInnerLoop ? 'left' : 'right',
           );
@@ -140,8 +154,8 @@ export function generateLabelCandidates(
           }
           // the next step is to create the actual anchor point, which is the point at the center of the label's baseline
           const anchorPoint: Point2d = {
-            x: controlPointCenter.x + perpVector.a,
-            y: controlPointCenter.y + perpVector.b,
+            x: controlPointCenter.point.x + perpVector.a,
+            y: controlPointCenter.point.y + perpVector.b,
           };
           // next, we will construct a vector parallel to the control line that will help us form our baseline
           const baselineHalfLengthVector: Vector2d = loop.isInnerLoop
@@ -218,6 +232,7 @@ export function generateLabelCandidates(
             centeredness: 0.5, // TODO modify when adding truncated loops
             anchorPoint,
             borderSectionStraightness: centerPointDistance,
+            cornerScore,
             labelVariant,
             labelAngle,
             labelArea: (factionNameTokens[labelVariant]?.width || 0) * (factionNameTokens[labelVariant]?.height || 0),
@@ -225,7 +240,7 @@ export function generateLabelCandidates(
             tokens: factionNameTokens[labelVariant]?.tokens || [],
             labelBaselines,
             // debugging properties
-            controlPoints: [controlPointLeft, controlPointRight],
+            controlPoints: [controlPointLeft.point, controlPointRight.point],
             perpEdge: [perpEdge.p1, perpEdge.p2],
             pointIsInside: !centerPointIsOutside,
           });

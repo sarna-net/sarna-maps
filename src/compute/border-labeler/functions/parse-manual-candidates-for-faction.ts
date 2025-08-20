@@ -54,6 +54,7 @@ export function parseManualCandidatesForFaction(
       anchorPoint: config.anchor,
       borderSectionStraightness: 0,
       centeredness: 0,
+      cornerScore: 0,
       labelArea: 0,
       score: 0,
       positionOnEdgeLoop: 0,
