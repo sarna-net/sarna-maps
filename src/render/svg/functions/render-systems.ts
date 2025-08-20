@@ -1,4 +1,4 @@
-import { extractBorderStateAffiliation, Faction, System, TextTemplate } from '../../../common';
+import { extractBorderStateAffiliation, Faction, logger, System, TextTemplate } from '../../../common';
 import path from 'path';
 import { generateDisputedSystemFillPattern } from './generate-disputed-system-fill-pattern';
 
@@ -40,7 +40,7 @@ export function renderSystems(
     const displayedFaction = extractBorderStateAffiliation(eraAffiliation, [''], 'faction');
     const systemIsHidden = !!eraAffiliation.match(/^[^(]+\(H\)(,.+)?$/);
     if (displayedFaction === '') {
-      console.debug('empty faction string for', system.name);
+      logger.debug('empty faction string for', system.name);
     }
     if (!visibleFactions[displayedFaction]) {
       visibleFactions[displayedFaction] = factions[displayedFaction];
@@ -100,7 +100,7 @@ export function renderSystems(
       defs += generateDisputedSystemFillPattern(factionKey, factions, defPrefix);
       factionCss += `${cssPrefix}g.systems .system.${factionKey}, g.systems .cluster.${factionKey} { fill: url(#${defPrefix}system-fill-${factionKey}) }\n`;
     } else if(!faction) {
-      console.warn(`Cannot find faction for affiliation key "${factionKey}". Systems will be displayed in the default color.`);
+      logger.warn(`Cannot find faction for affiliation key "${factionKey}". Systems will be displayed in the default color.`);
     } else {
       factionCss += `${cssPrefix}g.systems .system.${factionKey}, g.systems .cluster.${factionKey} { fill: ${faction?.color || '#000'} }\n`;
     }

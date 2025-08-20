@@ -1,5 +1,6 @@
 import { BezierEdge2d } from './types';
 import { distance } from './distance';
+import { logger } from '../utils';
 
 export function edgeLength(edge: BezierEdge2d) {
   const straightDistance = distance(edge.p1, edge.p2);
@@ -17,6 +18,6 @@ export function edgeLength(edge: BezierEdge2d) {
     }
     return (controlPointDistance * 2 + straightDistance) / 3;
   }
-  console.warn('[edgeLength] edge does not have enough points to be measured, length is 0', edge);
+  logger.warn('[edgeLength] edge does not have enough points to be measured, length is 0', edge);
   return 0;
 }

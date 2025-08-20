@@ -21,9 +21,6 @@ export function calculateCandidateLoopOverlap(candidate: BorderLabelCandidate, l
       p2c1: loopEdge.n2c1,
       length: loopEdge.length,
     }], loopEdge.length * 0.5)?.point;
-    // if (candidate.id === 'candidate-OA-L0-58') {
-    //   console.log(candidate.id, 'mid point', midPoint);
-    // }
     // For curves, check the two edges from the endpoints to the midpoint.
     // For straight edges, just use the two endpoints
     intersectionDistance = midPoint

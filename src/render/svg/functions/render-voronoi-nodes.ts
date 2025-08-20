@@ -26,9 +26,6 @@ export function renderVoronoiNodes(
     const v1 = delaunayVertices[voronoiNode.vertex1Idx];
     const v2 = delaunayVertices[voronoiNode.vertex2Idx];
     const v3 = delaunayVertices[voronoiNode.vertex3Idx];
-    if (voronoiId === 4838 || voronoiId === 4894) {
-      console.log(voronoiId, voronoiNode);
-    }
     markup += nodeTemplate.replace({
       name: voronoiId,
       x: voronoiNode.x,

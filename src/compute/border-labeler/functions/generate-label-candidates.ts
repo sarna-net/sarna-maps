@@ -5,7 +5,7 @@ import {
   BorderLabelVariant,
   distancePointToLine,
   Faction,
-  lineFromPoints,
+  lineFromPoints, logger,
   perpendicularEdge,
   Point2d, Point2dWithEdgeContext,
   pointAlongEdgePath,
@@ -247,8 +247,8 @@ export function generateLabelCandidates(
         }
       });
     } else {
-      console.debug(`ignoring undefined candidate anchor point for faction loop ${faction.id} ${loopIndex} at position ${candidatePosition}`);
-      console.debug(`(loop length is ${loopLength}`);
+      logger.debug(`ignoring undefined candidate anchor point for faction loop ${faction.id} ${loopIndex} at position ${candidatePosition}`);
+      logger.debug(`(loop length is ${loopLength}`);
     }
   }
 

@@ -1,4 +1,4 @@
-import { Era } from '../../common';
+import { Era, logger } from '../../common';
 
 /**
  * Assumptions:
@@ -11,7 +11,7 @@ import { Era } from '../../common';
  * @param rows The data rows, with the rows as the first and the column/cells as the second dimension
  */
 export function parseEras(rows: Array<Array<string>>) {
-  console.info('Reading eras ...');
+  logger.info('Reading eras ...');
 
   const eras: Array<Era> = [];
 
@@ -26,6 +26,6 @@ export function parseEras(rows: Array<Array<string>>) {
     });
   }
 
-  console.info(`${eras.length} eras read.`);
+  logger.info(`${eras.length} eras read.`);
   return eras;
 }

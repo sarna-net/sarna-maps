@@ -9,7 +9,7 @@ localFileConfig:
   # If using a relative path, the directory is interpreted to be relative to this project's main directory.
   directory: './data'
   # The filename of the SUCKit spreadsheet
-  filename: 'Sarna Unified Cartography Kit (Official)_mod.xlsx'
+  filename: 'Sarna Unified Cartography Kit (Official).xlsx'
 
 # Google Sheets configuration. Will only be used if the useSource field (see above) is set to google.
 googleSheetsConfig:

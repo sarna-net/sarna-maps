@@ -2,7 +2,7 @@ import {
   BorderLabelConfig,
   BorderLabelVariant,
   Faction,
-  GlyphConfig, pointIsInRectangle,
+  GlyphConfig, logger, pointIsInRectangle,
   Rectangle2d,
   RectangleGrid,
 } from '../../common';
@@ -50,7 +50,7 @@ export function placeBorderLabels(
   glyphConfig: GlyphConfig,
   borderLabelConfig: BorderLabelConfig,
 ): BorderLabelsResult {
-  console.log('Now placing border labels');
+  logger.info('Now placing border labels');
   const candidatesByFaction: Record<string, Array<BorderLabelCandidate>> = {};
   let totalNumberOfCandidates = 0;
   let totalNumberOfPlacedLabels = 0;
@@ -72,7 +72,17 @@ export function placeBorderLabels(
     ) {
       return;
     }
-    const faction = factionMap[factionKey];
+    let faction = factionMap[factionKey];
+    if (!faction) {
+      logger.warn(`Cannot generate borders for faction key ${factionKey} - no such faction is defined`);
+      logger.debug(`${borderEdgeLoops[factionKey].length} border loops`);
+      faction = {
+        id: factionKey,
+        name: 'Unknown Faction',
+        color: '#000',
+      };
+      // throw new Error(`An error occurred while placing border labels: A faction with the key "${factionKey}" could not be found`);
+    }
     const factionLoops = borderEdgeLoops[factionKey];
     candidatesByFaction[factionKey] = [];
 
@@ -118,35 +128,28 @@ export function placeBorderLabels(
       let selectedCandidates = selectBestCandidates(
         regularCandidates, borderLabelConfig, factionLabelGrid
       );
-      // if (factionKey === 'CS') {
-      //   console.log('outside CS', selectedCandidates.length, manualCandidates.length, 'L' +loopIndex);
-      //   console.log('loop', loop);
-      // }
-      // if (selectedCandidates.length === 0 && manualCandidates.length > 0) {
-      //   // no valid candidate has been found among the non-abbreviated ones, check if there is one
-      //   // in the label config
-      //   if (factionKey === 'CS') {
-      //     console.log('CS', selectedCandidates.length, manualCandidates.length, 'L' + loopIndex);
-      //   }
-      //   manualCandidates.forEach((candidate) => grid.placeItem({
-      //     id: candidate.id,
-      //     anchor: { ...candidate.anchorPoint },
-      //     dimensions: { width: 1, height: 1 },
-      //   }));
-      //   selectedCandidates = [...manualCandidates];
-      //   totalNumberOfPlacedManualLabels += manualCandidates.length;
       if (selectedCandidates.length === 0) {
         // if there are still no valid candidates, pick the best ones among the abbreviated versions
         selectedCandidates = selectBestCandidates(
           abbreviatedCandidates, borderLabelConfig, factionLabelGrid
         );
       }
+      // As a final step, compare the loop length and the number of placed candidates. If there are more than enough
+      // candidates, we can remove the lowest-rated ones
+      selectedCandidates.sort((a, b) => b.score - a.score);
+      while (
+        selectedCandidates.length > 1
+        && (((loop as any).length || 0) / selectedCandidates.length) < 2 * borderLabelConfig.rules.minLoopDistanceBetweenLabels
+        && selectedCandidates[selectedCandidates.length - 1].score < borderLabelConfig.rules.minGoodScore
+      ) {
+        selectedCandidates.pop();
+      }
       candidatesByFaction[factionKey].push(...selectedCandidates);
       totalNumberOfCandidates += candidates.length;
       totalNumberOfPlacedLabels += selectedCandidates.length;
     });
   });
-  console.debug(
+  logger.info(
     `Border label algorithm selected ${totalNumberOfPlacedLabels} ` +
     `out of ${totalNumberOfCandidates} candidates, ` +
     `${totalNumberOfPlacedManualLabels} of which ` +

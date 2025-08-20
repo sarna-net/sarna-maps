@@ -1,6 +1,6 @@
 import { BorderLabelCandidate } from "../types";
 import { BorderEdgeLoop } from '../../voronoi-border';
-import { BorderLabelConfig, BorderLabelVariant, RectangleGrid } from '../../../common';
+import { BorderLabelConfig, BorderLabelVariant, logger, RectangleGrid } from '../../../common';
 import { calculateCandidateLoopOverlap } from './calculate-candidate-loop-overlap';
 import { calculateCandidateLabelOverlap } from './calculate-candidate-label-overlap';
 
@@ -123,12 +123,8 @@ export function scoreLabelCandidates(
     candidate.score = overlapRating + angleRating + straightnessRating +
       borderIntersectionRating + centerednessRating + cornerScoreRating + multilineRating;
 
-    // if (candidate.id === 'candidate-WB-L4-1') {
-    //   console.log(candidate.id, 'score components', candidate.scoreComponents);
-    // }
-
     if (candidate.score < 0 || candidate.score > 1) {
-      console.warn(
+      logger.warn(
         'Border label candidate has a score that should be impossible, please check:',
         candidate.id,
         candidate.score,

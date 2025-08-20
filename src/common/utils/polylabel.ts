@@ -1,4 +1,5 @@
 import { TinyQueue } from './tinyqueue';
+import { logger } from './logger';
 
 /**
  * Adapted from https://github.com/mapbox/polylabel, as that library unfortunately does not like to be imported as a
@@ -82,7 +83,7 @@ export function polylabel(polygon: PolyLabelPolygon, precision = 1.0, debug = fa
     // update the best cell if we found a better one
     if (cell.d > bestCell.d) {
       bestCell = cell;
-      if (debug) console.log(`found best ${Math.round(1e4 * cell.d) / 1e4} after ${numProbes} probes`);
+      if (debug) logger.debug(`found best ${Math.round(1e4 * cell.d) / 1e4} after ${numProbes} probes`);
     }
   }
 
@@ -115,7 +116,7 @@ export function polylabel(polygon: PolyLabelPolygon, precision = 1.0, debug = fa
   }
 
   if (debug) {
-    console.log(`num probes: ${numProbes}\nbest distance: ${bestCell.d}`);
+    logger.debug(`num probes: ${numProbes}\nbest distance: ${bestCell.d}`);
   }
 
   return {

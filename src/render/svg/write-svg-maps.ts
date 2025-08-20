@@ -1,4 +1,13 @@
-import { BorderLabelConfig, Era, Faction, GeneratorConfig, GlyphConfig, System, SystemLabelConfig } from '../../common';
+import {
+  BorderLabelConfig,
+  Era,
+  Faction,
+  GeneratorConfig,
+  GlyphConfig,
+  logger,
+  System,
+  SystemLabelConfig
+} from '../../common';
 import { determineOutputFilePath, renderSingleMapImage } from './functions';
 import path from 'path';
 import fs from 'fs';
@@ -32,6 +41,8 @@ export async function writeSvgMaps(
 
   for (let eraI = 0; eraI < erasToIterateOver.length; eraI++) {
     const era = erasToIterateOver[eraI];
+    logger.info(`Now generating maps for era #${eraI}: "${era.year} ${era.name}" ...`);
+
     // TODO put these settings into a config file
     const poissonSettings = {
       origin: UNIVERSE_RECT.anchor,
@@ -65,7 +76,7 @@ export async function writeSvgMaps(
         generateAndSaveSingleMapImage(generatorConfig, globalConfigs, era, factionMap, borderLoops || {}, systems, system, systemIndex);
       });
     } else if (objectsToIterateOver) {
-      console.warn(`Pattern "${generatorConfig.iterateObjects?.pattern}" does not match any systems. No map images will be created.`);
+      logger.warn(`Pattern "${generatorConfig.iterateObjects?.pattern}" does not match any systems. No map images will be created.`);
     } else {
       // no objects to iterate over - create just one map image per era
       generateAndSaveSingleMapImage(generatorConfig, globalConfigs, era, factionMap, borderLoops || {}, systems);
@@ -117,8 +128,8 @@ function generateAndSaveSingleMapImage(
     systems,
     focusedSystem);
 
-  console.info(`Now attempting to write file "${filePath}"`);
+  logger.info(`Now attempting to write file "${filePath}"`);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content, { encoding: 'utf8' });
-  console.info(`Wrote file "${filePath}".`);
+  logger.info(`Wrote file "${filePath}".`);
 }

@@ -1,20 +1,20 @@
-import { Faction } from '../../common';
+import { Faction, logger } from '../../common';
 
 /**
  * Assumptions:
  * - The sheet's first row contains the headers
- * - There are columns named "id", "factionname", "color", "foundingyear" and "dissolutionyear" (case-insensitive)
+ * - There are columns named "factionid", "factionname", "color", "startyear", "endyear" and "sarnalink" (case-insensitive)
  * - The colors are recorded in RGB hex format with a prefixed # symbol (e.g. #A55EA6)
  * TODO all of these assumptions belong in a config file
  *
  * @param rows The data rows, with the rows as the first and the column/cells as the second dimension
  */
 export function parseFactions(rows: Array<Array<string>>) {
-  console.info(`Reading factions ...`);
+  logger.info(`Reading factions ...`);
   const factions: Array<Faction> = [];
 
   if (!rows || !(rows || []).length) {
-    console.info('Faction sheet empty, no factions read.');
+    logger.info('Faction sheet empty, no factions read.');
     return factions;
   }
 
@@ -29,15 +29,15 @@ export function parseFactions(rows: Array<Array<string>>) {
     const row = rows[rowIndex];
 
     // skip factions without an ID
-    if (!row[columnIndexMap['id']]) {
+    if (!row[columnIndexMap['factionid']]) {
       continue;
     }
 
     // parse faction data
-    const founding = parseInt(row[columnIndexMap ['foundingyear']] + '', 10);
-    const dissolution = parseInt(row[columnIndexMap['dissolutionyear']] + '', 10);
+    const founding = parseInt(row[columnIndexMap ['startyear']] + '', 10);
+    const dissolution = parseInt(row[columnIndexMap['endyear']] + '', 10);
     factions.push({
-      id: row[columnIndexMap['id']] + '',
+      id: row[columnIndexMap['factionid']] + '',
       name: row[columnIndexMap['factionname']] + '',
       color: row[columnIndexMap['color']] + '',
       founding: !isNaN(founding) ? founding : undefined,
@@ -45,6 +45,6 @@ export function parseFactions(rows: Array<Array<string>>) {
     });
   }
 
-  console.info(`${factions.length} factions read.`);
+  logger.info(`${factions.length} factions read.`);
   return factions;
 }

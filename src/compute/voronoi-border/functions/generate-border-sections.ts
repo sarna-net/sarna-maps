@@ -1,5 +1,5 @@
 import { VoronoiBorderEdge, BorderSection } from '../types';
-import { deepCopy, pointsAreEqual } from '../../../common';
+import { deepCopy, logger, pointsAreEqual } from '../../../common';
 import { reverseEdges } from './utils';
 
 export function generateBorderSections(borderEdges: Record<string, Array<VoronoiBorderEdge>>) {
@@ -59,7 +59,7 @@ export function generateBorderSections(borderEdges: Record<string, Array<Voronoi
         break;
       }
       if (iterations === ITERATIONS_LIMIT - 1) {
-        console.warn(`Iterations limit reached while generating border sections for "${combinedAffiliations}". Aborting.`);
+        logger.warn(`Iterations limit reached while generating border sections for "${combinedAffiliations}". Aborting.`);
       }
     }
     borderSections.push(...sections);
