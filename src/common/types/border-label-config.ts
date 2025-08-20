@@ -65,6 +65,11 @@ export interface BorderLabelConfig {
      */
     minDistanceBetweenLabels: number;
     /**
+     * The factor that is being used to influence the corner score depending on how far away the label
+     * is from a point connecting two edges. A higher factor will result in the distance playing a larger role.
+     */
+    cornerDistanceFactor: number;
+    /**
      * The minimum distance along a border loop between two neighboring labels within the same
      * faction border loop.
      */
@@ -101,6 +106,10 @@ export interface BorderLabelConfig {
      * (only applies if the border loop is not in the viewport entirely)
      */
     centeredness: number;
+    /**
+     * How important is it for the label to be not right next to two edges meeting at an acute angle?
+     */
+    cornerScore: number;
     /**
      * How important is it for the label to be separated into two lines vs. in a single line?
      * Multi line labels will be preferred over single line labels.

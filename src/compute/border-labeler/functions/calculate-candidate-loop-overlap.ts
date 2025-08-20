@@ -13,14 +13,14 @@ export function calculateCandidateLoopOverlap(candidate: BorderLabelCandidate, l
   candidate.loopOverlapDistance = 0;
 
   loop.edges.forEach((loopEdge) => {
-    let intersectionDistance = 0;
+    let intersectionDistance: number;
     const midPoint = pointAlongEdgePath([{
       p1: loopEdge.node1,
       p2: loopEdge.node2,
       p1c2: loopEdge.n1c2,
       p2c1: loopEdge.n2c1,
       length: loopEdge.length,
-    }], loopEdge.length * 0.5);
+    }], loopEdge.length * 0.5)?.point;
     // if (candidate.id === 'candidate-OA-L0-58') {
     //   console.log(candidate.id, 'mid point', midPoint);
     // }

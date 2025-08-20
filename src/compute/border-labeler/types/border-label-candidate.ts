@@ -40,6 +40,13 @@ export interface BorderLabelCandidate {
    */
   borderSectionStraightness: number;
   /**
+   * Measure of how much the candidate lies in a "corner", i.e. a point where to edges meet, with the score
+   * being lower if
+   *  a) the candidate is close to such a point and
+   *  b) if the edges are at an acute or 90° angle to each other
+   */
+  cornerScore: number;
+  /**
    * The label variant influences the label's score
    */
   labelVariant: BorderLabelVariant;

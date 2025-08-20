@@ -4,17 +4,19 @@ rules:
   labelDistanceToBorder: 1.25
   maxLabelOverlapArea: 24
   borderIntersectionTolerance: 0.25
-  maxBorderIntersectionDistance: 3
+  maxBorderIntersectionDistance: 2.5
   minDistanceBetweenLabels: 40
   minLoopDistanceBetweenLabels: 55
+  cornerDistanceFactor: .05
   minViableScore: .6
 
 scoreWeights:
-  labelOverlap: 100
+  labelOverlap: 120
   angle: 10
   borderIntersection: 50
-  centeredness: 15
-  multiline: 10
+  centeredness: 0
+  cornerScore: 50
+  multiline: 15
   straightness: 40
 
 manualConfigs:
