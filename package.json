@@ -22,8 +22,7 @@
     "start": "ts-node src/main.ts",
     "test": "vitest",
     "lint": "eslint --ext .ts .",
-    "build:validation-interfaces": "rm -f src/common/types/validatable/*-ti.ts & ts-interface-builder src/common/types/validatable/*.ts",
-    "validation-test": "ts-node src/validation-test.ts"
+    "build:validation-interfaces": "rm -f src/common/types/validatable/*-ti.ts & ts-interface-builder src/common/types/validatable/*.ts"
   },
   "dependencies": {
     "d3-delaunay": "^6.0.4",

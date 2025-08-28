@@ -1,15 +1,22 @@
+import path from 'path';
 import {
-  BorderLabelConfig, ConnectionLine,
+  BorderLabelConfig,
   Dimensions2d,
   Era, Faction,
   GeneratorConfigMapLayer,
-  GlyphConfig,
+  GlyphConfig, logger,
   Point2d, RectangleGrid,
   System,
   SystemLabelConfig, TextTemplate
 } from '../../../common';
 import { restrictSystemsToViewbox } from '../../../compute/restrict-objects-to-viewbox';
-import { BorderEdgeLoop, placeBorderLabels, placeSystemLabels } from '../../../compute';
+import {
+  BorderEdgeLoop,
+  placeBorderLabels,
+  placeSystemLabels,
+  VoronoiResult,
+  VoronoiResultHierarchyLevel
+} from '../../../compute';
 import {
   restrictBorderLoopsToViewbox
 } from '../../../compute/restrict-objects-to-viewbox/functions/restrict-border-loops-to-viewbox';
@@ -17,11 +24,12 @@ import { renderBorderLoops } from './render-border-loops';
 import { renderSystems } from './render-systems';
 import { renderSystemLabels } from './render-system-labels';
 import { renderBorderLabels } from './render-border-labels';
-import path from 'path';
 import { renderJumpRings } from './render-jump-rings';
 import { renderDirectionalIndicators } from './render-directional-indicators';
 import { generateConnectionLines } from '../../../compute/connection-lines';
 import { renderConnectionLines } from './render-connection-lines';
+import { renderSalients } from './render-salients';
+import { renderRegionalBorders } from './render-regional-borders';
 
 /**
  * Render a single configured map section
@@ -32,9 +40,11 @@ import { renderConnectionLines } from './render-connection-lines';
  * @param globalConfigs The global configuration objects
  * @param era The selected era for this image
  * @param factionMap The map of factions (factionId -> faction object)
- * @param borderLoops The map of all border loops (factionId -> list of border loops for this faction)
+ * @param affiliationLevelSections The border information in an array (by hierarchy level)
+ // * @param borderLoops Array with hierarchy levels of maps (by faction / affiliation key) of all border loops
  * @param systems The list of all systems
  * @param focusedSystem The focused system for this map section, if any
+ * @param debugObjects Objects used for virtual debugging
  */
 export function renderMapLayer(
   theme: 'light' | 'dark',
@@ -47,9 +57,11 @@ export function renderMapLayer(
   },
   era: Era,
   factionMap: Record<string, Faction>,
-  borderLoops: Record<string, Array<BorderEdgeLoop>>,
+  affiliationLevelSections: Array<VoronoiResultHierarchyLevel>,
+  // borderLoops: Array<Record<string, Array<BorderEdgeLoop>>>,
   systems: Array<System>,
   focusedSystem?: System,
+  debugObjects?: Partial<VoronoiResult>,
 ) {
   // PHASE 1: PREPARE ALL NECESSARY DATA
   const pixelDimensions = mapLayerConfig.dimensions || imageDimensions;
@@ -61,11 +73,6 @@ export function renderMapLayer(
     mapLayerConfig.focus?.point === 'system' && focusedSystem
       ? { x: focusedSystem.x, y: focusedSystem.y }
       : (mapLayerConfig.focus?.point as Point2d) || { x: 0, y: 0 };
-  // add configured delta
-  // if (mapLayerConfig.focus?.delta) {
-  //   focusPoint.x += mapLayerConfig.focus.delta.x;
-  //   focusPoint.y -= mapLayerConfig.focus.delta.y;
-  // }
 
   // calculate the visible map section
   const visibleViewRect = {
@@ -110,22 +117,35 @@ export function renderMapLayer(
       mapLayerConfig.elements.connectionLines.maximumDistance
     ) : [];
 
-  // Limit border loops to the visible section of the map
-  const boundedLoops = !!mapLayerConfig.elements.factions
-    ? restrictBorderLoopsToViewbox(
-        borderLoops || {},
-        visibleViewRect,
-        15, // TODO put this in a config file
-      )
-    : {};
+  // Limit internal border sections to the visible section of the map
+  // TODO implement simple bounding algorithm
+  const boundedInternalBorders = !!mapLayerConfig.elements.borders
+    ? affiliationLevelSections.map((levelSection) =>
+      levelSection.internalBorderSections || []
+    )
+    : [];
 
-  // Place border labels
-  const borderLabels = mapLayerConfig.elements.borderLabels
+  // Limit border loops to the visible section of the map
+  const boundedBorderLoops = !!mapLayerConfig.elements.borders
+    ? affiliationLevelSections.map((levelSection) =>
+      restrictBorderLoopsToViewbox(levelSection.borderLoops || {}, visibleViewRect, 15)
+    )
+    : [];
+    //
+    // restrictBorderLoopsToViewbox(
+    //     affiliationLevelSections.length ? affiliationLevelSections[0].borderLoops || {} : {}, // TODO differentiate hierarchy levels
+    //     visibleViewRect,
+    //     15, // TODO put this in a config file
+    //   )
+    // : {};
+
+  // Place border labels TODO enable for lower hierarchy levels
+  const borderLabels = (mapLayerConfig.elements.borders?.length || 0) >= 1
     ? placeBorderLabels(
         visibleViewRect,
         era.index,
         factionMap,
-        borderLoops || {},
+        affiliationLevelSections.length ? affiliationLevelSections[0].borderLoops || {} : {},
         labelGrid,
         globalConfigs.glyphConfig,
         globalConfigs.borderLabelConfig,
@@ -135,13 +155,49 @@ export function renderMapLayer(
   // PHASE 2: RENDER ELEMENTS
   const layerCssClass = mapLayerConfig.name.replace(/\s+/g, '-');
 
-  const { defs: factionDefs, css: factionCss, markup: factionMarkup } = mapLayerConfig.elements.factions
-    ? renderBorderLoops(boundedLoops, factionMap, theme, mapLayerConfig.elements.factions.curveBorderEdges, layerCssClass)
-    : { defs: '', css: '', markup: '' };
+  // TODO enable for lower hierarchy levels, specifically figure out how to manage fill colors
+  let factionDefs = '';
+  let factionCss = '';
+  let factionMarkup = '';
+  mapLayerConfig.elements.borders?.forEach((bordersConfig, levelIndex) => {
+    if (bordersConfig.display === 'factions') {
+      if (boundedBorderLoops.length < levelIndex + 1) {
+        logger.warn(`Cannot generate output for map layer "${mapLayerConfig.name}": No bounded border loops for level ${levelIndex}`);
+        return;
+      }
+      const { defs, css, markup } = renderBorderLoops(
+        boundedBorderLoops[levelIndex],
+        factionMap, // controls fill colors
+        theme,
+        bordersConfig.curveBorderEdges,
+        layerCssClass
+      );
+      factionDefs += defs + '\n';
+      factionCss += css + '\n';
+      factionMarkup += markup + '\n';
+    } else if (bordersConfig.display === 'regions') {
+      const { css, markup } = renderRegionalBorders(
+        // affiliationLevelSections[levelIndex].borderSections,
+        levelIndex,
+        boundedInternalBorders[levelIndex],
+        factionMap,
+        theme,
+        bordersConfig.curveBorderEdges,
+      );
+      factionCss += css + '\n';
+      factionMarkup += markup + '\n';
+    }
+  });
+  // const { defs: factionDefs, css: factionCss, markup: factionMarkup } =
+  //   mapLayerConfig.elements.borders?.length && mapLayerConfig.elements.borders[0].display
+  //     ? renderBorderLoops(boundedBorderLoops, factionMap, theme, mapLayerConfig.elements.borders[0].curveBorderEdges, layerCssClass)
+  //     : { defs: '', css: '', markup: '' };
 
-  const { defs: borderLabelDefs, css: borderLabelCss, markup: borderLabelMarkup } = mapLayerConfig.elements.borderLabels
-    ? renderBorderLabels(borderLabels, factionMap, theme, layerCssClass, zoomFactor)
-    : { defs: '', css: '', markup: '' };
+  // TODO enable for lower hierarchy levels
+  const { defs: borderLabelDefs, css: borderLabelCss, markup: borderLabelMarkup } =
+    mapLayerConfig.elements.borders?.length && mapLayerConfig.elements.borders[0].borderLabels
+      ? renderBorderLabels(borderLabels, factionMap, theme, layerCssClass, zoomFactor)
+      : { defs: '', css: '', markup: '' };
 
   const { defs: jumpRingDefs, css: jumpRingCss, markup: jumpRingMarkup } = mapLayerConfig.elements.jumpRings
     ? renderJumpRings(mapLayerConfig, focusPoint, theme, layerCssClass)
@@ -169,6 +225,26 @@ export function renderMapLayer(
       layerCssClass,
     );
 
+  let debugDefs = '';
+  let debugCss = '';
+  let debugMarkup = '';
+  if (debugObjects) {
+    const { css: salientsCss, markup: salientsMarkup } =
+      renderSalients(
+        debugObjects.salientPoints || [],
+        theme,
+      );
+    const regionalBorderSectionsCss = '';
+    const regionalBorderSectionsMarkup = '';
+    // const { css: regionalBorderSectionsCss, markup: regionalBorderSectionsMarkup } =
+    //   renderBorderSections(
+    //     debugObjects.regionalBorderSections || [],
+    //     theme,
+    //   );
+    debugCss = [salientsCss, regionalBorderSectionsCss].join('\n');
+    debugMarkup = [salientsMarkup, regionalBorderSectionsMarkup].join('\n');
+  }
+
   // PHASE 3: Assemble and return result
   const templatePath = path.join(__dirname, '../templates/', theme);
   const layerTemplate = new TextTemplate('map-section.svg.tpl', templatePath);
@@ -193,12 +269,13 @@ export function renderMapLayer(
     systemMarkup,
     systemLabelMarkup,
     directionalIndicatorsMarkup,
+    debugMarkup,
   ]
     .filter((code) => !!code.trim())
     .join('\n');
   if (markup) {
     return {
-      defs: [mapSectionDef, factionDefs, borderLabelDefs, jumpRingDefs, systemDefs]
+      defs: [mapSectionDef, factionDefs, borderLabelDefs, jumpRingDefs, systemDefs, debugDefs]
         .filter((code) => !!code.trim())
         .join('\n'),
       css: [
@@ -210,6 +287,7 @@ export function renderMapLayer(
         connectionLineCss,
         systemLabelCss,
         directionalIndicatorsCss,
+        debugCss,
       ]
         .filter((code) => !!code.trim())
         .join('\n'),

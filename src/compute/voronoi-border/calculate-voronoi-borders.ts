@@ -1,5 +1,11 @@
 import { PointWithAffiliation } from '../types';
-import { BorderDelaunayVertex, BorderEdgeLoop, VoronoiBorderEdge, VoronoiResult } from './types';
+import {
+  BorderDelaunayVertex,
+  BorderEdgeLoop, BorderSection,
+  VoronoiBorderEdge,
+  VoronoiResult,
+  VoronoiResultHierarchyLevel
+} from './types';
 import {
   Era,
   System,
@@ -9,7 +15,7 @@ import {
   generateVoronoiNodes,
   PoissonDisc,
   PoissonSettings,
-  VoronoiCellMode,
+  VoronoiCellMode, logger,
 } from '../../common';
 import {
   generateBorderSections,
@@ -22,6 +28,7 @@ import {
   generateBorderLoops,
   separateBorderLoops,
   calculateSectionLength,
+  connectInternalBorderSections,
 } from './functions';
 import { EMPTY_FACTION } from '../constants';
 
@@ -32,12 +39,12 @@ export async function calculateVoronoiBorders(
   systems: Array<System>,
   era: Era,
   poissonSettings: Partial<PoissonSettings> = {},
+  affiliationLevels: number,
   borderSeparation = 0.5,
   controlPointTension = 0.35,
   cellMode: VoronoiCellMode = VoronoiCellMode.Circumcenters,
 ): Promise<VoronoiResult> {
   const Delaunator = (await dynamicImport('delaunator')).default;
-
   // generate noise points for anything outside the actual borders
   const defaultPoissonPoint: PointWithAffiliation = {
     id: 'poisson-point',
@@ -47,10 +54,23 @@ export async function calculateVoronoiBorders(
   };
   const poissonDisc = new PoissonDisc<PointWithAffiliation>(poissonSettings, defaultPoissonPoint).run();
 
+  // If no affiliation levels are required, do not perform any calculations
+  if (affiliationLevels <= 0) {
+    return {
+      poissonDisc,
+      delaunayVertices: [],
+      delaunayTriangles: [],
+      voronoiNodes: [],
+      affiliationLevelSections: [],
+      salientPoints: [],
+    };
+  }
+
   // add a special reserved point next to Sol, because the distance to Rigil Kentarus is so small
   const terra = systems.find((system) => system.name === 'Sol');
-  const solAffiliation = extractBorderStateAffiliation(terra?.eraAffiliations[era.index] || '');
+  const solAffiliation = terra?.eraAffiliations[era.index] || '';
 
+  // voronoi calculation for all affiliation levels
   let voronoiResult: VoronoiResult = performVoronoiCalculations(
     Delaunator,
     cellMode,
@@ -58,12 +78,16 @@ export async function calculateVoronoiBorders(
     systems,
     [],
     era,
-    solAffiliation
+    affiliationLevels,
+    solAffiliation,
   );
 
-  const simpleBorderLoops = generateSimpleBorderLoops(voronoiResult.borderSections);
-
-  const salientPoints = connectSalients(simpleBorderLoops);
+  // figure out salients (top level only)
+  const simpleBorderLoops = generateSimpleBorderLoops(
+    voronoiResult.affiliationLevelSections[0].borderSections,
+    voronoiResult.delaunayVertices,
+  );
+  const salientPoints = connectSalients(simpleBorderLoops, voronoiResult.delaunayVertices);
   if (salientPoints.length) {
     // re-run the voronoi calculations with the additional salient points
     voronoiResult = performVoronoiCalculations(
@@ -73,55 +97,89 @@ export async function calculateVoronoiBorders(
       systems,
       salientPoints,
       era,
-      solAffiliation
+      affiliationLevels,
+      solAffiliation,
     );
   }
-  // keep a copy of the original border edges array
-  voronoiResult.unmodifiedBorderEdges = deepCopy(voronoiResult.borderEdges);
 
-  // merge smaller border sections into larger ones
-  mergeBorderSections(voronoiResult.borderSections);
+  // entity borders map, by hierarchy level
+  const borderLoops: Array<Record<string, Array<BorderEdgeLoop>>> = [];
 
-  // simplify border sections by removing short edges and straightening the edge flow
-  simplifyBorderSections(
-    voronoiResult.borderSections,
-    voronoiResult.delaunayVertices,
-    voronoiResult.threeWayNodes
-  );
+  // go through each of the hierarchy levels
+  voronoiResult.affiliationLevelSections.forEach((hierarchyLevel, hierarchyLevelIndex) => {
+    logger.debug('Calculating voronoi borders: Now working on hierarchy level', hierarchyLevelIndex);
+    // keep a copy of the original border edges array
+    hierarchyLevel.unmodifiedBorderEdges = deepCopy(hierarchyLevel.borderEdges);
 
-  // create a map with key = edge id
-  const edgeMap: Record<string, VoronoiBorderEdge> = {};
-  voronoiResult.borderSections.forEach((borderSection) => {
-    borderSection.edges.forEach((edge) => {
-      edgeMap[edge.id] = edge;
+    // merge smaller border sections into larger ones
+    mergeBorderSections(hierarchyLevel.borderSections, hierarchyLevelIndex);
+    // simplify border sections by removing short edges and straightening the edge flow
+    // TODO differentiate amount of simplification by hierarchy level?
+    simplifyBorderSections(
+      hierarchyLevel.borderSections,
+      voronoiResult.delaunayVertices,
+      hierarchyLevel.threeWayNodes
+    );
+
+    // create a map with key = edge id
+    const edgeMap: Record<string, VoronoiBorderEdge> = {};
+    hierarchyLevel.borderSections.forEach((borderSection) => {
+      borderSection.edges.forEach((edge) => edgeMap[edge.id] = edge)
+    })
+
+    const borderSectionsForLoops = deepCopy(hierarchyLevel.borderSections);
+
+    // Match sections to parent loop
+    if (hierarchyLevelIndex === 0) {
+      hierarchyLevel.internalBorderSections = [];
+    } else {
+      hierarchyLevel.internalBorderSections = hierarchyLevel.borderSections.filter((section) => {
+        const parentAffiliation1 = section.affiliation1.split(',').slice(0, hierarchyLevelIndex).join(',');
+        const parentAffiliation2 = section.affiliation2.split(',').slice(0, hierarchyLevelIndex).join(',');
+        return parentAffiliation1 === parentAffiliation2;
+      });
+      // logger.debug(Object.values(hierarchyLevel.threeWayNodes));
+      connectInternalBorderSections(
+        hierarchyLevelIndex,
+        hierarchyLevel.internalBorderSections,
+        voronoiResult.affiliationLevelSections.map(
+          (section) => section.borderLoops || {}
+        ),
+      );
+    }
+
+    // generate control points for each border section separately
+    hierarchyLevel.borderSections.forEach((borderSection) => {
+      generateEdgeControlPointsForSection(borderSection, hierarchyLevel.threeWayNodes, edgeMap);
+    });
+    borderSectionsForLoops.forEach((borderSection) => {
+      generateEdgeControlPointsForSection(borderSection, hierarchyLevel.threeWayNodes, edgeMap);
+    });
+
+    // create edge loops for each entity in this hierarchy level
+    hierarchyLevel.borderLoops = generateBorderLoops(borderSectionsForLoops, voronoiResult.delaunayVertices);
+
+    // if the borders in this hierarchy level should be separated, do so
+    // TODO only do this if the borders need to be separated
+    separateBorderLoops(hierarchyLevel.borderLoops, voronoiResult.delaunayVertices);
+
+    Object.keys(hierarchyLevel.borderLoops).forEach((affiliation) => {
+      // we do not need additional higher-level loops, those can be filtered out
+      if (affiliation.split(',').length < hierarchyLevelIndex + 1) {
+        delete hierarchyLevel.borderLoops![affiliation];
+        return;
+      }
+      hierarchyLevel.borderLoops![affiliation].forEach((loop) => {
+        calculateSectionLength(loop);
+        (loop as BorderEdgeLoop).isInnerLoop = loop.innerAffiliation !== affiliation;
+      });
     });
   });
-
-  // generate control points for each border section separately
-  voronoiResult.borderSections.forEach((borderSection) => {
-    generateEdgeControlPointsForSection(borderSection, voronoiResult.threeWayNodes, edgeMap);
-  });
-
-  // create edge loops for each faction
-  const borderLoops = generateBorderLoops(voronoiResult.borderSections, voronoiResult.delaunayVertices);
-
-  // separate edge loop borders
-  separateBorderLoops(borderLoops, voronoiResult.delaunayVertices);
-
-  Object.keys(borderLoops).forEach((factionId) => {
-    const loops = borderLoops[factionId];
-    loops.forEach((loop) => {
-      calculateSectionLength(loop);
-      (loop as BorderEdgeLoop).isInnerLoop = loop.innerAffiliation !== factionId;
-    });
-  });
-
   // processBorderLoops(borderLoops, vertices, borderSeparation, controlPointTension);
 
   return {
     ...voronoiResult,
     salientPoints,
-    borderLoops,
   };
 }
 
@@ -138,6 +196,7 @@ export async function calculateVoronoiBorders(
  * @param systems The list of systems
  * @param salientPoints The list of salient points
  * @param era The era to use
+ * @param affiliationLevels The number of hierarchy levels to generate border sections for
  * @param solAffiliation The affiliation of the sol system in the given era
  */
 function performVoronoiCalculations(
@@ -147,23 +206,30 @@ function performVoronoiCalculations(
   systems: Array<System>,
   salientPoints: Array<PointWithAffiliation>,
   era: Era,
-  solAffiliation: string
+  affiliationLevels: number,
+  solAffiliation: string,
 ): VoronoiResult {
   poissonDisc.replaceReservedPoints([
     ...systems.map((system) => ({
       id: system.id,
       x: system.x,
       y: system.y,
-      affiliation: extractBorderStateAffiliation(system.eraAffiliations[era.index]),
-    })).filter((system) => !IRRELEVANT_AFFILIATIONS.includes(system.affiliation)),
+      affiliation: system.eraAffiliations[era.index],
+      //affiliation: extractBorderStateAffiliation(system.eraAffiliations[era.index], undefined, 'ignore', 2),
+    })).filter((system) => !IRRELEVANT_AFFILIATIONS.includes(
+      extractBorderStateAffiliation(system.affiliation)
+    )),
     ...salientPoints,
     {id: 'sol-buffer-point-1', x: 1, y: 3, affiliation: solAffiliation},
     {id: 'sol-buffer-point-2', x: 2.5, y: -1.25, affiliation: solAffiliation},
   ]);
 
   // filter out points that are irrelevant for drawing the borders, then add an empty adjacency list to each relevant point
+  // (top-level affiliations only)
   const delaunayVertices: Array<BorderDelaunayVertex> = poissonDisc.aggregatedPoints
-    .filter((poissonPoint) =>  !IRRELEVANT_AFFILIATIONS.includes(poissonPoint.affiliation))
+    .filter((poissonPoint) =>  !IRRELEVANT_AFFILIATIONS.includes(
+      extractBorderStateAffiliation(poissonPoint.affiliation)
+    ))
     .map((poissonPoint) => ({ ...poissonPoint, adjacentTriIndices: [] }));
   // run delaunay triangulation (using the delaunator library)
   const delaunay = Delaunator.from(delaunayVertices.map((vertex) => [vertex.x, vertex.y]));
@@ -182,21 +248,30 @@ function performVoronoiCalculations(
     ...node,
     borderAffiliations: {},
   }));
-  // process the voronoi nodes and generate border edges
-  const { borderEdges, threeWayNodes } = generateBorderEdges(
-    voronoiNodes,
-    delaunayVertices,
-  );
-  // create border sections
-  const borderSections = generateBorderSections(borderEdges);
+  // for each level of borders that needs to be displayed, generate border edges and assemble them to sections
+  const affiliationLevelSections: Array<VoronoiResultHierarchyLevel> = [];
+  for (let levels = 0; levels < affiliationLevels; levels++) {
+    // process the voronoi nodes and generate border edges for the hierarchy level entities (e.g. factions)
+    const { borderEdges, threeWayNodes } = generateBorderEdges(
+      voronoiNodes,
+      delaunayVertices,
+      levels + 1,
+    );
+    // using the border edges, create border sections
+    const borderSections = generateBorderSections(borderEdges);
+    // add the section objects for the current affiliation hierarchy level
+    affiliationLevelSections.push({
+      borderEdges,
+      threeWayNodes,
+      borderSections,
+    });
+  }
 
   return {
     delaunayVertices,
     delaunayTriangles,
-    borderEdges,
-    borderSections,
     poissonDisc,
-    threeWayNodes,
     voronoiNodes,
+    affiliationLevelSections,
   };
 }

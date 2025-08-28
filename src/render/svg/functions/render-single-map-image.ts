@@ -10,8 +10,18 @@ import {
 import path from 'path';
 import { renderMapLayer } from './render-map-layer';
 import { renderMapOverlay } from './render-map-overlay';
-import { BorderEdgeLoop } from '../../../compute';
+import { BorderEdgeLoop, SalientPoint, VoronoiResult, VoronoiResultHierarchyLevel } from '../../../compute';
 
+/**
+ * @param generatorConfig
+ * @param globalConfigs
+ * @param era
+ * @param factionMap
+ * @param affiliationLevelSections
+ * @param systems
+ * @param focusedSystem
+ * @param debugObjects Objects used for virtual debugging
+ */
 export function renderSingleMapImage(
   generatorConfig: GeneratorConfig,
   globalConfigs: {
@@ -21,9 +31,10 @@ export function renderSingleMapImage(
   },
   era: Era,
   factionMap: Record<string, Faction>,
-  borderLoops: Record<string, Array<BorderEdgeLoop>>,
+  affiliationLevelSections: Array<VoronoiResultHierarchyLevel>,
   systems: Array<System>,
   focusedSystem?: System,
+  debugObjects?: Partial<VoronoiResult>,
 ) {
   const theme = generatorConfig.theme || 'light';
   const templatePath = path.join(__dirname, '../templates/', theme);
@@ -40,9 +51,10 @@ export function renderSingleMapImage(
         globalConfigs,
         era,
         factionMap,
-        borderLoops,
+        affiliationLevelSections,
         systems,
         focusedSystem,
+        !!generatorConfig.debugMode ? debugObjects : undefined,
       ),
     ),
     ...(generatorConfig.overlays || []).map((overlay) =>

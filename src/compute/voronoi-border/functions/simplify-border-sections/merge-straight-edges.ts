@@ -22,7 +22,7 @@ export function mergeStraightEdges(
   minCloseness = 4.2,
   minClosenessRelation = 0.075, //0.11,
   alwaysMergeDistance = 3,
-  maxDistanceFactor = 0.05,
+  maxDistanceFactor = 0.045,
 ) {
   // max distance factor: longer edges can be merged more easily
   let numberOfRemovedEdges = 0;

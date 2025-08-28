@@ -1,24 +1,25 @@
-import { BorderSection } from '../types';
+import { BorderDelaunayVertex, BorderSection } from '../types';
 import { EMPTY_FACTION, INDEPENDENT } from '../../constants';
-import { deepCopy, logger, pointsAreEqual } from '../../../common';
+import { deepCopy, logger, pointIsLeftOfLine, pointsAreEqual } from '../../../common';
 import { reverseEdges } from './utils';
+import { ensureEdgeLoopClockwiseOrder } from './ensure-edge-loop-clockwise-order';
 
-export function generateSimpleBorderLoops(sections: Array<BorderSection>) {
+export function generateSimpleBorderLoops(sections: Array<BorderSection>, vertices: Array<BorderDelaunayVertex>) {
   const factionLoops: Record<string, Array<BorderSection>> = {
     [EMPTY_FACTION]: [],
     [INDEPENDENT]: [],
   };
   for (let i = 0; i < sections.length; i++) {
     if (!factionLoops[sections[i].affiliation1]) {
-      factionLoops[sections[i].affiliation1] = createFactionLoops(sections[i].affiliation1, sections);
+      factionLoops[sections[i].affiliation1] = createFactionLoops(sections[i].affiliation1, sections, vertices);
     } else if (!factionLoops[sections[i].affiliation2]) {
-      factionLoops[sections[i].affiliation2] = createFactionLoops(sections[i].affiliation2, sections);
+      factionLoops[sections[i].affiliation2] = createFactionLoops(sections[i].affiliation2, sections, vertices);
     }
   }
   return factionLoops;
 }
 
-function createFactionLoops(faction: string, sections: Array<BorderSection>) {
+function createFactionLoops(faction: string, sections: Array<BorderSection>, vertices: Array<BorderDelaunayVertex>) {
   // search sections for only this faction
   const factionSections = deepCopy(sections).filter(
     (section) => section.affiliation1 === faction || section.affiliation2 === faction,
@@ -72,10 +73,38 @@ function createFactionLoops(faction: string, sections: Array<BorderSection>) {
       // logger.debug(factionSections[0].edges[0], factionSections[0].edges[1] );
     }
   }
-  loops.forEach(
-    (section) => section.length = section.edges
+  // calculate loops length and sort
+  loops.forEach((loop) => {
+    loop.length = loop.edges
       .map((edge) => edge.length)
-      .reduce((sum, current) => sum + current));
+      .reduce((sum, current) => sum + current);
+
+    loop.edges.forEach((edge, edgeIndex) => {
+      // At this point, we should have a current edge and the edge loop that it belongs to.
+      // Check if the current edge's node2 point is the leftmost, bottom point in its loop.
+      // If it is, mark this edge as the loop's "minimum" edge. This gives us an edge that is
+      // guaranteed to be on the loop's convex hull, thus making it a possible pivot point
+      // to check the loop's orientation (CW / CCW).
+      if (loop.minEdgeIdx < 0 || edge.node2.x  < loop.edges[loop.minEdgeIdx].node2.x) {
+        loop.minEdgeIdx = edgeIndex;
+      } else if(
+        edge.node2.x === loop.edges[loop.minEdgeIdx].node2.x
+        && edge.node2.y < loop.edges[loop.minEdgeIdx].node2.y
+      ) {
+        loop.minEdgeIdx = edgeIndex;
+      }
+      // find the affiliation to the left and right of the current edge
+      if (pointIsLeftOfLine(vertices[edge.vertex1Idx], edge.node1, edge.node2)) {
+        edge.leftAffiliation = edge.affiliation1;
+        edge.rightAffiliation = edge.affiliation2;
+      } else {
+        edge.leftAffiliation = edge.affiliation2;
+        edge.rightAffiliation = edge.affiliation1;
+      }
+    });
+
+    ensureEdgeLoopClockwiseOrder(loop);
+  });
   loops.sort((a, b) => b.length - a.length);
   return loops;
 }

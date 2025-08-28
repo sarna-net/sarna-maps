@@ -15,4 +15,8 @@ export interface BorderSection {
   minEdgeIdx: number;
   innerAffiliation?: string;
   outerAffiliation?: string;
+  /**
+   * Regional borders, by next-level affiliation (this is a hierarchical object)
+   */
+  children?: Record<string, Array<BorderSection>>;
 }

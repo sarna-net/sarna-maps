@@ -59,19 +59,20 @@ export interface GeneratorConfigMapLayer {
      */
     systemLabels?: boolean;
     /**
-     * Display faction areas and faction borders
+     * Display areas and borders at different hierarchy levels
      */
-    factions?: {
+    borders?: {
+      display?: 'factions' | 'regions' | 'none';
       /**
        * Only straight border edges (false / empty) or bezier curves (true)
        */
       curveBorderEdges?: boolean;
-    }
-    /**
-     * Display border labels
-     * Detailed settings see border-labels.config.yaml
-     */
-    borderLabels?: boolean;
+      /**
+       * Whether to display border labels for this hierarchy level
+       * For more detailed border labeling algorithm settings see config/global/border-labels.config.yaml
+       */
+      borderLabels?: boolean;
+    }[];
     /**
      * Draw connection lines (jump lines)
      */

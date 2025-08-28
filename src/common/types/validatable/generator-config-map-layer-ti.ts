@@ -31,10 +31,11 @@ export const GeneratorConfigMapLayer = t.iface([], {
   "elements": t.iface([], {
     "systems": t.opt("boolean"),
     "systemLabels": t.opt("boolean"),
-    "factions": t.opt(t.iface([], {
+    "borders": t.opt(t.array(t.iface([], {
+      "display": t.opt(t.union(t.lit('factions'), t.lit('regions'), t.lit('none'))),
       "curveBorderEdges": t.opt("boolean"),
-    })),
-    "borderLabels": t.opt("boolean"),
+      "borderLabels": t.opt("boolean"),
+    }))),
     "connectionLines": t.opt(t.iface([], {
       "minimumDistance": t.opt("number"),
       "maximumDistance": t.opt("number"),

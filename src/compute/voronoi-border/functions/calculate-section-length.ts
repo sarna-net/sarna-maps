@@ -1,4 +1,4 @@
-import { BorderSection } from '../types';
+import { BorderEdgeLoop, BorderSection } from '../types';
 import { edgeLength } from '../../../common';
 
 /**
@@ -6,7 +6,7 @@ import { edgeLength } from '../../../common';
  *
  * @param section The border edge section
  */
-export function calculateSectionLength(section: BorderSection) {
+export function calculateSectionLength(section: BorderSection | BorderEdgeLoop) {
   section.length = 0;
   section.edges.forEach((edge) => {
     edge.length = edgeLength({
@@ -15,6 +15,6 @@ export function calculateSectionLength(section: BorderSection) {
       p1c2: edge.n1c2,
       p2c1: edge.n2c1,
     });
-    section.length += edge.length;
+    section.length = (section.length || 0) + edge.length;
   });
 }

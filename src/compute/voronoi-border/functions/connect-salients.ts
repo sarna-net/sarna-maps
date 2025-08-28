@@ -1,6 +1,13 @@
-import { VoronoiBorderEdge, BorderSection, VoronoiBorderNode } from '../types';
-import { distance, nearestPointOnLineSegment, Point2d } from '../../../common';
+import { VoronoiBorderEdge, BorderSection, VoronoiBorderNode, BorderDelaunayVertex } from '../types';
+import { DelaunayVertex, distance, nearestPointOnLineSegment, Point2d, pointOnLine } from '../../../common';
 import { SalientPoint } from '../../types';
+import { EMPTY_FACTION } from '../../constants';
+
+// TODO put these values in a config file
+// The distance of the merge points along a salient path
+const MERGE_POINT_STEP = 2;
+// The maximum distance for salients to be drawn
+const MAX_DISTANCE = 27.5;
 
 /**
  * A salient as understood here is a thin stretch of territory ranging into
@@ -17,21 +24,42 @@ import { SalientPoint } from '../../types';
  * - To connect the two sections, draw a "tunnel" of edges and ensure it does not collide with any systems with a
  *    different affiliation
  */
-export function connectSalients(loops: Record<string, Array<BorderSection>>) {
+export function connectSalients(loops: Record<string, Array<BorderSection>>, vertices: Array<BorderDelaunayVertex>) {
   const mergePoints: Array<SalientPoint> = [];
 
   for (let faction in loops) {
     // run the salient logic for each loop that is not the largest for that faction
     for (let i = 1; i < loops[faction].length; i++) {
+      if (loops[faction][i].innerAffiliation !== EMPTY_FACTION && loops[faction][i].innerAffiliation !== faction) {
+        // skip any islands for different factions - they will be handled by that faction's logic
+        continue;
+      }
       const closestEdges = findCloseSectionEdges(loops[faction][i], loops[faction]);
       if (closestEdges.length > 0) {
-        mergePoints.push({
-          id: `salient-merge-point-${faction}-${i}`,
-          x: 0.5 * (closestEdges[0].closestIslandNode.x + closestEdges[0].closestSectionPoint.x),
-          y: 0.5 * (closestEdges[0].closestIslandNode.y + closestEdges[0].closestSectionPoint.y),
-          affiliation: faction,
-          info: `from loop ${i}`
-        });
+        // find the full affiliation for the salient
+        const fullAffiliation = [
+          vertices[closestEdges[0].closestIslandNode.vertex1Idx].affiliation,
+          vertices[closestEdges[0].closestIslandNode.vertex2Idx].affiliation,
+          vertices[closestEdges[0].closestIslandNode.vertex3Idx].affiliation,
+        ].find((affiliation) => (affiliation === faction) || affiliation.startsWith(faction));
+        // generate merge points for the salient
+        const salientDistance = distance(closestEdges[0].closestIslandNode, closestEdges[0].closestSectionPoint);
+        if (salientDistance < MERGE_POINT_STEP) {
+          mergePoints.push({
+            id: `salient-merge-point-${faction}-${i}-0-min`,
+            affiliation: fullAffiliation || faction,
+            info: `closest edge 0 from loop ${i} with faction ${faction} and fullAffiliation ${fullAffiliation}`,
+            ...pointOnLine(closestEdges[0].closestIslandNode, closestEdges[0].closestSectionPoint, salientDistance * 0.5),
+          });
+        }
+        for (let mergePointDistance = MERGE_POINT_STEP; mergePointDistance < salientDistance; mergePointDistance += MERGE_POINT_STEP) {
+          mergePoints.push({
+            id: `salient-merge-point-${faction}-${i}-0-${mergePointDistance}`,
+            affiliation: fullAffiliation || faction,
+            info: `closest edge 0 from loop ${i} with faction ${faction} and fullAffiliation ${fullAffiliation}`,
+            ...pointOnLine(closestEdges[0].closestIslandNode, closestEdges[0].closestSectionPoint, mergePointDistance),
+          });
+        }
       }
     }
   }
@@ -39,7 +67,6 @@ export function connectSalients(loops: Record<string, Array<BorderSection>>) {
 }
 
 function findCloseSectionEdges(island: BorderSection, sections: Array<BorderSection>) {
-  const MAX_DISTANCE = 27.5;
   const closestEdges: Array<{
     section: BorderSection,
     edge: VoronoiBorderEdge,
@@ -49,7 +76,7 @@ function findCloseSectionEdges(island: BorderSection, sections: Array<BorderSect
     collisionCandidates: Array<number>,
   }> = [];
   const islandNodes = island.edges.map((edge) => edge.node1);
-  sections.forEach((section) => {
+  sections.forEach((section, sectionIndex) => {
     // the looked at section is not interesting to us if it's the island itself
     if (section.id === island.id) {
       return;

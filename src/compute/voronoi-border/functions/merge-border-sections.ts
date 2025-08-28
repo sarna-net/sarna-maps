@@ -1,13 +1,14 @@
 import { BorderSection } from '../types';
-import { pointsAreEqual } from '../../../common';
+import { logger, pointsAreEqual } from '../../../common';
 import { reverseEdges } from './utils';
 import { EMPTY_FACTION, INDEPENDENT } from '../../constants';
 
 /**
  * Merges border sections so that the largest sections are stitched together as loops.
  * @param sections The border sections (will be modified)
+ * @param hierarchyLevelIndex The hierarchy level of the sections to merge
  */
-export function mergeBorderSections(sections: Array<BorderSection>) {
+export function mergeBorderSections(sections: Array<BorderSection>, hierarchyLevelIndex: number) {
   // Sort the existing border sections by number of edges so that the largest sections
   // gather up the smaller ones.
   sections.sort((a, b) =>
@@ -28,6 +29,20 @@ export function mergeBorderSections(sections: Array<BorderSection>) {
     // for the currently looked at section, find another section that links to it
     // and shares one of its affiliations
     for (let j = i + 1; j < sections.length; j++) {
+      // only merge sections that belong to the same parent affiliation
+      const iParentAffiliations = [
+        sections[i].affiliation1.split(',').slice(0, hierarchyLevelIndex).join(','),
+        sections[i].affiliation2.split(',').slice(0, hierarchyLevelIndex).join(','),
+      ].sort().join('|');
+      const jParentAffiliations = [
+        sections[j].affiliation1.split(',').slice(0, hierarchyLevelIndex).join(','),
+        sections[j].affiliation2.split(',').slice(0, hierarchyLevelIndex).join(','),
+      ].sort().join('|');
+      if (iParentAffiliations !== jParentAffiliations) {
+        continue;
+      }
+
+
       // list of affiliations common to both sections
       const commonAffiliations = [sections[i].affiliation1, sections[i].affiliation2].filter(
         (aff) => [sections[j].affiliation1, sections[j].affiliation2].includes(aff)
@@ -35,6 +50,7 @@ export function mergeBorderSections(sections: Array<BorderSection>) {
           && aff !== EMPTY_FACTION && aff !== INDEPENDENT,
       );
 
+      //
       if (
         commonAffiliations.length === 0 ||
         (sections[i].primaryAffiliation && !commonAffiliations.includes(sections[i].primaryAffiliation as string)) ||
