@@ -87,7 +87,7 @@ export class PoissonDisc<T extends Point2d> {
       }
       this.generatedPoints.push(sample);
     }
-    logger.info(`blue noise generation done, ${this.sampleSize} points generated`);
+    logger.debug(`blue noise generation done, ${this.sampleSize} points generated`);
     this.replaceReservedPoints(this.reservedPoints);
     return this;
   }
