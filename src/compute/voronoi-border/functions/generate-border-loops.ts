@@ -12,7 +12,7 @@ export function generateBorderLoops(sections: Array<BorderSection>, vertices: Ar
   };
   // split sections back up so that they again only cover edges sharing the same two factions
   const smallerSections = splitSections(sections);
-  logger.info(`${sections.length} sections vs. ${smallerSections.length} smaller sections`);
+  logger.debug(`${sections.length} sections vs. ${smallerSections.length} smaller sections`);
   for (let i = 0; i < smallerSections.length; i++) {
     if (!factionLoops[smallerSections[i].affiliation1]) {
       factionLoops[smallerSections[i].affiliation1] = createFactionLoops(smallerSections[i].affiliation1, smallerSections, vertices);

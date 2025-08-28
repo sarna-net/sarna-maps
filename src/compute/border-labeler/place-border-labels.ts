@@ -50,7 +50,7 @@ export function placeBorderLabels(
   glyphConfig: GlyphConfig,
   borderLabelConfig: BorderLabelConfig,
 ): BorderLabelsResult {
-  logger.info('Now placing border labels');
+  logger.info('Now placing border labels ...');
   const candidatesByFaction: Record<string, Array<BorderLabelCandidate>> = {};
   let totalNumberOfCandidates = 0;
   let totalNumberOfPlacedLabels = 0;
@@ -149,7 +149,7 @@ export function placeBorderLabels(
       totalNumberOfPlacedLabels += selectedCandidates.length;
     });
   });
-  logger.info(
+  logger.debug(
     `Border label algorithm selected ${totalNumberOfPlacedLabels} ` +
     `out of ${totalNumberOfCandidates} candidates, ` +
     `${totalNumberOfPlacedManualLabels} of which ` +

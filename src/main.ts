@@ -36,7 +36,7 @@ async function readConfigs() {
       logger.error(`Config file does not exist at "${argv._[0]}"`);
       process.exit(1);
     } else {
-      logger.info(`Config filename "${argv._[0]}" was transformed to "${generatorConfigPath}"`);
+      logger.info(`Config filename "${argv._[0]}" was interpreted as "${generatorConfigPath}"`);
     }
   }
 
@@ -78,6 +78,9 @@ async function run() {
     systemLabelConfig,
     borderLabelConfig,
   } = await readConfigs();
+  if (!generatorConfig.debugMode) {
+    logSettings.level = LOGGER_LEVELS.NoLogsOrDebug;
+  }
   const sheetData = await readData(dataSourceConfig);
   const factionMap: Record<string, Faction> = {};
   sheetData.factions.forEach((faction) => factionMap[faction.id] = faction);

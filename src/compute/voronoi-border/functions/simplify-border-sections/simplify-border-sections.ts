@@ -30,7 +30,7 @@ export function simplifyBorderSections(
     edgesSubdivided += subdivideDangerousEdges(borderSection, vertices, threeWayNodes);
   });
 
-  logger.info(`${shortEdgesPruned} edges removed during short edge pruning`);
-  logger.info(`${straightEdgesPruned} edges removed during straight edge pruning`);
-  logger.info(`${edgesSubdivided} dangerous edges subdivided`);
+  logger.debug(`${shortEdgesPruned} edges removed during short edge pruning`);
+  logger.debug(`${straightEdgesPruned} edges removed during straight edge pruning`);
+  logger.debug(`${edgesSubdivided} dangerous edges subdivided`);
 }

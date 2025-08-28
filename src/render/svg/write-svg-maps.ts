@@ -13,9 +13,7 @@ import path from 'path';
 import fs from 'fs';
 import { UNIVERSE_RECT } from '../../Constants';
 import {
-  BorderEdgeLoop,
   calculateVoronoiBorders,
-  SalientPoint,
   VoronoiResult,
   VoronoiResultHierarchyLevel
 } from '../../compute';
@@ -167,8 +165,8 @@ function generateAndSaveSingleMapImage(
     debugObjects,
   );
 
-  logger.info(`Now attempting to write file "${filePath}"`);
+  logger.debug(`Now attempting to write file "${filePath}"`);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content, { encoding: 'utf8' });
-  logger.info(`Wrote file "${filePath}".`);
+  logger.info(`Wrote file "${path.isAbsolute(filePath) ? filePath : path.resolve(filePath)}".`);
 }
