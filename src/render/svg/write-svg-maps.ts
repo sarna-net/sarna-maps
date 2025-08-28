@@ -12,7 +12,13 @@ import { determineOutputFilePath, renderSingleMapImage } from './functions';
 import path from 'path';
 import fs from 'fs';
 import { UNIVERSE_RECT } from '../../Constants';
-import { BorderEdgeLoop, calculateVoronoiBorders } from '../../compute';
+import {
+  BorderEdgeLoop,
+  calculateVoronoiBorders,
+  SalientPoint,
+  VoronoiResult,
+  VoronoiResultHierarchyLevel
+} from '../../compute';
 
 export async function writeSvgMaps(
   generatorConfig: GeneratorConfig,
@@ -41,7 +47,7 @@ export async function writeSvgMaps(
 
   for (let eraI = 0; eraI < erasToIterateOver.length; eraI++) {
     const era = erasToIterateOver[eraI];
-    logger.info(`Now generating maps for era #${eraI}: "${era.year} ${era.name}" ...`);
+    logger.info(`Now generating maps for era #${era.index}: "${era.year} ${era.name}" ...`);
 
     // TODO put these settings into a config file
     const poissonSettings = {
@@ -61,25 +67,53 @@ export async function writeSvgMaps(
       // unmodifiedBorderEdges,
       // borderEdges,
       // borderSections,
-      borderLoops,
+      affiliationLevelSections,
       // threeWayNodes,
-      // salientPoints,
+      salientPoints,
     } = await calculateVoronoiBorders(
       systems,
       era,
       poissonSettings,
+      // for the number of hierarchy levels to calculate, get the maximum displayed levels of all configured map layers
+      Math.max(
+        ...generatorConfig.mapLayers.map((layer) => layer.elements.borders?.length || 0)
+      ),
     );
 
     if (objectsToIterateOver && objectsToIterateOver.length > 0) {
       // iterate over all matched systems for each era
       objectsToIterateOver.forEach((system, systemIndex) => {
-        generateAndSaveSingleMapImage(generatorConfig, globalConfigs, era, factionMap, borderLoops || {}, systems, system, systemIndex);
+        generateAndSaveSingleMapImage(
+          generatorConfig,
+          globalConfigs,
+          era,
+          factionMap,
+          affiliationLevelSections || [],
+          systems,
+          system,
+          systemIndex,
+          {
+            salientPoints,
+          },
+        );
       });
     } else if (objectsToIterateOver) {
       logger.warn(`Pattern "${generatorConfig.iterateObjects?.pattern}" does not match any systems. No map images will be created.`);
     } else {
       // no objects to iterate over - create just one map image per era
-      generateAndSaveSingleMapImage(generatorConfig, globalConfigs, era, factionMap, borderLoops || {}, systems);
+      generateAndSaveSingleMapImage(
+        generatorConfig,
+        globalConfigs,
+        era,
+        factionMap,
+        affiliationLevelSections || [],
+        systems,
+        undefined,
+        undefined,
+        {
+          salientPoints,
+        },
+      );
     }
   }
 }
@@ -92,10 +126,12 @@ export async function writeSvgMaps(
  * @param globalConfigs The globally defined configuration objects
  * @param era The selected era for the map image
  * @param factionMap The map of all factions
- * @param borderLoops The map of all border loops, by faction
+ * @param affiliationLevelSections The border result sections for each hierarchy
+ // * @param borderLoops The map of all border loops, by faction
  * @param systems The list of all systems
  * @param focusedSystem The focused system for the map image, if applicable
  * @param focusedSystemIndex The focused system's index, if applicable
+ * @param debugObjects Objects used for virtual debugging
  */
 function generateAndSaveSingleMapImage(
   config: GeneratorConfig,
@@ -106,10 +142,11 @@ function generateAndSaveSingleMapImage(
   },
   era: Era,
   factionMap: Record<string, Faction>,
-  borderLoops: Record<string, Array<BorderEdgeLoop>>,
+  affiliationLevelSections: Array<VoronoiResultHierarchyLevel>,
   systems: Array<System>,
   focusedSystem?: System,
-  focusedSystemIndex?: number
+  focusedSystemIndex?: number,
+  debugObjects?: Partial<VoronoiResult>,
 ) {
   const filePath = determineOutputFilePath(
     config.fileOutput.directory,
@@ -124,9 +161,11 @@ function generateAndSaveSingleMapImage(
     globalConfigs,
     era,
     factionMap,
-    borderLoops,
+    affiliationLevelSections,
     systems,
-    focusedSystem);
+    focusedSystem,
+    debugObjects,
+  );
 
   logger.info(`Now attempting to write file "${filePath}"`);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });

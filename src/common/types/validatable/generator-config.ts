@@ -11,6 +11,10 @@ export interface GeneratorConfig {
    */
   output: 'svg';
   /**
+   * Debug mode on (default false)
+   */
+  debugMode?: boolean;
+  /**
    * color theme (default light)
    */
   theme?: 'light' | 'dark';

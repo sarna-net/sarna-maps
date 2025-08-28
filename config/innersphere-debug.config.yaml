@@ -1,7 +1,7 @@
 output: svg # only svg available at the moment
 theme: light # color theme (light or dark)
 
-debugMode: false
+debugMode: true
 
 fileOutput:
   directory: './out'
@@ -33,39 +33,8 @@ mapLayers: # the different layers showing maps
         - display: factions # first-level (faction) borders
           curveBorderEdges: true
           borderLabels: true # display border labels
-
-overlays: # other items on top of the map layers
-  #- type: text # map title
-  #  attributes: # attributes specific to this type of overlay
-  #    text: '?'
-
-  - name: sarna-logo
-    type: svgElement # the sarna logo svg paths
-    attributes: # attributes specific to this type of overlay
-      cssTemplate: sarna-logo.css.tpl
-      svgTemplate: sarna-logo.svg.tpl
-      scale: 1.5
-    position: # the logo's pixel position (top left point)
-      x: 10
-      y: 10
-  - name: main-map-scale
-    type: scale # a scale displaying the relation of pixels to map units
-    attributes:
-      pixelsPerMapUnit: 1
-      max: 500 # maximum unit shown
-      step: 100 # color change after this many units
-      scaleHeight: 12
-      labelsPosition: below
-    position: # the scale's pixel position (top left point of the scale bar)
-      x: 900
-      y: 1140
-  - name: main-map-scale-frame
-    type: rectangle
-    attributes:
-      width: 500
-      height: 12
-      strokeWidth: 3
-    position:
-      x: 900
-      y: 1140
+        - display: regions # second-level (state/province) borders
+          curveBorderEdges: true
+        - display: regions # third-level (state/province) borders
+          curveBorderEdges: true
 

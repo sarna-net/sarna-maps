@@ -6,6 +6,7 @@ import * as t from "ts-interface-checker";
 
 export const GeneratorConfig = t.iface([], {
   "output": t.lit('svg'),
+  "debugMode": t.opt("boolean"),
   "theme": t.opt(t.union(t.lit('light'), t.lit('dark'))),
   "fileOutput": t.iface([], {
     "directory": "string",

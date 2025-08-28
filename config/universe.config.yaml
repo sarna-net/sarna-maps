@@ -26,8 +26,10 @@ mapLayers: # the different layers showing maps
     elements:
       systems: true # display systems (as dots)
       systemLabels: true # display system names
-      factions: # display factions
-        curveBorderEdges: true
+      borders:
+        - display: factions # first-level (faction) borders
+          curveBorderEdges: true
+          borderLabels: true # display border labels
       borderLabels: true # display border labels
 
 overlays: # other items on top of the map layers

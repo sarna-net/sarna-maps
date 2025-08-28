@@ -32,8 +32,10 @@ mapLayers: # the different layers showing maps
       systemLabels: true # display system names
 #      connectionLines: # display jump lines
 #        maximumDistance: 30
-      factions: # display factions
-        curveBorderEdges: true
+      borders:
+        - display: factions # first-level (faction) borders
+          curveBorderEdges: true
+          borderLabels: true # display border labels
       borderLabels: true # display border labels
       jumpRings: # draw jump rings
         radii: # draw circles with these radii
@@ -55,8 +57,9 @@ mapLayers: # the different layers showing maps
     focus: # the center point of the minimap (in map units)
       point: system
     elements:
-      factions:
-        curveBorderEdges: false
+      borders:
+        - display: factions # first-level (faction) borders
+          curveBorderEdges: true
       jumpRings:
         radii:
           - 2

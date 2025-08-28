@@ -45,4 +45,22 @@ describe('extractBorderStateAffiliation', () => {
   it('should properly return disputed systems', () => {
     expect(extractBorderStateAffiliation('D(DC,LC)')).to.equal('D-DC-LC');
   });
+
+  it('should properly return additional levels of affiliation', () => {
+    expect(extractBorderStateAffiliation('LC,Protectorate of Donegal', undefined, 'ignore', 2))
+      .to.equal('LC,Protectorate of Donegal');
+    expect(extractBorderStateAffiliation('LC,Protectorate of Donegal,Alarion Province', undefined, 'ignore', 2))
+      .to.equal('LC,Protectorate of Donegal');
+    expect(extractBorderStateAffiliation('LC,Protectorate of Donegal,Alarion Province', undefined, 'ignore', 3))
+      .to.equal('LC,Protectorate of Donegal,Alarion Province');
+    expect(extractBorderStateAffiliation('LC,Protectorate of Donegal', undefined, 'ignore', 3))
+      .to.equal('LC,Protectorate of Donegal');
+  });
+
+  it('should remove capital tokens if requested', () => {
+    expect(extractBorderStateAffiliation('LC,Protectorate of Donegal,major capital,Alarion Province', undefined, undefined, 1, true))
+      .to.equal('LC');
+    expect(extractBorderStateAffiliation('LC,Protectorate of Donegal,major capital,Alarion Province', undefined, undefined, 3, true))
+      .to.equal('LC,Protectorate of Donegal,Alarion Province');
+  });
 });

@@ -1,8 +1,15 @@
 import { VoronoiBorderEdge, BorderDelaunayVertex, VoronoiBorderNode } from '../types';
-import { distance, distancePointToLine, lineFromPoints } from '../../../common';
+import { distance, distancePointToLine, extractBorderStateAffiliation, lineFromPoints } from '../../../common';
 import { EMPTY_FACTION, INDEPENDENT } from '../../constants';
 
-export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices: BorderDelaunayVertex[]) {
+/**
+ * Go through the result of the voronoi calculation, identify border vertices and create border edge objects.
+ *
+ * @param voronoiNodes The nodes resulting from the voronoi calculation
+ * @param vertices The vertices from the delaunay triangulation corresponding to the voronoi diagram
+ * @param affiliationLevels The affiliation levels to go down to for the borders
+ */
+export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices: BorderDelaunayVertex[], affiliationLevels = 1) {
   const borderNodeIndices: Record<string, Array<number>> = {};
   const borderEdges: Record<string, Array<VoronoiBorderEdge>> = {};
   const threeWayNodes: Record<string, Array<string>> = {};
@@ -16,39 +23,44 @@ export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices:
     const vertex1 = vertices[voronoiNode.vertex1Idx];
     const vertex2 = vertices[voronoiNode.vertex2Idx];
     const vertex3 = vertices[voronoiNode.vertex3Idx];
-    if (!borderNodeIndices[vertex1.affiliation]) { borderNodeIndices[vertex1.affiliation] = [] }
-    if (!borderNodeIndices[vertex2.affiliation]) { borderNodeIndices[vertex2.affiliation] = [] }
-    if (!borderNodeIndices[vertex3.affiliation]) { borderNodeIndices[vertex3.affiliation] = [] }
+
+    const v1Affiliation = extractBorderStateAffiliation(vertex1.affiliation, undefined, undefined, affiliationLevels, true);
+    const v2Affiliation = extractBorderStateAffiliation(vertex2.affiliation, undefined, undefined, affiliationLevels, true);
+    const v3Affiliation = extractBorderStateAffiliation(vertex3.affiliation, undefined, undefined, affiliationLevels, true);
+
+    if (!borderNodeIndices[v1Affiliation]) { borderNodeIndices[v1Affiliation] = [] }
+    if (!borderNodeIndices[v2Affiliation]) { borderNodeIndices[v2Affiliation] = [] }
+    if (!borderNodeIndices[v3Affiliation]) { borderNodeIndices[v3Affiliation] = [] }
 
     // case 1: all objects share the same affiliation (no border)
-    if(vertex1.affiliation === vertex2.affiliation && vertex2.affiliation === vertex3.affiliation) {
+    if(v1Affiliation === v2Affiliation && v2Affiliation === v3Affiliation) {
       // do nothing
       // case 2: vertex 1 and 2 share affiliation, vertex 3 has different affiliation
-    } else if (vertex1.affiliation === vertex2.affiliation && vertex1.affiliation !== vertex3.affiliation) {
-      (borderNodeIndices[vertex1.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex1.affiliation] = true;
-      (borderNodeIndices[vertex3.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex3.affiliation] = true;
+    } else if (v1Affiliation === v2Affiliation && v1Affiliation !== v3Affiliation) {
+      (borderNodeIndices[v1Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v1Affiliation] = true;
+      (borderNodeIndices[v3Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v3Affiliation] = true;
       // case 3: vertex 1 and 3 share affiliation, vertex 2 has different affiliation
-    } else if (vertex1.affiliation === vertex3.affiliation && vertex1.affiliation !== vertex2.affiliation) {
-      (borderNodeIndices[vertex1.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex1.affiliation] = true;
-      (borderNodeIndices[vertex2.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex2.affiliation] = true;
+    } else if (v1Affiliation === v3Affiliation && v1Affiliation !== v2Affiliation) {
+      (borderNodeIndices[v1Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v1Affiliation] = true;
+      (borderNodeIndices[v2Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v2Affiliation] = true;
       // case 4: vertex 2 and 3 share affiliation, vertex 1 has different affiliation
-    } else if (vertex2.affiliation === vertex3.affiliation && vertex1.affiliation !== vertex2.affiliation) {
-      (borderNodeIndices[vertex1.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex1.affiliation] = true;
-      (borderNodeIndices[vertex2.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex2.affiliation] = true;
+    } else if (v2Affiliation === v3Affiliation && v1Affiliation !== v2Affiliation) {
+      (borderNodeIndices[v1Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v1Affiliation] = true;
+      (borderNodeIndices[v2Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v2Affiliation] = true;
       // case 5: each vertex has a different affiliation
     } else {
-      (borderNodeIndices[vertex1.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex1.affiliation] = true;
-      (borderNodeIndices[vertex2.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex2.affiliation] = true;
-      (borderNodeIndices[vertex3.affiliation] as Array<number>).push(nodeIdx);
-      voronoiNode.borderAffiliations[vertex3.affiliation] = true;
+      (borderNodeIndices[v1Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v1Affiliation] = true;
+      (borderNodeIndices[v2Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v2Affiliation] = true;
+      (borderNodeIndices[v3Affiliation] as Array<number>).push(nodeIdx);
+      voronoiNode.borderAffiliations[v3Affiliation] = true;
     }
 
     // Finally, create a border edge between this node and each of its differently-affiliated neighbors
@@ -69,8 +81,8 @@ export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices:
       ];
       const sharedVertexIndices = nodeVertexIndices.filter((idx) => neighborVertexIndices.includes(idx));
       if (sharedVertexIndices.length >= 2) {
-        const affiliation1 = vertices[sharedVertexIndices[0]].affiliation;
-        const affiliation2 = vertices[sharedVertexIndices[1]].affiliation;
+        const affiliation1 = extractBorderStateAffiliation(vertices[sharedVertexIndices[0]].affiliation, undefined, undefined, affiliationLevels, true);
+        const affiliation2 = extractBorderStateAffiliation(vertices[sharedVertexIndices[1]].affiliation, undefined, undefined, affiliationLevels, true);
         // do not create border edges between independent and empty areas
         if (
           [EMPTY_FACTION, INDEPENDENT].includes(affiliation1) &&
