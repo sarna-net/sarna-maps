@@ -6,9 +6,7 @@ fileOutput:
   fileNamePattern: 'Battletech Universe_{{ERAYEAR}}_{{ERANAME}}.svg' # SYSTEMINDEX, SYSTEMID, SYSTEMNAME, ERAINDEX, ERAID, ERAYEAR, ERANAME
 
 eras: # the eras to create images for - either a list of era indices (0-based), or empty for all eras
-  #- 16 # 3025
-  #- 20 # 3050
-  - 38 # 3095
+  - 16 # 3025
 
 dimensions: # output image pixel size
   width: 4000
@@ -30,22 +28,8 @@ mapLayers: # the different layers showing maps
         - display: factions # first-level (faction) borders
           curveBorderEdges: true
           borderLabels: true # display border labels
-      borderLabels: true # display border labels
 
 overlays: # other items on top of the map layers
-  #- type: text # map title
-  #  attributes: # attributes specific to this type of overlay
-  #    text: '?'
-
-  - name: sarna-logo
-    type: svgElement # the sarna logo svg paths
-    attributes: # attributes specific to this type of overlay
-      cssTemplate: sarna-logo.css.tpl
-      svgTemplate: sarna-logo.svg.tpl
-      scale: 1.5
-    position: # the logo's pixel position (top left point)
-      x: 10
-      y: 10
   - name: main-map-scale
     type: scale # a scale displaying the relation of pixels to map units
     attributes:
@@ -55,8 +39,8 @@ overlays: # other items on top of the map layers
       scaleHeight: 26
       labelsPosition: below
     position: # the scale's pixel position (top left point of the scale bar)
-      x: 160
-      y: 10
+      x: 20
+      y: 20
   - name: main-map-scale-frame
     type: rectangle
     attributes:
@@ -64,6 +48,6 @@ overlays: # other items on top of the map layers
       height: 26
       strokeWidth: 3
     position:
-      x: 160
-      y: 10
+      x: 20
+      y: 20
 
