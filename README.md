@@ -26,7 +26,7 @@ To do so, follow the steps as described below.
 2. Run the installer. If it asks you about optionally installing python + chocolatey, you can safely skip that part.
 3. Download a version of sarna-maps (this repository) by clicking [here](https://github.com/sarna-net/sarna-maps/archive/refs/heads/main.zip).
   > [!TIP]
-  > If you are familiar with git, setup is as simple as cloning
+  > If you are familiar with git, the download is as simple as cloning
   > [git@github.com:sarna-net/sarna-maps.git](git@github.com:sarna-net/sarna-maps.git), you can then skip forward to step #5.
 
 4. The downloaded .zip file contains one directory named ``sarna-maps-main``. Unzip this directory's contents into
@@ -87,7 +87,7 @@ By default, the script comes with several example generator configurations, but 
 a new one yourself. All you need is a valid ``.config.yaml`` file in the config subfolder that contains all necessary fields,
 and you can run the map generator by executing the following command from the main script directory:
 
-    npm start <config-filename-with-or-without-.yaml>
+    npm start <config-filename-with-or-without.config.yaml>
 
 e.g.
 
