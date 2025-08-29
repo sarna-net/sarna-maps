@@ -26,8 +26,8 @@ To do so, follow the steps as described below.
 2. Run the installer. If it asks you about optionally installing python + chocolatey, you can safely skip that part.
 3. Download a version of sarna-maps (this repository) by clicking [here](https://github.com/sarna-net/sarna-maps/archive/refs/heads/main.zip).
   > [!TIP]
-  > If you are familiar with git, the download is as simple as cloning
-  > [git@github.com:sarna-net/sarna-maps.git](git@github.com:sarna-net/sarna-maps.git), you can then skip forward to step #5.
+  > If you are familiar with git, you can also simply clone ``git@github.com:sarna-net/sarna-maps.git``, and skip
+  > forward to step #5.
 
 4. The downloaded .zip file contains one directory named ``sarna-maps-main``. Unzip this directory's contents into
    any local directory, say for example ``D:\sarna-maps-main``. We will call this directory the *script directory* from now on.
@@ -39,7 +39,7 @@ To do so, follow the steps as described below.
       ``cmd``, which will open the Windows command terminal.
     - In your terminal, navigate to the script directory, e.g. by switching to the D drive by typing ``D:``, then
       changing directories by using the ``cd`` command, e.g. ``cd sarna-maps-main``
-6. Once you are inside the script directory (``D:\sarna-maps`` in our example), execute the following command:
+6. Once you are inside the script directory (``D:\sarna-maps-main`` in our example), execute the following command:
 
        npm ci
 
