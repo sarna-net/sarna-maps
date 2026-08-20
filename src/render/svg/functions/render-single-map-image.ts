@@ -7,6 +7,7 @@ import {
   SystemLabelConfig,
   TextTemplate
 } from '../../../common';
+import { FactionAffiliationPair } from '../../../read/common/retain-faction-affiliation-pairing';
 import path from 'path';
 import { renderMapLayer } from './render-map-layer';
 import { renderMapOverlay } from './render-map-overlay';
@@ -17,6 +18,7 @@ import { BorderEdgeLoop, SalientPoint, VoronoiResult, VoronoiResultHierarchyLeve
  * @param globalConfigs
  * @param era
  * @param factionMap
+ * @param pairs The faction affiliation pairs map for render pipeline
  * @param affiliationLevelSections
  * @param systems
  * @param focusedSystem
@@ -31,6 +33,7 @@ export function renderSingleMapImage(
   },
   era: Era,
   factionMap: Record<string, Faction>,
+  pairs: Map<string, FactionAffiliationPair>,
   affiliationLevelSections: Array<VoronoiResultHierarchyLevel>,
   systems: Array<System>,
   focusedSystem?: System,
@@ -43,7 +46,7 @@ export function renderSingleMapImage(
   // generate code for all map sections and all overlays
   const elements: Array<{ defs: string; css: string; markup: string; }> = [];
   elements.push(
-    ...(generatorConfig.mapLayers || []).map((mapLayerConfig) =>
+...(generatorConfig.mapLayers || []).map((mapLayerConfig) =>
       renderMapLayer(
         theme,
         generatorConfig.dimensions,
@@ -51,11 +54,12 @@ export function renderSingleMapImage(
         globalConfigs,
         era,
         factionMap,
+        pairs,
         affiliationLevelSections,
         systems,
         focusedSystem,
         !!generatorConfig.debugMode ? debugObjects : undefined,
-      ),
+      )
     ),
     ...(generatorConfig.overlays || []).map((overlay) =>
       renderMapOverlay(overlay, theme, era, focusedSystem)

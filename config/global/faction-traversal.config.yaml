@@ -1,0 +1,28 @@
+# Faction Traversal Logger Configuration
+# Controls tracing behavior for faction affiliation resolution
+
+enabled: true
+
+# Logging level: 'debug' | 'info' | 'warn' | 'error'
+# Note: This controls the internal logger level for faction traces
+level: 'debug'
+
+# Log frequency: 'all' | 'every-fifth' | 'every-tenth'
+logFrequency: 'all'
+
+# Pattern to match faction values (regex string)
+# Leave empty to log ALL faction values (recommended for debugging)
+# Set to 'FWL' or other pattern to filter specific factions
+# Set to 'D-' to log only disputed system faction traces
+pattern: 'D-'
+
+# List of files to exclude from tracing
+# Use the file identifier as used in traceFaction() calls (e.g., 'parse-factions.ts')
+excludeFiles:
+  # - 'xlsx-reader.ts'
+  # - 'parse-single-system.ts'
+  # - 'retain-faction-affiliation-pairing.ts'
+  # - 'extract-border-state-affiliation.ts'
+  # - 'place-border-labels.ts'
+  # - 'render-border-loops.ts'
+  # - 'render-systems.ts'

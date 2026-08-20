@@ -127,7 +127,7 @@ export function areaOfRotatedRectangleIntersection(
     // check remaining point count
     if (polygon.length < 2) {
       // something's funky
-      logger.warn('polygon could not be built with one point');
+      logger.warn('area-of-rotated-rectangle-intersection.ts', 'polygon could not be built with one point');
       break;
     }
     // find out if the points lie on any of the rectangle's sides

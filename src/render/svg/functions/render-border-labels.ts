@@ -7,10 +7,13 @@ import {
   rgbToHsl,
   TextTemplate
 } from '../../../common';
+import { FactionAffiliationPair } from '../../../read/common/retain-faction-affiliation-pairing';
+import { resolveFactionRenderStyle } from '../types/faction-render-style';
 
 export function renderBorderLabels(
   result: BorderLabelsResult,
   factions: Record<string, Faction>,
+  pairs: Map<string, FactionAffiliationPair>,
   theme: 'light' | 'dark',
   prefix = '',
   pixelsPerMapUnit = 1,
@@ -107,7 +110,12 @@ export function renderBorderLabels(
     }
 
     // make sure the border labels are visible against the faction background
-    const colorHsl = rgbToHsl(factions[factionKey]?.color || '#000');
+    const style = resolveFactionRenderStyle({
+      factionKey,
+      factionMap: factions,
+      pairs,
+    });
+    const colorHsl = rgbToHsl(style.color || '#000');
     if (theme === 'light') {
       if (colorHsl.l >= 0.8) {
         colorHsl.l *= 0.4;

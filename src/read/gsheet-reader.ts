@@ -13,11 +13,16 @@ export async function readFromGoogleSheet(dataSourceConfig: DataSourceConfig) {
     throw new Error('Cannot read data - No spreadsheet object available');
   }
 
+  const sheetIndices = dataSourceConfig.sheetIndices;
+  if (!sheetIndices) {
+    throw new Error('sheetIndices is required when using Google Sheets data source');
+  }
+
   const sheetNames = {
-    columns: spreadsheet.sheets[dataSourceConfig.sheetIndices.columns]?.properties?.title || '',
-    factions: spreadsheet.sheets[dataSourceConfig.sheetIndices.factions]?.properties?.title || '',
-    systems: spreadsheet.sheets[dataSourceConfig.sheetIndices.systems]?.properties?.title || '',
-    nebulae: spreadsheet.sheets[dataSourceConfig.sheetIndices.nebulae]?.properties?.title || '',
+    columns: spreadsheet.sheets[sheetIndices.columns]?.properties?.title || '',
+    factions: spreadsheet.sheets[sheetIndices.factions]?.properties?.title || '',
+    systems: spreadsheet.sheets[sheetIndices.systems]?.properties?.title || '',
+    nebulae: spreadsheet.sheets[sheetIndices.nebulae]?.properties?.title || '',
   }
 
   const dataRanges = await readDataRanges(

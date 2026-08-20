@@ -160,7 +160,7 @@ function aggregateOutsidePointsIntoInvisibleEdges(
   }
   // at the very end, if there are more or less than two points remaining, something went wrong
   if (outsidePoints.length !== 2) {
-    logger.warn(idPrefix, 'wrong remaining number of outside points', outsidePoints.length);
+    logger.warn('restrict-border-loops-to-viewbox.ts', idPrefix, 'wrong remaining number of outside points', outsidePoints.length);
     return edges;
   }
   edges.push(newEdge(outsidePoints[0], outsidePoints[1]));

@@ -1,5 +1,5 @@
 import { VoronoiBorderEdge, BorderDelaunayVertex, VoronoiBorderNode } from '../types';
-import { distance, distancePointToLine, extractBorderStateAffiliation, lineFromPoints } from '../../../common';
+import { canonicalAffiliation, distance, distancePointToLine, lineFromPoints } from '../../../common';
 import { EMPTY_FACTION, INDEPENDENT } from '../../constants';
 
 /**
@@ -24,9 +24,9 @@ export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices:
     const vertex2 = vertices[voronoiNode.vertex2Idx];
     const vertex3 = vertices[voronoiNode.vertex3Idx];
 
-    const v1Affiliation = extractBorderStateAffiliation(vertex1.affiliation, undefined, undefined, affiliationLevels, true);
-    const v2Affiliation = extractBorderStateAffiliation(vertex2.affiliation, undefined, undefined, affiliationLevels, true);
-    const v3Affiliation = extractBorderStateAffiliation(vertex3.affiliation, undefined, undefined, affiliationLevels, true);
+    const v1Affiliation = canonicalAffiliation(vertex1.affiliation, { levels: 1, removeCapitalTokens: true, syntheticPoint: true });
+    const v2Affiliation = canonicalAffiliation(vertex2.affiliation, { levels: 1, removeCapitalTokens: true, syntheticPoint: true });
+    const v3Affiliation = canonicalAffiliation(vertex3.affiliation, { levels: 1, removeCapitalTokens: true, syntheticPoint: true });
 
     if (!borderNodeIndices[v1Affiliation]) { borderNodeIndices[v1Affiliation] = [] }
     if (!borderNodeIndices[v2Affiliation]) { borderNodeIndices[v2Affiliation] = [] }
@@ -81,8 +81,8 @@ export function generateBorderEdges(voronoiNodes: VoronoiBorderNode[], vertices:
       ];
       const sharedVertexIndices = nodeVertexIndices.filter((idx) => neighborVertexIndices.includes(idx));
       if (sharedVertexIndices.length >= 2) {
-        const affiliation1 = extractBorderStateAffiliation(vertices[sharedVertexIndices[0]].affiliation, undefined, undefined, affiliationLevels, true);
-        const affiliation2 = extractBorderStateAffiliation(vertices[sharedVertexIndices[1]].affiliation, undefined, undefined, affiliationLevels, true);
+        const affiliation1 = canonicalAffiliation(vertices[sharedVertexIndices[0]].affiliation, { levels: affiliationLevels, removeCapitalTokens: true, syntheticPoint: true });
+        const affiliation2 = canonicalAffiliation(vertices[sharedVertexIndices[1]].affiliation, { levels: affiliationLevels, removeCapitalTokens: true, syntheticPoint: true });
         // do not create border edges between independent and empty areas
         if (
           [EMPTY_FACTION, INDEPENDENT].includes(affiliation1) &&

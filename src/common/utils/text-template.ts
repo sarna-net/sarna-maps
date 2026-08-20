@@ -19,7 +19,7 @@ export class TextTemplate {
       }
       this.template = fs.readFileSync(path.join(templatePath, this.name), { encoding: 'utf8' });
     } catch (e) {
-      logger.warn(`Template "${this.name}" could not be found`, e.message);
+      logger.warn('text-template.ts', `Template "${this.name}" could not be found`, e.message);
       this.template = '';
     }
   }

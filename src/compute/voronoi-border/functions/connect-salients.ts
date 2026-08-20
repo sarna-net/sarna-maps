@@ -8,6 +8,14 @@ import { EMPTY_FACTION } from '../../constants';
 const MERGE_POINT_STEP = 2;
 // The maximum distance for salients to be drawn
 const MAX_DISTANCE = 27.5;
+// The minimum distance a salient corridor must keep to any system of a
+// different affiliation. Each merge point on the corridor becomes a voronoi
+// cell of the salient's faction; if such a cell is created too close to a
+// foreign system, it squeezes that system's own cell (and can even sever it
+// from its faction's territory). This was seen with the CFG salient tunnel
+// being drawn through the DC system Lothan, which cut Lothan off from the DC
+// area around Jabuka.
+const COLLISION_RADIUS = 5.5;
 
 /**
  * A salient as understood here is a thin stretch of territory ranging into
@@ -36,20 +44,33 @@ export function connectSalients(loops: Record<string, Array<BorderSection>>, ver
       }
       const closestEdges = findCloseSectionEdges(loops[faction][i], loops[faction]);
       if (closestEdges.length > 0) {
+        // pick the first close section whose corridor does not collide with any
+        // system of a different affiliation (see corridorCollidesWithForeignSystems)
+        const closestEdge = closestEdges.find((edge) => !corridorCollidesWithForeignSystems(
+          edge.closestIslandNode,
+          edge.closestSectionPoint,
+          faction,
+          vertices,
+        ));
+        if (!closestEdge) {
+          // every candidate corridor would cut through another faction's territory -
+          // leave the island disconnected instead of harming the other faction
+          continue;
+        }
         // find the full affiliation for the salient
         const fullAffiliation = [
-          vertices[closestEdges[0].closestIslandNode.vertex1Idx].affiliation,
-          vertices[closestEdges[0].closestIslandNode.vertex2Idx].affiliation,
-          vertices[closestEdges[0].closestIslandNode.vertex3Idx].affiliation,
+          vertices[closestEdge.closestIslandNode.vertex1Idx].affiliation,
+          vertices[closestEdge.closestIslandNode.vertex2Idx].affiliation,
+          vertices[closestEdge.closestIslandNode.vertex3Idx].affiliation,
         ].find((affiliation) => (affiliation === faction) || affiliation.startsWith(faction));
         // generate merge points for the salient
-        const salientDistance = distance(closestEdges[0].closestIslandNode, closestEdges[0].closestSectionPoint);
+        const salientDistance = distance(closestEdge.closestIslandNode, closestEdge.closestSectionPoint);
         if (salientDistance < MERGE_POINT_STEP) {
           mergePoints.push({
             id: `salient-merge-point-${faction}-${i}-0-min`,
             affiliation: fullAffiliation || faction,
             info: `closest edge 0 from loop ${i} with faction ${faction} and fullAffiliation ${fullAffiliation}`,
-            ...pointOnLine(closestEdges[0].closestIslandNode, closestEdges[0].closestSectionPoint, salientDistance * 0.5),
+            ...pointOnLine(closestEdge.closestIslandNode, closestEdge.closestSectionPoint, salientDistance * 0.5),
           });
         }
         for (let mergePointDistance = MERGE_POINT_STEP; mergePointDistance < salientDistance; mergePointDistance += MERGE_POINT_STEP) {
@@ -57,13 +78,66 @@ export function connectSalients(loops: Record<string, Array<BorderSection>>, ver
             id: `salient-merge-point-${faction}-${i}-0-${mergePointDistance}`,
             affiliation: fullAffiliation || faction,
             info: `closest edge 0 from loop ${i} with faction ${faction} and fullAffiliation ${fullAffiliation}`,
-            ...pointOnLine(closestEdges[0].closestIslandNode, closestEdges[0].closestSectionPoint, mergePointDistance),
+            ...pointOnLine(closestEdge.closestIslandNode, closestEdge.closestSectionPoint, mergePointDistance),
           });
         }
       }
     }
   }
   return mergePoints;
+}
+
+/**
+ * Check whether a salient corridor between an island loop and a border section
+ * would pass too close to any system belonging to a DIFFERENT affiliation.
+ *
+ * Every merge point on the corridor becomes a voronoi cell of the salient's
+ * faction. If such a merge point lies within `collisionRadius` of a foreign
+ * system, the resulting cell squeezes the foreign system's own cell - in the
+ * worst case disconnecting it from its faction's territory (the CFG corridor
+ * through the DC system Lothan is exactly that case). Corridors that collide
+ * this way must not be drawn.
+ *
+ * @param islandNode A node of the island loop the corridor starts from
+ * @param sectionPoint The closest point on the section the corridor should connect to
+ * @param faction The faction the salient is being drawn for
+ * @param vertices The list of delaunay vertices (systems + noise points)
+ * @param collisionRadius The minimum distance the corridor must keep to foreign systems
+ * @returns True if the corridor would collide with a foreign system
+ */
+export function corridorCollidesWithForeignSystems(
+  islandNode: VoronoiBorderNode,
+  sectionPoint: Point2d,
+  faction: string,
+  vertices: Array<BorderDelaunayVertex>,
+  collisionRadius = COLLISION_RADIUS,
+): boolean {
+  const salientDistance = distance(islandNode, sectionPoint);
+  const mergePointDistances: Array<number> = [];
+  if (salientDistance < MERGE_POINT_STEP) {
+    // very short salient - a single merge point is placed at the midpoint
+    mergePointDistances.push(salientDistance * 0.5);
+  } else {
+    // the same merge points that would be generated for the corridor
+    for (let mergePointDistance = MERGE_POINT_STEP; mergePointDistance < salientDistance; mergePointDistance += MERGE_POINT_STEP) {
+      mergePointDistances.push(mergePointDistance);
+    }
+  }
+  return mergePointDistances.some((mergePointDistance) => {
+    const mergePoint = pointOnLine(islandNode, sectionPoint, mergePointDistance);
+    return vertices.some((vertex) => {
+      const affiliation = vertex.affiliation || '';
+      // empty / noise points cannot be harmed by the corridor
+      if (!affiliation || affiliation === EMPTY_FACTION) {
+        return false;
+      }
+      // systems belonging to the salient's own faction are part of the corridor
+      if (affiliation.split('|')[0] === faction) {
+        return false;
+      }
+      return distance(mergePoint, vertex) < collisionRadius;
+    });
+  });
 }
 
 function findCloseSectionEdges(island: BorderSection, sections: Array<BorderSection>) {

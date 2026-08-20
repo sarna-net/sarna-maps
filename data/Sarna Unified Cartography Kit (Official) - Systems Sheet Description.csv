@@ -1,0 +1,79 @@
+Column,Title,Description,
+A,systemID,unique system ID number (because some systems have duplicate names),
+B,systemName,Name of the System,
+C,alternateName,"Alternate names of the system, name changes (with year), and/or notable worlds within the system",
+D,x,X-ordinate for mapping purposes as extracted from official maps,
+E,y,y-ordinate for mapping purposes as extracted from official maps,
+F,size,"reference size (in LY) of a system/cluster for mapping purposes, [width,height,rotation]. Widths and heights are from center to edge, not edge to edge",
+G,sarnaSystemLink,URL of the entry in www.sarna.net,
+H,distance (LY),"based on the coordinates, the linear distance of the system from a reference point indicated in cell H1 (Sol by default)",
+,2271,Free Worlds League Founding,[35019] Handbook: House Marik
+,2317,Federated Suns Founding,[35024] Handbook: House Davion
+,2319,Draconis Combine Founding,[35205] Handbook: House Kurita
+,2341,Lyran Commonwealth Founding,[35001] Handbook: House Steiner
+,2366,Capellan Confederation Founding,[35204] Handbook: House Liao
+,2571,Star League Founding,"[35019] Handbook: House Marik
+[35204] Handbook: House Liao
+[35024] Handbook: House Davion
+[35205] Handbook: House Kurita
+[35001] Handbook: House Steiner
+[35203] Handbook: Major Periphery States"
+,2596,End of Reunification War,[35231] Historical: Reunification War
+,2750,Beginning of the Fall of the Star League,[35222] Era Report: 2750
+,2765,Eve of the Amaris Coup,"[35232] Historical: Liberation of Terra volume 1
+[35SN501] House Arano: The Aurigan Coalition
+[35702] BattleTech Universe"
+,2767,Amaris Empire,2765 map with the core TH worlds shifted to AE because of the Coup
+,2783,Great House Annexations of the remnants of the Terran Hegemony,[35233] Historical: Liberation of Terra volume 2
+,2786,Start of 1st Succession War & Settlement of Pentagon,"[35230] Historical: Operation Klondike
+[35233] Historical: Liberation of Terra volume 2
+[35702] BattleTech Universe"
+,2821,Start of Operation Klondike,[35230] Historical: Operation Klondike
+,2822,End of Operation Klondike and 1st Succession War,"[35230] Historical: Operation Klondike
+[35235] First Succession War
+[35702] BattleTech Universe"
+,2830,Start of 2nd Succession War,[35236] Second Succession War
+,2864,End of 2nd Succession War,"[35236] Second Succession War
+[35702] BattleTech Universe"
+,3025,End of 3rd Succession War,"Inner Sphere at War 3025 PDF map
+[35SN501] House Arano: The Aurigan Coalition
+[35702] BattleTech Universe"
+,3030,End of 4th Succession War,
+,3040,End of War of 3039,[35014] Historical: War of 3039
+,3049,Operation Revival: Periphery Action,[35230] Era Report: 3052
+,3050a,Operation Revival: Wave 1,[35230] Era Report: 3052
+,3050b,Operation Revival: Wave 2,[35230] Era Report: 3052
+,3050c,Operation Revival: Wave 3,[35230] Era Report: 3052
+,3051,Operation Revival: Wave 4 / Year of Peace,[35230] Era Report: 3052
+,3052,Operation Revival: Wave 5 / End of Operation Revival,[35230] Era Report: 3052
+,3057,Start of Operation Guerrero,"[35221] Era Report: 3062, but reflecting the formation of the Lyran Alliance while keeping the FedCom march divisions"
+,3058,End of Operation Guerrero,"[35221] Era Report: 3062 reflecting the formation of the Chaos March, and Lyran Alliance having the Provincial divisions"
+,3059a,Operation Bulldog: Wave 1,[35221] Era Report: 3062
+,3059b,Operation Bulldog: Wave 2,[35221] Era Report: 3062
+,3059c,Operation Bulldog: Wave 3,[35221] Era Report: 3062
+,3059d,Operation Bulldog: Wave 4,[35221] Era Report: 3062
+,3063,Start of FC Civil War,[35221] Era Report: 3062
+,3067,End of FC Civil War,[35307] Jihad: Final Reckoning
+,3068,Start of WB Jihad,3067 map with the WoB Protectorate
+,3075,Middle of the WoB Jihad,[35303] Jihad Secrets: The Blake Documents
+,3079,Waning years of the WoB Jihad,"[35FR001] Field Report: CCAF
+[35FR002] Field Report: DCMS
+[35FR003] Field Report: AFFS
+[35FR004] Field Report: FWLM
+[35FR005] Field Report: LAAF
+[35FR006] Field Report: Periphery
+[35FR007] Field Report: The Clans"
+,3081,End of WoB Jihad,[35307] Jihad: Final Reckoning
+,3085,End of Wars of Reaving,"[35221] Field Manual: 3085
+[35306] The Wars of Reaving"
+,3095,Republic of the Sphere,"[35221] Field Manual: 3085
+[30308] Interstellar Players 3: Interstellar Expeditions"
+,3130,Devlin Stone's Retirement,[35ED003] Era Digest: Dark Age
+,3135,Fortress Republic,[35223] Era Report: 3145
+,3145,Return of Devlin Stone,"[35223] Era Report: 3145
+[35P025] Operational Turning Points: Hanseatic Crusade"
+,3151,IlClan Trial,[35900] Shattered Fortress
+,3152,IlClan Era,"[35902] Tamar Rising
+[25903] Empire Alone
+[35904] Dominions Divided
+[35905] IlKhan's Eyes Only"

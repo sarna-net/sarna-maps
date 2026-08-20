@@ -1,1 +1,1 @@
-{{PREFIX}}g.borders .faction-border-{{ID}} path { stroke: {{STROKECOLOR}}; stroke-width: {{STROKEWIDTH}}; fill: {{FILL}}; fill-opacity: 0.45 }
+{{PREFIX}}g.borders .faction-border-{{ID}} path, {{PREFIX}}g.borders .faction-border-{{ID}} circle { stroke: {{STROKECOLOR}}; stroke-width: {{STROKEWIDTH}}; fill: {{FILL}}; fill-opacity: 0.45 }

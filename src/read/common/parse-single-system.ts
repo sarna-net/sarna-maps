@@ -1,4 +1,7 @@
 import { Era, System } from '../../common';
+import { traceFaction } from '../../common/utils/faction-traversal-logger';
+
+const FILE_NAME = 'parse-single-system.ts';
 
 export interface SystemRow {
   id: string;
@@ -19,38 +22,66 @@ interface SystemRename {
  * Utility function that takes the "raw" content of a spreadsheet row and turns it into a system object
  */
 export function parseSingleSystem(id: string, row: SystemRow, eras: Array<Era>): System {
+
+  traceFaction(FILE_NAME, 'INPUT SYSTEM ID', id);
+  //traceFaction(FILE_NAME, 'RAW eraAffiliations', JSON.stringify(row.eraAffiliations));
+
   // Ensure that scale and rotation values exist
-  if(!row.size || (row.size as Array<number>).length === 0) {
+  if (!row.size || (row.size as Array<number>).length === 0) {
+    traceFaction(FILE_NAME, 'DEFAULT SIZE APPLIED', id);
     row.size = [1, 1, 0];
   }
 
-  // Alternate names:
-  // relevant alternate names occur as "Tiverton (3022+)"
-  // or "Chadan (2890+), Chandan (3022+)" or "Chadan (2890+) / Chandan (3022+)"
+  // --- Alternate Names Parsing ---
   const renames: Array<SystemRename> = [];
-  // translate the resulting strings into objects and remember them as renames
+
   row.alternateNames.split(/\s*[,/]\s*/).forEach((nameChange) => {
-    // disregard any alternate names without an attached year in parentheses
     const regexResult = nameChange.match(/(.*)\s*\((\d+).*\)/i);
-    if(!regexResult) {
+
+    if (!regexResult) {
       return;
     }
-    renames.push({
+
+    const renameObj = {
       year: parseInt(regexResult[2], 10),
       name: regexResult[1].trim()
-    });
-  });
-  // sort renames by year
-  renames.sort((a,b) => a.year - b.year);
+    };
 
-  // era affiliations, capital system levels and era-specific names
+    traceFaction(
+      FILE_NAME,
+      'RENAME PARSED',
+      `year=${renameObj.year} name="${renameObj.name}"`
+    );
+
+    renames.push(renameObj);
+  });
+
+  renames.sort((a, b) => a.year - b.year);
+
+  traceFaction(
+    FILE_NAME,
+    'SORTED RENAMES',
+    JSON.stringify(renames)
+  );
+
+  // --- Era Processing ---
   const eraNames: Array<string> = [];
   const eraAffiliations: Array<string> = [];
   const eraCapitalLevels: Array<number> = [];
+
   eras.forEach((era, eraIndex) => {
+
     const affiliation = row.eraAffiliations[eraIndex];
+
+    traceFaction(
+      FILE_NAME,
+      `ERA ${eraIndex} RAW AFFILIATION`,
+      `year=${era.year} value="${affiliation}"`
+    );
+
     eraAffiliations.push(affiliation);
-    // determine whether the system is any sort of capital in this era
+
+    // --- Capital detection ---
     if (affiliation.match(/faction capital/gi)) {
       eraCapitalLevels.push(1);
     } else if (affiliation.match(/major capital/gi)) {
@@ -60,16 +91,42 @@ export function parseSingleSystem(id: string, row: SystemRow, eras: Array<Era>):
     } else {
       eraCapitalLevels.push(0);
     }
-    // determine the system's name in this era
-    // default is the regular name
+
+    traceFaction(
+      FILE_NAME,
+      `ERA ${eraIndex} CAPITAL LEVEL`,
+      `value=${eraCapitalLevels[eraCapitalLevels.length - 1]}`
+    );
+
+    // --- Name resolution ---
     eraNames.push(row.name.replace(/\s*\([^)]+\)\s*/gi, ''));
+
     renames.forEach((rename) => {
       if (era.year >= rename.year) {
         eraNames.pop();
         eraNames.push(rename.name.replace(/\s*\([^)]+\)\s*/gi, ''));
+
+        traceFaction(
+          FILE_NAME,
+          `ERA ${eraIndex} NAME OVERRIDE`,
+          `year=${rename.year} name="${rename.name}"`
+        );
       }
     });
+
+    traceFaction(
+      FILE_NAME,
+      `ERA ${eraIndex} FINAL NAME`,
+      eraNames[eraNames.length - 1]
+    );
   });
+/**
+  traceFaction(
+    FILE_NAME,
+    'FINAL eraAffiliations',
+    JSON.stringify(eraAffiliations)
+  );
+*/
   return {
     id,
     name: row.name,
@@ -83,5 +140,5 @@ export function parseSingleSystem(id: string, row: SystemRow, eras: Array<Era>):
     eraAffiliations,
     eraCapitalLevels,
     eraNames,
-  }
+  };
 }

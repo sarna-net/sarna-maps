@@ -88,6 +88,13 @@ export interface BorderLabelConfig {
      * The border label candidate score is a value between 0 and 1.
      */
     minGoodScore: number;
+    /**
+     * Region border labels at hierarchy levels with an index greater than or equal to this value
+     * are allowed to overlap faction (top-level) borders. Region levels below (shallower than) this
+     * threshold must keep their labels free of faction borders.
+     * Default is 2.
+     */
+    regionLabelBorderOverlapThreshold?: number;
   };
   /**
    * The numeric weights that determine how important each quality parameter of a label candidate is.

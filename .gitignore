@@ -1,13 +1,44 @@
-# variable config file (contains secrets)
-config.env
+# Keep /config, /data, /src directories
+# Keep README.md files
 
-# build artifacts
-dist
-test_out
-out
+# Build artifacts
+dist/
+out/
+test_out/
 
-# node modules directory
-node_modules
+# Dependencies
+node_modules/
 
-# IDE files
-.idea
+# IDE / editor
+.idea/
+.opencode/
+
+# Logs and debug output
+*.log
+warning-error-log.txt
+faction-traversal-log*.txt
+
+# Root-level non-readme files
+.editorconfig
+.eslintrc.yaml
+AGENTS.md
+build-v3.log
+debug-era-mapping.js
+debug-header-types.js
+extract-eras.js
+extract-factions-header.js
+extract-systems-header.js
+fix_config.py
+list-sheets.js
+test_write_perm.txt
+test-border-system.ts
+test-compilation.ts
+test-era-fix.js
+tsc-output.txt
+update_config.py
+v3-columns.md
+v3-diagnostic.json
+v3-export-report.md
+
+# Directories outside config/data/src
+typescript-logging/

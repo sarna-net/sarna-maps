@@ -1,5 +1,6 @@
 import { parseSingleSystem, SystemRow } from './parse-single-system';
 import { Era, logger, System } from '../../common';
+import { traceFaction } from '../../common/utils/faction-traversal-logger';
 
 /**
  * Assumptions:
@@ -35,6 +36,16 @@ export function parseSystems(rows: Array<Array<string>>, eras: Array<Era>) {
     }
   }
 
+  const eraCount = Object.keys(columnIndexMap).filter(k => k.startsWith('era_')).length;
+  const firstEraCol = columnIndexMap['era_0'];
+  const lastEraCol = columnIndexMap['era_' + (eraCount - 1)];
+  traceFaction('src/read/common/parse-systems.ts', 'era-columns-detected',
+    `count=${eraCount}, first=${firstEraCol}, last=${lastEraCol}, expectedEras=${eras.length}`);
+
+  if (eraCount !== eras.length) {
+    logger.warn('parse-systems.ts', `Era column count (${eraCount}) does not match parsed eras (${eras.length}) - data mismatch possible`);
+  }
+
   for (let rowIndex = HEADER_ROW_INDEX + 1; rowIndex < rows.length; rowIndex++) {
     const row = rows[rowIndex];
 
@@ -50,7 +61,7 @@ export function parseSystems(rows: Array<Array<string>>, eras: Array<Era>) {
       x: parseFloat(row[columnIndexMap['x']] as string),
       y: parseFloat(row[columnIndexMap['y']] as string),
       size: ((row[columnIndexMap['size']] + '') || '1,1,0')
-        .split(',')
+        .split(/,|/)
         .map((element) => parseFloat(element)
         ) as [number, number, number],
       eraAffiliations: eras.map((_, eraIndex) => row[columnIndexMap['era_' + eraIndex]] || 'U'),

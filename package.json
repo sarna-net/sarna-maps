@@ -29,7 +29,6 @@
     "delaunator": "^5.0.1",
     "googleapis": "^148.0.0",
     "node-dijkstra": "^2.5.0",
-    "node-xlsx": "^0.24.0",
     "sanitize-filename": "^1.6.3",
     "seedrandom": "^3.0.5",
     "ts-interface-checker": "^1.0.2",

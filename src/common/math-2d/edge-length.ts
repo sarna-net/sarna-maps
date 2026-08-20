@@ -18,6 +18,6 @@ export function edgeLength(edge: BezierEdge2d) {
     }
     return (controlPointDistance * 2 + straightDistance) / 3;
   }
-  logger.warn('[edgeLength] edge does not have enough points to be measured, length is 0', edge);
+  logger.warn('edge-length.ts', '[edgeLength] edge does not have enough points to be measured, length is 0', edge);
   return 0;
 }

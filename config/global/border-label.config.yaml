@@ -10,6 +10,9 @@ rules:
   cornerDistanceFactor: .05
   minViableScore: .65
   minGoodScore: .75
+  # Region border labels at hierarchy levels >= this value are allowed to overlap
+  # faction (top-level) borders. Region levels below it must avoid faction borders.
+  regionLabelBorderOverlapThreshold: 2
 
 scoreWeights:
   labelOverlap: 115

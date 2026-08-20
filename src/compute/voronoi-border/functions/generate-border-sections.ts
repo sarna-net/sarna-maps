@@ -59,7 +59,7 @@ export function generateBorderSections(borderEdges: Record<string, Array<Voronoi
         break;
       }
       if (iterations === ITERATIONS_LIMIT - 1) {
-        logger.warn(`Iterations limit reached while generating border sections for "${combinedAffiliations}". Aborting.`);
+        logger.warn('generate-border-sections.ts', `Iterations limit reached while generating border sections for "${combinedAffiliations}". Aborting.`);
       }
     }
     borderSections.push(...sections);

@@ -46,7 +46,7 @@ export function generateVoronoiNodes<T extends DelaunayVertex>(
     if (cellMode === VoronoiCellMode.Circumcenters) {
       const ccenter = triangleCircumcenter(vertex1, vertex2, vertex3);
       if(!ccenter) {
-        logger.warn(`Cannot calculate circumcenter for voronoi node. ` +
+        logger.warn('generate-voronoi-nodes.ts', `Cannot calculate circumcenter for voronoi node. ` +
           `Using centroid instead. Vertices:`,
           vertex1, vertex2, vertex3);
       } else {

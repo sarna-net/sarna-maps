@@ -132,7 +132,7 @@ function findStraightestAdjacentEdge(
         bestCandidate = [ n1, n2, n3 ];
       }
     } else {
-      logger.warn(`Edge "${edgeCandidateId}" no longer exists`);
+      logger.warn('generate-edge-control-points-for-section.ts', `Edge "${edgeCandidateId}" no longer exists`);
     }
   });
   return bestCandidate;

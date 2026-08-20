@@ -26,6 +26,11 @@ describe('extractBorderStateAffiliation', () => {
     expect(extractBorderStateAffiliation('U,V,W')).to.equal('');
   });
 
+  it('should return the parenthesized faction for abandoned systems with controlling faction', () => {
+    expect(extractBorderStateAffiliation('A(LC)', [])).to.equal('LC');
+    expect(extractBorderStateAffiliation('A(FS),DC', [])).to.equal('FS');
+  });
+
   it('should properly discard hidden systems in ignore mode', () => {
     expect(extractBorderStateAffiliation('F(H)')).to.equal('');
     expect(extractBorderStateAffiliation('F(H),G,P')).to.equal('');
@@ -62,5 +67,17 @@ describe('extractBorderStateAffiliation', () => {
       .to.equal('LC');
     expect(extractBorderStateAffiliation('LC,Protectorate of Donegal,major capital,Alarion Province', undefined, undefined, 3, true))
       .to.equal('LC,Protectorate of Donegal,Alarion Province');
+  });
+
+  it('should handle v3 pipe format without systemId/eraIndex', () => {
+    expect(extractBorderStateAffiliation('HL|Region 1')).to.equal('HL');
+    expect(extractBorderStateAffiliation('LC|Region 5')).to.equal('LC');
+    expect(extractBorderStateAffiliation('FS|Region 3,Some Region')).to.equal('FS');
+  });
+
+  it('should handle mixed pipe and comma formats', () => {
+    expect(extractBorderStateAffiliation('DC|Region 10')).to.equal('DC');
+    expect(extractBorderStateAffiliation('FWL,Free Worlds League')).to.equal('FWL');
+    expect(extractBorderStateAffiliation('MOC|Markov Commonwealth')).to.equal('MOC');
   });
 });

@@ -9,9 +9,9 @@ import {
 import {
   Era,
   System,
+  canonicalAffiliation,
   deepCopy,
   dynamicImport,
-  extractBorderStateAffiliation,
   generateVoronoiNodes,
   PoissonDisc,
   PoissonSettings,
@@ -134,9 +134,14 @@ export async function calculateVoronoiBorders(
       hierarchyLevel.internalBorderSections = [];
     } else {
       hierarchyLevel.internalBorderSections = hierarchyLevel.borderSections.filter((section) => {
-        const parentAffiliation1 = section.affiliation1.split(',').slice(0, hierarchyLevelIndex).join(',');
-        const parentAffiliation2 = section.affiliation2.split(',').slice(0, hierarchyLevelIndex).join(',');
-        return parentAffiliation1 === parentAffiliation2;
+        const levels1 = section.affiliation1.split(',');
+        const levels2 = section.affiliation2.split(',');
+        if (levels1.slice(0, hierarchyLevelIndex).join(',') !== levels2.slice(0, hierarchyLevelIndex).join(',')) {
+          return false;
+        }
+        const region1 = levels1[hierarchyLevelIndex]?.trim() || 'Unassigned';
+        const region2 = levels2[hierarchyLevelIndex]?.trim() || 'Unassigned';
+        return region1 !== region2;
       });
       // logger.debug(Object.values(hierarchyLevel.threeWayNodes));
       connectInternalBorderSections(
@@ -149,11 +154,12 @@ export async function calculateVoronoiBorders(
     }
 
     // generate control points for each border section separately
+    const tension = controlPointTension;
     hierarchyLevel.borderSections.forEach((borderSection) => {
-      generateEdgeControlPointsForSection(borderSection, hierarchyLevel.threeWayNodes, edgeMap);
+      generateEdgeControlPointsForSection(borderSection, hierarchyLevel.threeWayNodes, edgeMap, tension);
     });
     borderSectionsForLoops.forEach((borderSection) => {
-      generateEdgeControlPointsForSection(borderSection, hierarchyLevel.threeWayNodes, edgeMap);
+      generateEdgeControlPointsForSection(borderSection, hierarchyLevel.threeWayNodes, edgeMap, tension);
     });
 
     // create edge loops for each entity in this hierarchy level
@@ -215,9 +221,11 @@ function performVoronoiCalculations(
       x: system.x,
       y: system.y,
       affiliation: system.eraAffiliations[era.index],
-      //affiliation: extractBorderStateAffiliation(system.eraAffiliations[era.index], undefined, 'ignore', 2),
     })).filter((system) => !IRRELEVANT_AFFILIATIONS.includes(
-      extractBorderStateAffiliation(system.affiliation)
+      canonicalAffiliation(system.affiliation, {
+        systemId: system.id,
+        eraIndex: era.index,
+      })
     )),
     ...salientPoints,
     {id: 'sol-buffer-point-1', x: 1, y: 3, affiliation: solAffiliation},
@@ -228,7 +236,7 @@ function performVoronoiCalculations(
   // (top-level affiliations only)
   const delaunayVertices: Array<BorderDelaunayVertex> = poissonDisc.aggregatedPoints
     .filter((poissonPoint) =>  !IRRELEVANT_AFFILIATIONS.includes(
-      extractBorderStateAffiliation(poissonPoint.affiliation)
+      canonicalAffiliation(poissonPoint.affiliation, { syntheticPoint: true })
     ))
     .map((poissonPoint) => ({ ...poissonPoint, adjacentTriIndices: [] }));
   // run delaunay triangulation (using the delaunator library)

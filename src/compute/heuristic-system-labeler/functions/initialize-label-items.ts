@@ -1,6 +1,7 @@
 import {
   areaOfRectangleIntersection,
-  extractBorderStateAffiliation,
+  canonicalAffiliation,
+  Faction,
   GlyphConfig,
   IdentifiableRectangle,
   Rectangle2d,
@@ -31,14 +32,35 @@ export function initializeLabelItems(
   grid: RectangleGrid,
   glyphSettings: GlyphConfig,
   systemLabelConfig: SystemLabelConfig,
+  factionMap: Record<string, Faction>,
 ) {
   // Create the rectangular system and label items
   const systemItems: Array<IdentifiableRectangle> = [];
   const labelItems: Array<LabelRectangle> = [];
   systems.forEach((system) => {
-    const systemName = system.eraNames[eraIndex];
-    const systemAffiliation = extractBorderStateAffiliation(system.eraAffiliations[eraIndex], [''], 'full');
-    const additions = getLabelAdditions(system, systemAffiliation, eraIndex);
+    const rawName = system.eraNames[eraIndex];
+    const bracketMatch = rawName.match(/\[\s*([^\]]+)\s*\]/);
+    let systemName = rawName;
+    const bracketAdditions: Array<LabelAddition> = [];
+    if (bracketMatch) {
+      const bracketContent = bracketMatch[1].trim();
+      const isFactionId = !!(factionMap[bracketContent] || factionMap[bracketContent.toUpperCase()]);
+      if (!isFactionId) {
+        bracketAdditions.push({
+          text: bracketContent,
+          class: 'alt-name',
+          delta: { x: 0, y: 0 },
+        });
+        systemName = rawName.replace(/\s*\[\s*[^\]]+\s*\]\s*/, ' ').trim();
+      }
+    }
+    const systemAffiliation = canonicalAffiliation(system.eraAffiliations[eraIndex], {
+      ignoredAffiliations: [''],
+      parseHiddenSystemsAs: 'full',
+      systemId: system.id,
+      eraIndex,
+    });
+    const additions = [...getLabelAdditions(system, systemAffiliation, eraIndex), ...bracketAdditions];
     const labelMargin = getLabelMargin(system, eraIndex, systemLabelConfig);
 
     // determine label dimensions
@@ -71,7 +93,7 @@ export function initializeLabelItems(
     };
     const labelItem: LabelRectangle = {
       id: LABEL_ID_PREFIX + system.id,
-      label: system.eraNames[eraIndex],
+      label: systemName,
       anchor: {
         x: system.x,
         y: system.y,

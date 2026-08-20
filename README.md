@@ -81,7 +81,7 @@ many different aspects of the map generation process, such as:
 - which color scheme to use (light or dark)
 - ... plus *many* other options
 
-> **TODO** add generator config documentation describing all different options
+[Map Generation Customization](/docs/map-gen-customization.md) - a primer on the settings for map generation.
 
 By default, the script comes with several example generator configurations, but you can easily modify them or define
 a new one yourself. All you need is a valid ``.config.yaml`` file in the config subfolder that contains all necessary fields,
@@ -98,26 +98,35 @@ the ``out/`` subfolder.
 
 ## Data source
 
-This script comes "batteries included", i.e. with a fixed version (not necessarily the latest one) of the Sarna
-Unified Cartography Kit (SUCKit), which is a spreadsheet (``.xlsx``) file that contains all the essential information
-about Battletech's factions and planetary systems, as well as those systems' political affiliation in various eras
-of the timeline.
+This script comes with all the data you need to generate maps. We use simple CSV files (text files with columns) instead of complex spreadsheets to make it easier for you to customize the data.
 
-The location of the official SUCKit as a living document is
+**Default Data Files**
+The official data is located in the ``<script directory>/data`` folder. The script uses these specific files:
+- ``Sarna Unified Cartography Kit (Official) - Factions CSV Export``
+- ``Sarna Unified Cartography Kit (Official) - Systems CSV Export``
+- ``Sarna Unified Cartography Kit (Official) - Systems Sheet Description``
+
+These files contain all the essential information about Battletech's factions and planetary systems, as well as those systems' political affiliation in various eras of the timeline.
+
+**How to Customize Data**
+If you want to change faction names, system details, or add your own content, please follow these steps to keep the script working correctly:
+
+1. Go to the ``<script directory>/data`` folder.
+2. Copy the CSV files you want to change.
+3. Paste them into the ``<script directory>/data/Custom`` folder.
+4. Edit the files in the ``Custom`` folder.
+
+The script will automatically use the files in the ``Custom`` folder based on the `localFileConfig` settings in your `.config.yaml` file. This ensures your changes are safe and the original data remains untouched.
+
+**Updating the Data**
+The official data is maintained on Google Sheets. The location of the official SUCKit as a living document is
 https://docs.google.com/spreadsheets/d/1uO6aZ20rfEcAZJ-nDRhCnaNUiCPemuoOOd67Zqi1MVM
 
-The included offline version of this spreadsheet, by default, is located
-in ``<script directory>/data/Sarna Unified Cartography Kit (Official).xlsx``.
+If you need to update your local CSV files with the latest information, please follow the instructions here:
+[How to Generate Updated CSVs from SUCKit](./docs/updated-csv-exports.md)
 
-You are of course free to modify this version of the SUCKit spreadsheet, just be aware that changing the file's
-structure (adding columns, for instance) may lead to the mapping script no longer working as expected, so you may want
-to back up the original file before making any changes.
-
-If you want to pull a fresh version of the official SUCKit from the internet, you can go to the official version hosted
-on Google (see link above) and, in the top menu, click ``File`` > ``Download`` > ``.xlsx``.
-
-<ins>Advanced users</ins> may also be interested in directly using the official Google sheet, without the need for a
-manual download.
+<ins>Advanced users</ins> may also be interested in directly using the official Google sheet, without the need for a manual download.
 > **TODO** add documentation on how to configure direct Google access with an API key
+
 
 

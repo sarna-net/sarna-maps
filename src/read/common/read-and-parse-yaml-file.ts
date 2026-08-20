@@ -10,13 +10,13 @@ export function readAndParseYamlFile(filePath: string, contentDescription = 'YAM
   try {
     fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
   } catch (err) {
-    logger.error(`Could not read ${contentDescription} file: `, err.message);
+    logger.error('read-and-parse-yaml-file.ts', `Could not read ${contentDescription} file: `, err.message);
     return null;
   }
   try {
     return yaml.parse(fileContent);
   } catch (err) {
-    logger.error(`Could not parse ${contentDescription}: `, err);
+    logger.error('read-and-parse-yaml-file.ts', `Could not parse ${contentDescription}: `, err);
     return null;
   }
 }

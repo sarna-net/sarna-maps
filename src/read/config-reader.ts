@@ -13,6 +13,7 @@ import {
   GeneratorConfigOverlayTi,
 } from '../common/types';
 import { createCheckers } from 'ts-interface-checker';
+import path from 'path';
 
 export async function readConfigFiles(fileNames: {
   generatorConfig: string;
@@ -36,26 +37,68 @@ export async function readConfigFiles(fileNames: {
     // TODO check filename pattern for output
   } catch (e) {
     logger.error(
+      'config-reader.ts',
       `The generator config at ${fileNames.generatorConfig} is not valid:\n` +
         e.message.replaceAll('value.', '').split('\n').map((line: string) => '  ' + line).join('\n'),
     );
     if (e.message.split('\n').length >= 3) {
-      logger.error('  ... (first three errors shown)');
+      logger.error('config-reader.ts', '  ... (first three errors shown)');
     }
-    logger.error('Please refer to the example configs and the generator config documentation.');
+    logger.error('config-reader.ts', 'Please refer to the example configs and the generator config documentation.');
     process.exit(1);
   }
   logger.info(`Generator config at ${fileNames.generatorConfig} read and parsed successfully`);
 
 
   // TODO use zod or a similar library to make sure the configuration files are valid
+  // src/read/config-reader.ts
+
+  // --- EXISTING: read user data source config ---
   const dataSourceConfig = readAndParseYamlFile(
     fileNames.dataSourceConfig,
-    'data source config',
+    'data source config'
   ) as DataSourceConfig;
-  if (!dataSourceConfig) {
-    throw new Error('Data source configuration missing or incomplete');
+
+  // --- NEW: load global fallback ---
+  const globalDataSourceConfigPath = path.resolve(
+    process.cwd(),
+    'config/global/data-source.config.yaml'
+  );
+
+  const globalDataSourceConfig = readAndParseYamlFile(
+    globalDataSourceConfigPath,
+    'global data source config'
+  ) as DataSourceConfig;
+
+  function isValidLocalFileConfig(config: any): boolean {
+  return (
+    config !== undefined &&
+    config !== null &&
+    typeof config === 'object' &&
+    Object.keys(config).length > 0
+  );
   }
+
+  //logger.debug('dataSourceConfig.localFileConfig:', dataSourceConfig.localFileConfig);
+  //logger.debug('generatorConfig.localFileConfig:', generatorConfig?.localFileConfig);
+  //logger.debug('globalDataSourceConfig.localFileConfig:', globalDataSourceConfig.localFileConfig);
+  //const dataSourceHasLocal = isValidLocalFileConfig(dataSourceConfig.localFileConfig);
+  const generatorHasLocal = isValidLocalFileConfig(generatorConfig?.localFileConfig);
+  const globalHasLocal = isValidLocalFileConfig(globalDataSourceConfig.localFileConfig);
+
+  //if (!dataSourceHasLocal) {
+    if (generatorHasLocal) {
+      dataSourceConfig.localFileConfig = generatorConfig.localFileConfig;
+      logger.info(`Using localFileConfig from generatorConfig`);
+    } else if (globalHasLocal) {
+      dataSourceConfig.localFileConfig = globalDataSourceConfig.localFileConfig;
+      logger.info('Using fallback localFileConfig from global data-source.config.yaml');
+    } else {
+      throw new Error(
+        'localFileConfig not found in dataSourceConfig, generatorConfig, or global config'
+      );
+    }
+  //}
 
   const glyphConfig = readAndParseYamlFile(
     fileNames.glyphConfig,
@@ -97,6 +140,7 @@ export async function readConfigFiles(fileNames: {
       cornerDistanceFactor: 1,
       minViableScore: 1,
       minGoodScore: 1,
+      regionLabelBorderOverlapThreshold: 2,
     },
     ...(borderLabelConfig.rules || {}),
   };

@@ -125,6 +125,7 @@ export function scoreLabelCandidates(
 
     if (candidate.score < 0 || candidate.score > 1) {
       logger.warn(
+        'score-label-candidates.ts',
         'Border label candidate has a score that should be impossible, please check:',
         candidate.id,
         candidate.score,

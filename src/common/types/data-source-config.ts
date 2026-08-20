@@ -1,22 +1,39 @@
 export interface DataSourceConfig {
   /**
-   * Whether to use a local xlsx file (default) or a google spreadsheet
+   * Whether to use local csv files (default) or a google spreadsheet
    */
   useSource: 'local' | 'google';
 
   /**
-   * The config object for local xlsx files
+   * The type of local data source
+   */
+  dataSourceType?: 'csv';
+
+  /**
+   * The config object for local csv files
    */
   localFileConfig?: {
     /**
-     * The directory containing the xlsx file
+     * The directory containing the csv files
      * If using a relative path, the directory is interpreted to be relative to the project's root directory.
      */
     directory: string;
     /**
-     * The filename of the spreadsheet
+     * The filename of the systems csv file
      */
-    filename: string;
+    systemsFilename: string;
+    /**
+     * The filename of the factions csv file
+     */
+    factionsFilename?: string;
+    /**
+     * The filename of the era description csv (optional, auto-discovered if omitted)
+     */
+    descriptionFilename?: string;
+    /**
+     * Specify the data source type
+     */
+    dataSourceType?: 'csv';
   };
 
   /**
@@ -36,7 +53,7 @@ export interface DataSourceConfig {
   /**
    * 0-based indices of the different sheets that are required to draw the maps
    */
-  sheetIndices: {
+  sheetIndices?: {
     /**
      * Index of the sheet containing column and era names
      */

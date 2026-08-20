@@ -121,7 +121,7 @@ function applySingleManualConfig(
       // Add the starting and end points
       const pointOnPerimeter = nearestPointOnEllipsePerimeter(label.connectorPoints[0], ellipse);
       if (!pointOnPerimeter) {
-        logger.error(`Cannot connect label for ${label.label}: Nearest point on ellipse perimeter not found`);
+        logger.error('apply-manual-label-placement.ts', `Cannot connect label for ${label.label}: Nearest point on ellipse perimeter not found`);
       } else {
         label.connectorPoints.unshift(pointOnPerimeter);
       }

@@ -15,6 +15,11 @@ export interface GeneratorConfig {
    */
   debugMode?: boolean;
   /**
+   * Regex pattern for faction traversal logging (default: CIZ[1-3][A-C]).
+   * When debugMode is true, all faction values are logged regardless of pattern.
+   */
+  factionTracePattern?: string;
+  /**
    * color theme (default light)
    */
   theme?: 'light' | 'dark';

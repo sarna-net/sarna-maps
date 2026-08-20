@@ -8,6 +8,7 @@ import {
   scaleVector,
 } from '../../common';
 import { getLabelTokens } from './get-label-tokens';
+import { traceFaction } from '../../common/utils/faction-traversal-logger';
 
 /**
  * Uses the polylabel library to find the "point of inaccessibility" for a state area polygon, i.e. the point that
@@ -20,6 +21,12 @@ import { getLabelTokens } from './get-label-tokens';
  */
 export async function placeLabelForFaction(faction: Faction, borderLoops: Array<BorderEdgeLoop>) {
   const labelTokens = getLabelTokens(faction.name);
+
+  traceFaction(
+  'src/compute/poi-area-labeler/place-label-for-faction.ts',
+  'poi-label',
+  faction
+  );
 
   const polygon: PolyLabelPolygon = borderLoops.map(
     (loop) => {
