@@ -67,7 +67,7 @@ export async function writeSvgMaps(
       // borderSections,
       affiliationLevelSections,
       // threeWayNodes,
-      salientPoints,
+      // salientPoints,
     } = await calculateVoronoiBorders(
       systems,
       era,
@@ -90,9 +90,6 @@ export async function writeSvgMaps(
           systems,
           system,
           systemIndex,
-          {
-            salientPoints,
-          },
         );
       });
     } else if (objectsToIterateOver) {
@@ -108,9 +105,6 @@ export async function writeSvgMaps(
         systems,
         undefined,
         undefined,
-        {
-          salientPoints,
-        },
       );
     }
   }
