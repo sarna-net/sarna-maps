@@ -41,7 +41,7 @@ export function connectSalients(loops: Record<string, Array<BorderSection>>, ver
           vertices[closestEdges[0].closestIslandNode.vertex1Idx].affiliation,
           vertices[closestEdges[0].closestIslandNode.vertex2Idx].affiliation,
           vertices[closestEdges[0].closestIslandNode.vertex3Idx].affiliation,
-        ].find((affiliation) => (affiliation === faction) || affiliation.startsWith(faction));
+        ].find((affiliation) => (affiliation === faction) || (affiliation || '').split('|')[0] === faction);
         // generate merge points for the salient
         const salientDistance = distance(closestEdges[0].closestIslandNode, closestEdges[0].closestSectionPoint);
         if (salientDistance < MERGE_POINT_STEP) {
