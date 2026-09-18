@@ -11,7 +11,6 @@ import {
 } from '../../../common';
 import { restrictSystemsToViewbox } from '../../../compute/restrict-objects-to-viewbox';
 import {
-  BorderEdgeLoop,
   placeBorderLabels,
   placeSystemLabels,
   VoronoiResult,
@@ -131,13 +130,6 @@ export function renderMapLayer(
       restrictBorderLoopsToViewbox(levelSection.borderLoops || {}, visibleViewRect, 15)
     )
     : [];
-    //
-    // restrictBorderLoopsToViewbox(
-    //     affiliationLevelSections.length ? affiliationLevelSections[0].borderLoops || {} : {}, // TODO differentiate hierarchy levels
-    //     visibleViewRect,
-    //     15, // TODO put this in a config file
-    //   )
-    // : {};
 
   // Place border labels TODO enable for lower hierarchy levels
   const borderLabels = (mapLayerConfig.elements.borders?.length || 0) >= 1
@@ -211,6 +203,8 @@ export function renderMapLayer(
   const { defs: systemDefs, css: systemCss, markup: systemMarkup } = mapLayerConfig.elements.systems
     ? renderSystems(visibleSystems, factionMap, theme, era.index, layerCssClass)
     : { defs: '', css: '', markup: '' };
+
+  logger.info('systems layer', systemDefs.length, systemCss.length, systemMarkup.length);
 
   const { css: systemLabelCss, markup: systemLabelMarkup } = mapLayerConfig.elements.systemLabels
     ? renderSystemLabels(systemLabels, theme, layerCssClass, zoomFactor)
