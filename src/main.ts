@@ -8,7 +8,7 @@ import {
   DataSourceConfig,
   logger, LOGGER_LEVELS, logSettings,
 } from './common';
-import { readConfigFiles, readFromGoogleSheet, readFromXlsxFile } from './read';
+import { readConfigFiles, readFromXlsxFile } from './read';
 import { writeSvgMaps } from './render/svg/write-svg-maps';
 
 logSettings.level = LOGGER_LEVELS.All;
@@ -56,8 +56,8 @@ async function readConfigs() {
 async function readData(dataSourceConfig: DataSourceConfig) {
   let sheetData: { eras: Array<Era>; systems: Array<System>; factions: Array<Faction> };
   if (dataSourceConfig.useSource === 'google') {
-    logger.info(`Attempting to read Google sheet with ID "${dataSourceConfig.googleSheetsConfig?.spreadsheetId}"`);
-    sheetData = await readFromGoogleSheet(dataSourceConfig);
+    logger.error(`Google Sheets API is no longer supported. Please download the XLSX version`);
+    process.exit(1);
   } else {
     const xlsxPath = path.join(
       process.cwd(),
