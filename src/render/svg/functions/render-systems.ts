@@ -107,7 +107,6 @@ export function renderSystems(
   });
 
   if (markup.trim()) {
-    logger.info('systems markup layer', markup.length);
     return {
       defs,
       css: cssTemplate.replace({ prefix: cssPrefix, faction_colors: factionCss }),
