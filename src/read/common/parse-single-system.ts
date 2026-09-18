@@ -51,11 +51,11 @@ export function parseSingleSystem(id: string, row: SystemRow, eras: Array<Era>):
     const affiliation = row.eraAffiliations[eraIndex];
     eraAffiliations.push(affiliation);
     // determine whether the system is any sort of capital in this era
-    if (affiliation.match(/faction capital/gi)) {
+    if (affiliation.match(/national capital/gi)) {
       eraCapitalLevels.push(1);
-    } else if (affiliation.match(/major capital/gi)) {
+    } else if (affiliation.match(/district capital/gi)) {
       eraCapitalLevels.push(2);
-    } else if (affiliation.match(/minor capital/gi)) {
+    } else if (affiliation.match(/region capital/gi)) {
       eraCapitalLevels.push(3);
     } else {
       eraCapitalLevels.push(0);

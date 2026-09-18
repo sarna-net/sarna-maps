@@ -23,7 +23,7 @@ export function extractBorderStateAffiliation(
 ) {
   if (removeCapitalTokens) {
     fullAffiliation = fullAffiliation.replace(
-      new RegExp(`\\${AFFILIATION_SEPARATOR}(faction|minor|major)\\s+capital`, 'ig'),
+      new RegExp(`\\${AFFILIATION_SEPARATOR}(faction|minor|major|national|district|region)\\s+capital`, 'ig'),
       ''
     );
   }

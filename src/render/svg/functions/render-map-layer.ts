@@ -204,8 +204,6 @@ export function renderMapLayer(
     ? renderSystems(visibleSystems, factionMap, theme, era.index, layerCssClass)
     : { defs: '', css: '', markup: '' };
 
-  logger.info('systems layer', systemDefs.length, systemCss.length, systemMarkup.length);
-
   const { css: systemLabelCss, markup: systemLabelMarkup } = mapLayerConfig.elements.systemLabels
     ? renderSystemLabels(systemLabels, theme, layerCssClass, zoomFactor)
     : { css: '', markup: '' };
