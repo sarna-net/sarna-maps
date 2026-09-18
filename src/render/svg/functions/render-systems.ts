@@ -38,7 +38,7 @@ export function renderSystems(
     const eraCapitalLevel = system.eraCapitalLevels[eraIndex] || 0;
     const eraAffiliation = system.eraAffiliations[eraIndex] || '';
     const displayedFaction = extractBorderStateAffiliation(eraAffiliation, [''], 'faction');
-    const systemIsHidden = !!eraAffiliation.match(/^[^(]+\(H\)(,.+)?$/);
+    const systemIsHidden = !!eraAffiliation.match(/^[^(]+\(H\)(|.+)?$/);
     if (displayedFaction === '') {
       logger.debug('empty faction string for', system.name);
     }
@@ -107,6 +107,7 @@ export function renderSystems(
   });
 
   if (markup.trim()) {
+    logger.info('systems markup layer', markup.length);
     return {
       defs,
       css: cssTemplate.replace({ prefix: cssPrefix, faction_colors: factionCss }),

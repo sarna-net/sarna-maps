@@ -30,7 +30,7 @@ export function renderBorderLoops(
   let defs = '';
   const defPrefix = prefix.length ? prefix + '-' : '';
   const cssPrefix = prefix.length ? `.${prefix} ` : '';
-  Object.keys(borderLoops).forEach((factionKey) => {
+  Object.keys(borderLoops || {})?.forEach((factionKey) => {
     if (!factionKey || factionKey === EMPTY_FACTION || factionKey === INDEPENDENT) {
       return;
     }
@@ -75,7 +75,7 @@ export function renderBorderLoops(
     let factionMarkup = '';
     const loopPaths: Array<string> = [];
     let loopAffiliations = '';
-    borderLoops[factionKey].forEach((borderLoop) => {
+    borderLoops[factionKey]?.forEach((borderLoop) => {
       if ([undefined, EMPTY_FACTION].includes(borderLoop.innerAffiliation)) {
         return;
       }

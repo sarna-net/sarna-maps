@@ -49,9 +49,11 @@ export function parseSystems(rows: Array<Array<string>>, eras: Array<Era>) {
       alternateNames: row[columnIndexMap['alternatename']] + '',
       x: parseFloat(row[columnIndexMap['x']] as string),
       y: parseFloat(row[columnIndexMap['y']] as string),
-      size: ((row[columnIndexMap['size']] + '') || '1,1,0')
-        .split(',')
-        .map((element) => parseFloat(element)
+      size: ((row[columnIndexMap['size']] + '') || '1|1|0')
+        .split('|')
+        .map((element) => parseFloat(element))
+        .map(
+          (element, index) => (index < 2 && element > 1) ? element * 0.5 : element
         ) as [number, number, number],
       eraAffiliations: eras.map((_, eraIndex) => row[columnIndexMap['era_' + eraIndex]] || 'U'),
     }

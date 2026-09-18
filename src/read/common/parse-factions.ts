@@ -39,7 +39,7 @@ export function parseFactions(rows: Array<Array<string>>) {
     factions.push({
       id: row[columnIndexMap['factionid']] + '',
       name: row[columnIndexMap['factionname']] + '',
-      color: row[columnIndexMap['color']] + '',
+      color: row[columnIndexMap['factioncolor']] + '',
       founding: !isNaN(founding) ? founding : undefined,
       dissolution: !isNaN(dissolution) ? dissolution : undefined,
     });

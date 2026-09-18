@@ -1,3 +1,6 @@
+const AFFILIATION_SEPARATOR = '|';
+const DISPUTED_SEPARATOR = '/';
+const DISPUTED_SEPARATOR_OUT = '-';
 const BORDER_STATE_REGEX = /^([A-Za-z\-]+)\s*(\(([^)]+)\))?/i;
 
 /**
@@ -19,7 +22,10 @@ export function extractBorderStateAffiliation(
   removeCapitalTokens = false,
 ) {
   if (removeCapitalTokens) {
-    fullAffiliation = fullAffiliation.replace(/,(faction|minor|major)\s+capital/ig, '');
+    fullAffiliation = fullAffiliation.replace(
+      new RegExp(`\\${AFFILIATION_SEPARATOR}(faction|minor|major)\\s+capital`, 'ig'),
+      ''
+    );
   }
 
   // always evaluate the first level
@@ -34,7 +40,7 @@ export function extractBorderStateAffiliation(
   } else if (stateAff === 'D') {
     // disputed systems
     if (additionalAff) {
-      result.push([stateAff, ...additionalAff.split(',')].join('-'));
+      result.push([stateAff, ...additionalAff.split(DISPUTED_SEPARATOR)].join(DISPUTED_SEPARATOR_OUT));
     } else {
       result.push(stateAff);
     }
@@ -47,12 +53,14 @@ export function extractBorderStateAffiliation(
   }
 
   // get additional levels, if requested
-  const allAffiliations = fullAffiliation.replace(BORDER_STATE_REGEX, '').split(',');
+  const allAffiliations = fullAffiliation
+    .replace(BORDER_STATE_REGEX, '')
+    .split(AFFILIATION_SEPARATOR);
   for (let currentLevel = 1; currentLevel < levels; currentLevel++) {
     if (allAffiliations.length > currentLevel) {
       result.push(allAffiliations[currentLevel]);
     }
   }
 
-  return result.join(',');
+  return result.join(AFFILIATION_SEPARATOR);
 }
