@@ -53,7 +53,7 @@ export class PoissonDisc<T extends Point2d> {
     this.cellSize = this.settings.radius * Math.SQRT1_2;
     this.gridWidth = Math.ceil(this.settings.dimensions.width / this.cellSize);
     this.gridHeight = Math.ceil(this.settings.dimensions.height / this.cellSize);
-    this.grid = new Array(this.gridWidth * this.gridHeight);
+    this.grid = new Array<T>(this.gridWidth * this.gridHeight);
     this.queue = [];
     this.queueSize = 0;
     this.sampleSize = 0;
@@ -152,14 +152,13 @@ export class PoissonDisc<T extends Point2d> {
       this.queue.push(sample);
       this.queueSize++;
     }
-    // eslint-disable-next-line no-param-reassign
     grid[
-    this.gridWidth * (
-      (sample.y - this.settings.origin.y) / this.cellSize | 0
-    ) + (
-      (sample.x - this.settings.origin.x) / this.cellSize | 0
-    )
-      ] = sample;
+      this.gridWidth * (
+        (sample.y - this.settings.origin.y) / this.cellSize | 0
+      ) + (
+        (sample.x - this.settings.origin.x) / this.cellSize | 0
+      )
+    ] = sample;
     this.sampleSize++;
     return sample;
   }

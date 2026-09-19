@@ -18,8 +18,8 @@ export class TextTemplate {
         templatePath = path.join(__dirname);
       }
       this.template = fs.readFileSync(path.join(templatePath, this.name), { encoding: 'utf8' });
-    } catch (e) {
-      logger.warn(`Template "${this.name}" could not be found`, e.message);
+    } catch (err: any) {
+      logger.warn(`Template "${this.name}" could not be found`, err?.message);
       this.template = '';
     }
   }

@@ -63,4 +63,9 @@ describe('extractBorderStateAffiliation', () => {
     expect(extractBorderStateAffiliation('LC|Protectorate of Donegal|major capital|Alarion Province', undefined, undefined, 3, true))
       .to.equal('LC|Protectorate of Donegal|Alarion Province');
   });
+
+  it('should correctly parse numeric faction keys', () => {
+    expect(extractBorderStateAffiliation('3SL|National Capital', undefined, undefined, 1, true))
+      .to.equal('3SL');
+  });
 });

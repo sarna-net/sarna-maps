@@ -139,7 +139,7 @@ export function placeBorderLabels(
       selectedCandidates.sort((a, b) => b.score - a.score);
       while (
         selectedCandidates.length > 1
-        && (((loop as any).length || 0) / selectedCandidates.length) < 2 * borderLabelConfig.rules.minLoopDistanceBetweenLabels
+        && (((loop as unknown as Array<any>).length || 0) / selectedCandidates.length) < 2 * borderLabelConfig.rules.minLoopDistanceBetweenLabels
         && selectedCandidates[selectedCandidates.length - 1].score < borderLabelConfig.rules.minGoodScore
       ) {
         selectedCandidates.pop();
