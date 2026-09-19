@@ -12,9 +12,7 @@ export function scaleVector(vector: Vector2d, size: number): Vector2d {
   if (magnitude === 0) {
     return vector;
   }
-  // eslint-disable-next-line no-param-reassign
   vector.a = (vector.a * size) / magnitude;
-  // eslint-disable-next-line no-param-reassign
   vector.b = (vector.b * size) / magnitude;
   return vector;
 }

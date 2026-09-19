@@ -1,3 +1,4 @@
+export * from './app-error';
 export * from './validatable/generator-config';
 export { default as GeneratorConfigTi } from './validatable/generator-config-ti';
 export * from './validatable/generator-config-map-layer';

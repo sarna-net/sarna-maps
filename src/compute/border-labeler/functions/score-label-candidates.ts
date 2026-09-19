@@ -25,7 +25,8 @@ export function scoreLabelCandidates(
     .reduce((sum, currentValue) => sum + currentValue, 0);
   const normalizedWeights = { ...borderLabelConfig.scoreWeights };
   Object.keys(normalizedWeights).forEach(
-    (key: keyof typeof normalizedWeights) => normalizedWeights[key] = normalizedWeights[key] / weightsSum,
+    (key) => normalizedWeights[key as keyof typeof normalizedWeights] =
+      normalizedWeights[key as keyof typeof normalizedWeights] / weightsSum,
   );
 
   // find the maximum area that candidates can overlap

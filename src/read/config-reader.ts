@@ -22,7 +22,7 @@ export async function readConfigFiles(fileNames: {
   borderLabelConfig: string;
 }) {
   // read and validate generator config
-  const generatorConfig = readAndParseYamlFile(
+  const generatorConfig = readAndParseYamlFile<GeneratorConfig>(
     fileNames.generatorConfig,
     'Generator config',
   );
@@ -34,12 +34,12 @@ export async function readConfigFiles(fileNames: {
   try {
     checkers.GeneratorConfig.check(generatorConfig);
     // TODO check filename pattern for output
-  } catch (e) {
+  } catch (err: any) {
     logger.error(
       `The generator config at ${fileNames.generatorConfig} is not valid:\n` +
-        e.message.replaceAll('value.', '').split('\n').map((line: string) => '  ' + line).join('\n'),
+      err?.message?.replaceAll('value.', '').split('\n').map((line: string) => '  ' + line).join('\n'),
     );
-    if (e.message.split('\n').length >= 3) {
+    if (err?.message?.split('\n').length >= 3) {
       logger.error('  ... (first three errors shown)');
     }
     logger.error('Please refer to the example configs and the generator config documentation.');
@@ -49,7 +49,7 @@ export async function readConfigFiles(fileNames: {
 
 
   // TODO use zod or a similar library to make sure the configuration files are valid
-  const dataSourceConfig = readAndParseYamlFile(
+  const dataSourceConfig = readAndParseYamlFile<DataSourceConfig>(
     fileNames.dataSourceConfig,
     'data source config',
   ) as DataSourceConfig;
@@ -57,7 +57,7 @@ export async function readConfigFiles(fileNames: {
     throw new Error('Data source configuration missing or incomplete');
   }
 
-  const glyphConfig = readAndParseYamlFile(
+  const glyphConfig = readAndParseYamlFile<Partial<GlyphConfig>>(
     fileNames.glyphConfig,
     'glyph config',
   ) as Partial<GlyphConfig>;
@@ -69,7 +69,7 @@ export async function readConfigFiles(fileNames: {
     ...glyphConfig.borderLabels,
   };
 
-  const systemLabelConfig = readAndParseYamlFile(
+  const systemLabelConfig = readAndParseYamlFile<Partial<SystemLabelConfig>>(
     fileNames.systemLabelConfig,
     'system label config',
   ) as Partial<SystemLabelConfig>;
@@ -77,7 +77,7 @@ export async function readConfigFiles(fileNames: {
     throw new Error('System label configuration missing or incomplete');
   }
 
-  const borderLabelConfig = readAndParseYamlFile(
+  const borderLabelConfig = readAndParseYamlFile<Partial<BorderLabelConfig>>(
     fileNames.borderLabelConfig,
     'border label config',
   ) as Partial<BorderLabelConfig>;

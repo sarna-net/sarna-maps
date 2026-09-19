@@ -24,6 +24,22 @@
     "lint": "eslint --ext .ts .",
     "build:validation-interfaces": "rm -f src/common/types/validatable/*-ti.ts & ts-interface-builder src/common/types/validatable/*.ts"
   },
+  "devDependencies": {
+    "@types/d3-delaunay": "^6.0.4",
+    "@types/delaunator": "^5.0.3",
+    "@types/node": "^26.6.2",
+    "@types/node-dijkstra": "^2.5.6",
+    "@types/polylabel": "^2.0.0",
+    "@types/seedrandom": "^3.0.8",
+    "@types/yargs-parser": "^21.0.3",
+    "eslint": "^10.11.0",
+    "ts-interface-builder": "^0.3.3",
+    "ts-node": "^10.9.2",
+    "tsimportlib": "^0.0.5",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.1"
+  },
   "dependencies": {
     "d3-delaunay": "^6.0.4",
     "delaunator": "^5.1.0",
@@ -34,24 +50,5 @@
     "ts-interface-checker": "^1.0.2",
     "yaml": "^2.9.1",
     "yargs-parser": "^22.0.0"
-  },
-  "devDependencies": {
-    "@types/d3-delaunay": "^6.0.4",
-    "@types/delaunator": "^5.0.3",
-    "@types/node": "^26.6.1",
-    "@types/node-dijkstra": "^2.5.6",
-    "@types/polylabel": "^2.0.0",
-    "@types/seedrandom": "^3.0.8",
-    "@types/yargs-parser": "^21.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.70.0",
-    "@typescript-eslint/parser": "^8.70.0",
-    "eslint": "^10.10.0",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-prettier": "^5.5.6",
-    "ts-interface-builder": "^0.3.3",
-    "ts-node": "^10.9.2",
-    "tsimportlib": "^0.0.5",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
   }
 }
