@@ -1,7 +1,7 @@
 const AFFILIATION_SEPARATOR = '|';
 const DISPUTED_SEPARATOR = '/';
 const DISPUTED_SEPARATOR_OUT = '-';
-const BORDER_STATE_REGEX = /^([A-Za-z\-]+)\s*(\(([^)]+)\))?/i;
+const BORDER_STATE_REGEX = /^([A-Za-z0-9\-]+)\s*(\(([^)]+)\))?/i;
 
 /**
  * From a potentially lengthy, multi-part affiliation string, this function extracts only the main
