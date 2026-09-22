@@ -3,7 +3,7 @@ import {
   BorderLabelConfig,
   Dimensions2d,
   Era, Faction,
-  GeneratorConfigMapLayer,
+  GeneratorConfigMapLayerFixedSize,
   GlyphConfig, logger,
   Point2d, RectangleGrid,
   System,
@@ -48,7 +48,7 @@ import { renderRegionalBorders } from './render-regional-borders';
 export function renderMapLayer(
   theme: 'light' | 'dark',
   imageDimensions: Dimensions2d,
-  mapLayerConfig: GeneratorConfigMapLayer,
+  mapLayerConfig: GeneratorConfigMapLayerFixedSize,
   globalConfigs: {
     glyphConfig: GlyphConfig;
     systemLabelConfig: SystemLabelConfig;

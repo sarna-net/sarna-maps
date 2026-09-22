@@ -3,6 +3,7 @@ export * from './deep-copy';
 export * from './dynamic-import';
 export * from './extract-border-state-affiliation';
 export * from './generate-bezier-control-points';
+export * from './get-map-bounds';
 export * from './get-random-color';
 export * from './hex-string-to-rgb';
 export * from './hsl-to-rgb';

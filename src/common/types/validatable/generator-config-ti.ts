@@ -13,6 +13,8 @@ export const GeneratorConfig = t.iface([], {
     "fileNamePattern": "string",
   }),
   "eras": t.opt(t.array("number")),
+  "mapLayers": t.array("GeneratorConfigMapLayer"),
+  "overlays": t.opt(t.array("GeneratorConfigOverlay")),
   "iterateObjects": t.opt(t.iface([], {
     "type": t.lit('system'),
     "pattern": t.opt("string"),
@@ -21,8 +23,6 @@ export const GeneratorConfig = t.iface([], {
     "width": "number",
     "height": "number",
   }),
-  "mapLayers": t.array("GeneratorConfigMapLayer"),
-  "overlays": t.opt(t.array("GeneratorConfigOverlay")),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {

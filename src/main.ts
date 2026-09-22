@@ -56,7 +56,7 @@ async function readConfigs() {
 async function readData(dataSourceConfig: DataSourceConfig) {
   let sheetData: { eras: Array<Era>; systems: Array<System>; factions: Array<Faction> };
   if (dataSourceConfig.useSource === 'google') {
-    logger.error(`Google Sheets API is no longer supported. Please download the XLSX version`);
+    logger.error(`Google Sheets API is no longer supported. Please download the XLSX version of the SUCKit.`);
     process.exit(1);
   } else {
     const xlsxPath = path.join(

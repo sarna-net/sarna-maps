@@ -5,6 +5,9 @@ import { GeneratorConfigOverlay } from './generator-config-overlay';
 //   npm start build:validation-interfaces
 // to make sure that generator configs can still be validated correctly
 
+/**
+ * Config for maps with fixed dimensions, e.g. full-universe or neighborhood maps
+ */
 export interface GeneratorConfig {
   /**
    * Output type (only svg available at the moment)
@@ -43,13 +46,21 @@ export interface GeneratorConfig {
    */
   eras?: number[];
   /**
+   * The different layers showing maps
+   */
+  mapLayers: GeneratorConfigMapLayer[];
+  /**
+   * Other items on top of the map layers
+   */
+  overlays?: GeneratorConfigOverlay[];
+  /**
    * The map objects to iterate over:
    * One map image will be generated for each matched object and each era.
    * If left empty, only one map image will be generated for each era.
    */
   iterateObjects?: {
     /**
-     * The type of iteration map object (only systems avaiable at the moment)
+     * The type of iteration map object (only systems available at the moment)
      */
     type: 'system';
     /**
@@ -59,18 +70,10 @@ export interface GeneratorConfig {
     pattern?: string;
   }
   /**
-   * Output image pixel size
+   * Output image pixel size, or - in the case of a dynamic size map (like a framed factions map), the minimum dimensions
    */
   dimensions: {
     width: number;
     height: number;
-  };
-  /**
-   * The different layers showing maps
-   */
-  mapLayers: GeneratorConfigMapLayer[];
-  /**
-   * Other items on top of the map layers
-   */
-  overlays?: GeneratorConfigOverlay[];
+  }
 }
