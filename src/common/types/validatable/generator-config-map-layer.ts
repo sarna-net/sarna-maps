@@ -2,48 +2,13 @@
 //   npm start build:validation-interfaces
 // to make sure that generator configs can still be validated correctly
 
-export interface GeneratorConfigMapLayer {
+export declare type GeneratorConfigMapLayer = GeneratorConfigMapLayerFixedSize | GeneratorConfigMapLayerDynamicSize;
+
+export interface GeneratorConfigMapLayerBase {
   /**
    * Map layer name (will not be displayed)
    */
   name: string;
-  /**
-   * Map layer pixel size. If left empty, the map layer will equal the map image size.
-   */
-  dimensions?: {
-    width: number;
-    height: number;
-  };
-  /**
-   * Top left anchor of the map layer, leave empty to place at the top left corner of the map image.
-   */
-  position?: {
-    x: number;
-    y: number;
-  };
-  /**
-   * Dimensions of the map layer (in map units)
-   */
-  mapUnitDimensions: {
-    width: number;
-    height: number;
-  };
-  /**
-   * The focus point of the map layer (the coordinates that the map layer is centered on).
-   * If none is provided, the focus of the map is set to (0,0).
-   */
-  focus?: {
-    /**
-     * Focus point
-     * - 'system' = The focused system (only available if iterating over systems)
-     * - coordinates = The center point coordinates
-     */
-    point: 'system' | { x: number; y: number; };
-    /**
-     * Center point offset in map units
-     */
-    delta?: { x: number; y: number;};
-  }
 
   /**
    * Displayed map elements
@@ -122,6 +87,63 @@ export interface GeneratorConfigMapLayer {
      */
     directionalIndicators?: GeneratorConfigMapLayerDirectionalIndicator[];
   }
+}
+
+export interface GeneratorConfigMapLayerFixedSize extends GeneratorConfigMapLayerBase {
+  /**
+   * Map layer pixel size. If left empty, the map layer will equal the map image size.
+   */
+  dimensions?: {
+    width: number;
+    height: number;
+  };
+  /**
+   * Top left anchor of the map layer, leave empty to place at the top left corner of the map image.
+   */
+  position?: {
+    x: number;
+    y: number;
+  };
+  /**
+   * Dimensions of the map layer (in map units)
+   */
+  mapUnitDimensions: {
+    width: number;
+    height: number;
+  };
+  /**
+   * The focus point of the map layer (the coordinates that the map layer is centered on).
+   * If none is provided, the focus of the map is set to (0,0).
+   */
+  focus?: {
+    /**
+     * Focus point
+     * - 'system' = The focused system (only available if iterating over systems)
+     * - coordinates = The center point coordinates
+     */
+    point: 'system' | { x: number; y: number; };
+    /**
+     * Center point offset in map units
+     */
+    delta?: { x: number; y: number;};
+  }
+}
+
+export interface GeneratorConfigMapLayerDynamicSize extends GeneratorConfigMapLayerBase {
+  /**
+   * List of factions to fully display in the map
+   */
+  framedFactions: string | string[];
+  /**
+   * Map layer padding in map units
+   * Defaults to 0 for both x and y
+   */
+  padding?: number | { x: number; y: number };
+  /**
+   * The number of pixels that each map unit (= light year) takes up
+   * Defaults to 1.
+   */
+  pixelsPerMapUnit?: number;
 }
 
 export interface GeneratorConfigMapLayerDirectionalIndicator {

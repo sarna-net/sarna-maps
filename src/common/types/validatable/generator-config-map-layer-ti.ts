@@ -4,30 +4,10 @@
 import * as t from "ts-interface-checker";
 // tslint:disable:object-literal-key-quotes
 
-export const GeneratorConfigMapLayer = t.iface([], {
+export const GeneratorConfigMapLayer = t.union("GeneratorConfigMapLayerFixedSize", "GeneratorConfigMapLayerDynamicSize");
+
+export const GeneratorConfigMapLayerBase = t.iface([], {
   "name": "string",
-  "dimensions": t.opt(t.iface([], {
-    "width": "number",
-    "height": "number",
-  })),
-  "position": t.opt(t.iface([], {
-    "x": "number",
-    "y": "number",
-  })),
-  "mapUnitDimensions": t.iface([], {
-    "width": "number",
-    "height": "number",
-  }),
-  "focus": t.opt(t.iface([], {
-    "point": t.union(t.lit('system'), t.iface([], {
-      "x": "number",
-      "y": "number",
-    })),
-    "delta": t.opt(t.iface([], {
-      "x": "number",
-      "y": "number",
-    })),
-  })),
   "elements": t.iface([], {
     "systems": t.opt("boolean"),
     "systemLabels": t.opt("boolean"),
@@ -54,6 +34,40 @@ export const GeneratorConfigMapLayer = t.iface([], {
   }),
 });
 
+export const GeneratorConfigMapLayerFixedSize = t.iface(["GeneratorConfigMapLayerBase"], {
+  "dimensions": t.opt(t.iface([], {
+    "width": "number",
+    "height": "number",
+  })),
+  "position": t.opt(t.iface([], {
+    "x": "number",
+    "y": "number",
+  })),
+  "mapUnitDimensions": t.iface([], {
+    "width": "number",
+    "height": "number",
+  }),
+  "focus": t.opt(t.iface([], {
+    "point": t.union(t.lit('system'), t.iface([], {
+      "x": "number",
+      "y": "number",
+    })),
+    "delta": t.opt(t.iface([], {
+      "x": "number",
+      "y": "number",
+    })),
+  })),
+});
+
+export const GeneratorConfigMapLayerDynamicSize = t.iface(["GeneratorConfigMapLayerBase"], {
+  "framedFactions": t.union("string", t.array("string")),
+  "padding": t.opt(t.union("number", t.iface([], {
+    "x": "number",
+    "y": "number",
+  }))),
+  "pixelsPerMapUnit": t.opt("number"),
+});
+
 export const GeneratorConfigMapLayerDirectionalIndicator = t.iface([], {
   "coordinates": t.iface([], {
     "x": "number",
@@ -71,6 +85,9 @@ export const GeneratorConfigMapLayerDirectionalIndicator = t.iface([], {
 
 const exportedTypeSuite: t.ITypeSuite = {
   GeneratorConfigMapLayer,
+  GeneratorConfigMapLayerBase,
+  GeneratorConfigMapLayerFixedSize,
+  GeneratorConfigMapLayerDynamicSize,
   GeneratorConfigMapLayerDirectionalIndicator,
 };
 export default exportedTypeSuite;

@@ -1,0 +1,51 @@
+output: svg # only svg available at the moment
+theme: light # color theme (light or dark)
+
+fileOutput:
+  directory: './out'
+  fileNamePattern: 'Battletech Draconis Combine_{{ERAYEAR}}_{{ERANAME}}.svg' # available placeholders: SYSTEMINDEX, SYSTEMID, SYSTEMNAME, ERAINDEX, ERAID, ERAYEAR, ERANAME
+
+eras: # the eras to create images for - either a list of era indices (0-based), or empty for all eras
+  - 19 # 3025
+  #- 23 # 3050
+
+dimensions: # output image minimum pixel size
+  width: 100
+  height: 100
+
+mapLayers: # the different layers showing maps
+  - name: basemap # basemap layer
+    framedFactions:
+      - DC
+#    framedFactions:
+#      - C
+#      - CBR
+#      - CBS
+#      - CCC
+#      - CCY
+#      - CDS
+#      - CFM
+#      - CGB
+#      - CGS
+#      - CHH
+#      - CIH
+#      - CJF
+#      - CMN
+#      - CNC
+#      - CSA
+#      - CSF
+#      - CSJ
+#      - CSL
+#      - CSR
+#      - CSV
+#      - CWF
+#      - CWM
+    padding: 30
+    pixelsPerMapUnit: 5 # pixels per light year
+    elements:
+      systems: true # display systems (as dots)
+      systemLabels: true # display system names
+      borders:
+        - display: factions # first-level (faction) borders
+          curveBorderEdges: true
+          borderLabels: true # display border labels
